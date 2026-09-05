@@ -1,58 +1,36 @@
 import pandas as pd
 import numpy as np
 from typing import Dict, Any
+from app.ml.feature_engineering import feature_engine
 
 class TechnicalIndicators:
     """Calculates the 6 curated technical indicators required for intraday analysis."""
 
     @staticmethod
     def calculate_all(df: pd.DataFrame) -> pd.DataFrame:
-        """Applies 5 EMA, RSI, OBV, Bollinger Bands, MACD, and VWAP to the dataframe."""
-        df = df.copy()
+        """Applies 5 EMA, RSI, OBV, Bollinger Bands, MACD, and VWAP (with session reset)."""
+        df_copy = df.copy()
+        col_map = {str(c).lower(): c for c in df_copy.columns}
 
-        # 1. 5 EMA (Trend)
-        df['ema_5'] = df['close'].ewm(span=5, adjust=False).mean()
-
-        # 2. RSI (Momentum - 9 period for intraday)
-        delta = df['close'].diff()
-        gain = (delta.where(delta > 0, 0)).rolling(window=9).mean()
-        loss = (-delta.where(delta < 0, 0)).rolling(window=9).mean()
-        rs = gain / (loss.replace(0, np.nan))
-        df['rsi'] = 100 - (100 / (1 + rs))
-        df['rsi'] = df['rsi'].fillna(50.0)
-
-        # 3. OBV (Volume)
-        obv = [0]
-        for i in range(1, len(df)):
-            if df['close'].iloc[i] > df['close'].iloc[i-1]:
-                obv.append(obv[-1] + df['volume'].iloc[i])
-            elif df['close'].iloc[i] < df['close'].iloc[i-1]:
-                obv.append(obv[-1] - df['volume'].iloc[i])
+        if "timestamp" not in col_map:
+            if "date" in col_map:
+                df_copy["timestamp"] = pd.to_datetime(df_copy[col_map["date"]])
+            elif "datetime" in col_map:
+                df_copy["timestamp"] = pd.to_datetime(df_copy[col_map["datetime"]])
+            elif "date_str" in col_map and not str(df_copy[col_map["date_str"]].iloc[0]).isdigit():
+                df_copy["timestamp"] = pd.to_datetime(df_copy[col_map["date_str"]])
             else:
-                obv.append(obv[-1])
-        df['obv'] = obv
+                df_copy["timestamp"] = pd.to_datetime(df_copy.index)
 
-        # 4. Bollinger Bands (Volatility)
-        bb_middle = df['close'].rolling(window=20, min_periods=1).mean()
-        bb_std = df['close'].rolling(window=20, min_periods=1).std().fillna(0)
-        df['bb_middle'] = bb_middle
-        df['bb_upper'] = bb_middle + (2 * bb_std)
-        df['bb_lower'] = bb_middle - (2 * bb_std)
+        if "date_str" not in col_map or str(df_copy[col_map.get("date_str", "")].iloc[0] if "date_str" in col_map else "").isdigit():
+            df_copy["date_str"] = pd.to_datetime(df_copy["timestamp"]).dt.strftime("%Y-%m-%d %H:%M")
 
-        # 5. MACD (Trend/Momentum - 12, 26, 9)
-        ema_12 = df['close'].ewm(span=12, adjust=False).mean()
-        ema_26 = df['close'].ewm(span=26, adjust=False).mean()
-        df['macd'] = ema_12 - ema_26
-        df['macd_signal'] = df['macd'].ewm(span=9, adjust=False).mean()
-
-        # 6. VWAP (Intraday Volume Weighted Average Price)
-        typical_price = (df['high'] + df['low'] + df['close']) / 3.0
-        tp_volume = typical_price * df['volume']
-        cum_tp_volume = tp_volume.cumsum()
-        cum_volume = df['volume'].cumsum().replace(0, np.nan)
-        df['vwap'] = (cum_tp_volume / cum_volume).fillna(df['close'])
-
-        return df
+        df_feat = feature_engine.calculate_features(df_copy)
+        # Ensure backward compatibility aliases
+        df_feat["bb_middle"] = df_feat["bollinger_middle"]
+        df_feat["bb_upper"] = df_feat["bollinger_upper"]
+        df_feat["bb_lower"] = df_feat["bollinger_lower"]
+        return df_feat
 
     @staticmethod
     def extract_latest_summary(df: pd.DataFrame) -> Dict[str, Any]:

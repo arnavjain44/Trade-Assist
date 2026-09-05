@@ -1,0 +1,229 @@
+{
+  "audit_status": "SUCCESS",
+  "symbols_processed": [
+    "RELIANCE.NS",
+    "TCS.NS",
+    "INFY.NS",
+    "HDFCBANK.NS",
+    "ICICIBANK.NS",
+    "BHARTIARTL.NS",
+    "SBIN.NS",
+    "AXISBANK.NS",
+    "ITC.NS",
+    "WIPRO.NS",
+    "BAJFINANCE.NS",
+    "MARUTI.NS",
+    "LT.NS",
+    "HCLTECH.NS",
+    "SUNPHARMA.NS",
+    "TITAN.NS",
+    "ULTRACEMCO.NS",
+    "ASIANPAINT.NS",
+    "KOTAKBANK.NS",
+    "TATASTEEL.NS",
+    "INDUSINDBK.NS",
+    "NTPC.NS",
+    "POWERGRID.NS",
+    "COALINDIA.NS",
+    "ONGC.NS",
+    "HDFCLIFE.NS",
+    "SBILIFE.NS",
+    "BAJAJ-AUTO.NS",
+    "M&M.NS",
+    "HEROMOTOCO.NS",
+    "EICHERMOT.NS",
+    "BPCL.NS",
+    "IOC.NS",
+    "DIVISLAB.NS",
+    "DRREDDY.NS",
+    "CIPLA.NS",
+    "APOLLOHOSP.NS",
+    "BRITANNIA.NS",
+    "NESTLEIND.NS",
+    "HINDUNILVR.NS",
+    "GRASIM.NS",
+    "JSWSTEEL.NS",
+    "HINDALCO.NS",
+    "ADANIENT.NS",
+    "ADANIPORTS.NS",
+    "BEL.NS",
+    "HAL.NS",
+    "TRENT.NS"
+  ],
+  "total_symbols_count": 48,
+  "candle_timeframe": "5m",
+  "total_rows": 209716,
+  "date_range": {
+    "start": "2026-06-15 09:15:00+05:30",
+    "end": "2026-09-04 15:15:00+05:30"
+  },
+  "per_symbol_row_counts": {
+    "RELIANCE.NS": 4372,
+    "TCS.NS": 4369,
+    "INFY.NS": 4371,
+    "HDFCBANK.NS": 4374,
+    "ICICIBANK.NS": 4370,
+    "BHARTIARTL.NS": 4368,
+    "SBIN.NS": 4372,
+    "AXISBANK.NS": 4370,
+    "ITC.NS": 4372,
+    "WIPRO.NS": 4374,
+    "BAJFINANCE.NS": 4369,
+    "MARUTI.NS": 4372,
+    "LT.NS": 4372,
+    "HCLTECH.NS": 4368,
+    "SUNPHARMA.NS": 4368,
+    "TITAN.NS": 4368,
+    "ULTRACEMCO.NS": 4361,
+    "ASIANPAINT.NS": 4365,
+    "KOTAKBANK.NS": 4374,
+    "TATASTEEL.NS": 4371,
+    "INDUSINDBK.NS": 4368,
+    "NTPC.NS": 4373,
+    "POWERGRID.NS": 4373,
+    "COALINDIA.NS": 4373,
+    "ONGC.NS": 4372,
+    "HDFCLIFE.NS": 4372,
+    "SBILIFE.NS": 4365,
+    "BAJAJ-AUTO.NS": 4366,
+    "M&M.NS": 4370,
+    "HEROMOTOCO.NS": 4365,
+    "EICHERMOT.NS": 4370,
+    "BPCL.NS": 4369,
+    "IOC.NS": 4370,
+    "DIVISLAB.NS": 4364,
+    "DRREDDY.NS": 4369,
+    "CIPLA.NS": 4368,
+    "APOLLOHOSP.NS": 4363,
+    "BRITANNIA.NS": 4363,
+    "NESTLEIND.NS": 4367,
+    "HINDUNILVR.NS": 4368,
+    "GRASIM.NS": 4368,
+    "JSWSTEEL.NS": 4362,
+    "HINDALCO.NS": 4372,
+    "ADANIENT.NS": 4367,
+    "ADANIPORTS.NS": 4368,
+    "BEL.NS": 4373,
+    "HAL.NS": 4369,
+    "TRENT.NS": 4369
+  },
+  "issues_detected": {
+    "duplicate_timestamps": 0,
+    "missing_ohlcv_rows": 0,
+    "impossible_negative_prices": 0,
+    "zero_prices": 0,
+    "invalid_negative_volumes": 0,
+    "zero_volumes": 2800,
+    "nan_feature_values": 0,
+    "inf_feature_values": 0,
+    "timezone_missing_or_incorrect": 0,
+    "cross_day_vwap_leakage_detected": false
+  },
+  "feature_coverage": {
+    "open": {
+      "valid_count": 209716,
+      "null_count": 0,
+      "null_percentage": 0.0
+    },
+    "high": {
+      "valid_count": 209716,
+      "null_count": 0,
+      "null_percentage": 0.0
+    },
+    "low": {
+      "valid_count": 209716,
+      "null_count": 0,
+      "null_percentage": 0.0
+    },
+    "close": {
+      "valid_count": 209716,
+      "null_count": 0,
+      "null_percentage": 0.0
+    },
+    "volume": {
+      "valid_count": 209716,
+      "null_count": 0,
+      "null_percentage": 0.0
+    },
+    "ema_5": {
+      "valid_count": 209716,
+      "null_count": 0,
+      "null_percentage": 0.0
+    },
+    "rsi": {
+      "valid_count": 209716,
+      "null_count": 0,
+      "null_percentage": 0.0
+    },
+    "obv": {
+      "valid_count": 209716,
+      "null_count": 0,
+      "null_percentage": 0.0
+    },
+    "bollinger_middle": {
+      "valid_count": 209716,
+      "null_count": 0,
+      "null_percentage": 0.0
+    },
+    "bollinger_upper": {
+      "valid_count": 209716,
+      "null_count": 0,
+      "null_percentage": 0.0
+    },
+    "bollinger_lower": {
+      "valid_count": 209716,
+      "null_count": 0,
+      "null_percentage": 0.0
+    },
+    "macd": {
+      "valid_count": 209716,
+      "null_count": 0,
+      "null_percentage": 0.0
+    },
+    "macd_signal": {
+      "valid_count": 209716,
+      "null_count": 0,
+      "null_percentage": 0.0
+    },
+    "macd_diff": {
+      "valid_count": 209716,
+      "null_count": 0,
+      "null_percentage": 0.0
+    },
+    "vwap": {
+      "valid_count": 209716,
+      "null_count": 0,
+      "null_percentage": 0.0
+    },
+    "bollinger_position": {
+      "valid_count": 209716,
+      "null_count": 0,
+      "null_percentage": 0.0
+    },
+    "price_vs_vwap": {
+      "valid_count": 209716,
+      "null_count": 0,
+      "null_percentage": 0.0
+    },
+    "price_vs_ema5": {
+      "valid_count": 209716,
+      "null_count": 0,
+      "null_percentage": 0.0
+    },
+    "sentiment_score": {
+      "valid_count": 0,
+      "null_count": 209716,
+      "null_percentage": 100.0
+    },
+    "market_similarity": {
+      "valid_count": 0,
+      "null_count": 209716,
+      "null_percentage": 100.0
+    },
+    "stock_similarity": {
+      "valid_count": 0,
+      "null_count": 209716,
+      "null_percentage": 100.0
+    }
+  }
+}

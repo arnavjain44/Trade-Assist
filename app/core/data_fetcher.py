@@ -31,14 +31,17 @@ class StockDataFetcher:
             )
 
 
-        df.columns = [col.lower() for col in df.columns]
         df = df.reset_index()
+        df.columns = [col.lower() for col in df.columns]
         if "date" in df.columns:
+            df["timestamp"] = pd.to_datetime(df["date"])
             df["date_str"] = df["date"].dt.strftime("%Y-%m-%d")
         elif "datetime" in df.columns:
+            df["timestamp"] = pd.to_datetime(df["datetime"])
             df["date_str"] = df["datetime"].dt.strftime("%Y-%m-%d %H:%M")
         else:
-            df["date_str"] = df.index.astype(str)
+            df["timestamp"] = pd.to_datetime(df.index)
+            df["date_str"] = df["timestamp"].dt.strftime("%Y-%m-%d %H:%M")
         return df
 
     async def _fetch_with_timeout(self, symbol: str, loop: asyncio.AbstractEventLoop) -> tuple[str, pd.DataFrame | None]:
