@@ -63,6 +63,11 @@ class Settings(BaseSettings):
     MAX_POSITION_ALLOCATION_PCT: float = 0.40  # 40% max per stock
     FORCE_SAME_DAY_EXIT: bool = True
     
+    # Historical Trade Outcome Labeling Parameters (Phase 2 Strategy Parameters)
+    LABEL_TARGET_PCT: float = 0.022
+    LABEL_STOP_LOSS_PCT: float = 0.009
+    LABEL_MAX_HOLD_MINUTES: int = 240
+    
     # Neo4j Settings (leave NEO4J_URI empty to disable — set in .env if Neo4j is running)
     NEO4J_URI: str = ""
     NEO4J_USER: str = ""

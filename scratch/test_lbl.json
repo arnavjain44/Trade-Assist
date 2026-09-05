@@ -1,0 +1,31 @@
+{
+  "labeling_status": "SUCCESS",
+  "labeling_version": "1.0.0",
+  "generation_timestamp": "2026-09-05T11:27:10.541858+00:00",
+  "target_pct": 0.02,
+  "stop_loss_pct": 0.01,
+  "max_hold_minutes": 60,
+  "source_dataset_information": {
+    "source_rows": 2,
+    "symbols_count": 1,
+    "date_range": {
+      "start": "2026-09-01 09:15:00+05:30",
+      "end": "2026-09-01 09:20:00+05:30"
+    }
+  },
+  "total_candidate_rows": 4,
+  "long_candidate_rows": 2,
+  "short_candidate_rows": 2,
+  "valid_labeled_rows": 2,
+  "positive_labels": 1,
+  "negative_labels": 1,
+  "positive_rate_pct": 50.0,
+  "negative_rate_pct": 50.0,
+  "ambiguous_rows": 0,
+  "timeout_rows": 0,
+  "insufficient_future_data_rows": 2,
+  "symbols_count": 1,
+  "symbols": [
+    "RELIANCE.NS"
+  ]
+}
