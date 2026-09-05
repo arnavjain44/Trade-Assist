@@ -1,9 +1,20 @@
 {
+  "coverage_assessment": "Historical news coverage is provider-limited and incomplete.",
   "number_of_symbols": 48,
   "number_of_trading_days": 59,
   "number_of_candles": 214086,
+  "total_news_articles_fetched": 424,
+  "unique_articles_retained": 424,
+  "in_window_articles": 424,
+  "timestamp_valid_articles": 424,
+  "symbol_valid_articles": 424,
+  "total_symbol_days": 2832,
+  "total_symbol_days_with_news": 2182,
+  "total_symbol_days_without_news": 650,
   "number_of_news_articles": 424,
   "number_of_candles_with_usable_news": 162961,
+  "total_candles_with_usable_prior_news": 162961,
+  "total_candles_without_usable_news": 51125,
   "percentage_missing_news": 23.88,
   "news_coverage_by_symbol": {
     "ADANIENT.NS": {

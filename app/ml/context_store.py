@@ -36,22 +36,36 @@ def date_to_int(date_str: str) -> int:
 def build_stock_indicator_vector(indicators: Dict[str, float]) -> List[float]:
     """Builds normalized 9-dim scale-independent indicator vector from indicator dictionary.
 
-    Fields: price_vs_ema5, rsi, obv_norm, bollinger_position, macd, macd_signal, macd_diff, price_vs_vwap, direction.
-    Raw close_price is explicitly excluded to ensure scale independence across stocks and time.
+    Fields: price_vs_ema5, rsi, obv_norm, bollinger_position, macd/close, macd_signal/close, macd_diff/close, price_vs_vwap, price_direction_causal.
+    Raw close_price and raw unscaled MACD are explicitly normalized/scaled to ensure scale independence across stocks and time.
     """
+    close = float(indicators.get("close", 0.0))
+    if close > 0:
+        macd_norm = float(indicators.get("macd", 0.0)) / close
+        macd_sig_norm = float(indicators.get("macd_signal", 0.0)) / close
+        macd_diff_norm = float(indicators.get("macd_diff", 0.0)) / close
+    else:
+        macd_norm = float(indicators.get("macd", 0.0))
+        macd_sig_norm = float(indicators.get("macd_signal", 0.0))
+        macd_diff_norm = float(indicators.get("macd_diff", 0.0))
+
     obv_raw = indicators.get("obv", 0.0)
     obv_norm = float(np.sign(obv_raw) * np.log1p(abs(obv_raw)))
 
+    # Pure causal price action direction (+1.0 if price >= ema5 else -1.0)
+    p_ema5 = float(indicators.get("price_vs_ema5", 0.0))
+    causal_direction = float(np.sign(p_ema5)) if p_ema5 != 0 else float(indicators.get("direction", 1.0))
+
     return [
-        float(indicators.get("price_vs_ema5", 0.0)),
+        p_ema5,
         float(indicators.get("rsi", 50.0)),
         obv_norm,
         float(indicators.get("bollinger_position", 0.5)),
-        float(indicators.get("macd", 0.0)),
-        float(indicators.get("macd_signal", 0.0)),
-        float(indicators.get("macd_diff", 0.0)),
+        macd_norm,
+        macd_sig_norm,
+        macd_diff_norm,
         float(indicators.get("price_vs_vwap", 0.0)),
-        float(indicators.get("direction", 1.0)),
+        causal_direction,
     ]
 
 
@@ -84,7 +98,7 @@ class HistoricalContextStore:
         if "trading_date" not in df.columns:
             df["trading_date"] = pd.to_datetime(df["timestamp"]).dt.strftime("%Y-%m-%d")
 
-        for col in ["price_vs_ema5", "rsi", "obv", "bollinger_position", "macd", "macd_signal", "macd_diff", "price_vs_vwap", "direction"]:
+        for col in ["price_vs_ema5", "rsi", "obv", "bollinger_position", "macd", "macd_signal", "macd_diff", "price_vs_vwap", "direction", "close"]:
             if col not in df.columns:
                 df[col] = 0.0 if col != "rsi" else 50.0
 

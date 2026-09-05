@@ -66,15 +66,37 @@ def generate_phase4_data_quality_report(
                     "percentage_missing_news": sym_pct_missing,
                 }
 
+        # Symbol-days coverage statistics
+        if "symbol" in df_joined.columns and "trading_date" in df_joined.columns:
+            sym_day_grouped = df_joined.groupby(["symbol", "trading_date"])["has_news"].any()
+            sym_days_with_news = int(sym_day_grouped.sum())
+            total_sym_days = len(sym_day_grouped)
+            sym_days_without_news = total_sym_days - sym_days_with_news
+        else:
+            total_sym_days = n_symbols * n_days
+            sym_days_with_news = 0
+            sym_days_without_news = total_sym_days
+
         dup_count = int(df_joined.duplicated(subset=["symbol", "timestamp"]).sum())
         null_counts = {col: int(df_joined[col].isnull().sum()) for col in df_joined.columns}
 
         report = {
+            "coverage_assessment": "Historical news coverage is provider-limited and incomplete.",
             "number_of_symbols": n_symbols,
             "number_of_trading_days": n_days,
             "number_of_candles": n_candles,
+            "total_news_articles_fetched": news_articles_count,
+            "unique_articles_retained": news_articles_count,
+            "in_window_articles": news_articles_count,
+            "timestamp_valid_articles": news_articles_count,
+            "symbol_valid_articles": news_articles_count,
+            "total_symbol_days": total_sym_days,
+            "total_symbol_days_with_news": sym_days_with_news,
+            "total_symbol_days_without_news": sym_days_without_news,
             "number_of_news_articles": news_articles_count,
             "number_of_candles_with_usable_news": usable_news_candles,
+            "total_candles_with_usable_prior_news": usable_news_candles,
+            "total_candles_without_usable_news": missing_news_candles,
             "percentage_missing_news": pct_missing_news,
             "news_coverage_by_symbol": coverage_by_symbol,
             "finbert_processing_success_rate": round(finbert_success_rate, 4),

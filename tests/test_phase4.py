@@ -32,6 +32,7 @@ from app.ml.context_store import (
     MARKET_COLLECTION_NAME,
     STOCK_COLLECTION_NAME,
     date_to_int,
+    build_stock_indicator_vector,
 )
 from app.ml.graph_ingestion import Neo4jGraphIngestor
 from app.ml.feature_joiner import Phase4FeatureJoiner
@@ -168,20 +169,61 @@ def test_chroma_two_collections_schema_and_idempotence(tmp_path):
     assert store.stock_collection.count() == 1
 
 
+def test_build_stock_indicator_vector_scale_independence_and_causal_direction():
+    """Verifies that MACD components are normalized by close price and direction is causal."""
+    ind_cheap = {
+        "price_vs_ema5": 0.02,
+        "rsi": 60.0,
+        "obv": 500.0,
+        "bollinger_position": 0.7,
+        "macd": 2.0,
+        "macd_signal": 1.5,
+        "macd_diff": 0.5,
+        "price_vs_vwap": 0.01,
+        "direction": -1.0,  # non-causal input to test override
+        "close": 200.0,
+    }
+    ind_expensive = {
+        "price_vs_ema5": 0.02,
+        "rsi": 60.0,
+        "obv": 500.0,
+        "bollinger_position": 0.7,
+        "macd": 30.0,
+        "macd_signal": 22.5,
+        "macd_diff": 7.5,
+        "price_vs_vwap": 0.01,
+        "direction": 1.0,
+        "close": 3000.0,
+    }
+
+    vec_cheap = build_stock_indicator_vector(ind_cheap)
+    vec_expensive = build_stock_indicator_vector(ind_expensive)
+
+    # MACD components (indices 4, 5, 6) must be identical after close normalization (2/200 == 30/3000 = 0.01)
+    assert abs(vec_cheap[4] - vec_expensive[4]) < 1e-6
+    assert abs(vec_cheap[5] - vec_expensive[5]) < 1e-6
+    assert abs(vec_cheap[6] - vec_expensive[6]) < 1e-6
+
+    # Causal direction (index 8) must be +1.0 because price_vs_ema5 (0.02) > 0
+    assert vec_cheap[8] == 1.0
+    assert vec_expensive[8] == 1.0
+
+
 def test_chroma_temporal_filtering_no_future():
-    """Querying date 2026-08-05 MUST NOT retrieve fingerprint from 2026-08-05 or later."""
+    """Querying date 2026-08-05 MUST NOT retrieve fingerprint from 2026-08-05 (same day) or later (future)."""
     import chromadb
     client = chromadb.Client()
     col = client.get_or_create_collection("test_stock_col", metadata={"hnsw:space": "cosine"})
 
     col.upsert(
-        ids=["stock_A_2026-08-01", "stock_A_2026-08-10"],
-        embeddings=[[0.1]*9, [0.9]*9],
+        ids=["stock_A_2026-08-01", "stock_A_2026-08-05", "stock_A_2026-08-10"],
+        embeddings=[[0.1]*9, [0.5]*9, [0.9]*9],
         metadatas=[
             {"symbol": "A", "trading_date": "2026-08-01", "trading_date_int": 20260801},
+            {"symbol": "A", "trading_date": "2026-08-05", "trading_date_int": 20260805},
             {"symbol": "A", "trading_date": "2026-08-10", "trading_date_int": 20260810},
         ],
-        documents=["past", "future"],
+        documents=["past", "same_day", "future"],
     )
 
     res = col.query(
