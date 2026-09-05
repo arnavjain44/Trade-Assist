@@ -146,7 +146,7 @@ def test_max_hold_timeout(controlled_labeler):
 
     assert res["label_status"] == "VALID"
     assert res["exit_reason"] == "TIMEOUT"
-    assert res["exit_timestamp"] == ts1  # Final candle within horizon
+    assert pd.Timestamp(res["exit_timestamp"]).tz_localize("UTC") == ts1.tz_convert("UTC")
     assert np.isclose(res["exit_price"], 100.5)
 
 

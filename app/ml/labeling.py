@@ -107,47 +107,60 @@ class HistoricalTradeLabeler:
         return combined_labeled, quality_report
 
     def _label_single_symbol(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Labels all 5-minute bars for a single ticker chronologically."""
+        """Labels all 5-minute bars for a single ticker chronologically with optimized NumPy slicing."""
         df = df.sort_values("timestamp").reset_index(drop=True)
-        n_rows = len(df)
-        
-        # Extract session dates for same-day restriction
-        session_dates = df["timestamp"].dt.date
+        n = len(df)
+        if n == 0:
+            return pd.DataFrame()
+
+        timestamps = df["timestamp"].values
+        # Extract session dates (Asia/Kolkata aware)
+        if hasattr(df["timestamp"].dt, "tz") and df["timestamp"].dt.tz is not None:
+            sess_dates = df["timestamp"].dt.tz_convert("Asia/Kolkata").dt.date.values
+        else:
+            sess_dates = df["timestamp"].dt.date.values
+
+        highs = df["high"].astype(float).values
+        lows = df["low"].astype(float).values
+        closes = df["close"].astype(float).values
+        max_hold_ns = np.int64(self.max_hold_minutes * 60 * 1e9)
 
         output_records = []
+        df_dicts = df.to_dict("records")
 
-        for i in range(n_rows):
-            entry_row = df.iloc[i]
-            entry_ts = entry_row["timestamp"]
-            entry_date = session_dates.iloc[i]
-            entry_close = float(entry_row["close"])
+        for i in range(n):
+            entry_row = df_dicts[i]
+            e_ts = timestamps[i]
+            e_date = sess_dates[i]
+            e_close = closes[i]
 
-            # Identify future candidates strictly AFTER entry index i, within same session date & max holding window
-            future_mask = (
-                (df.index > i) &
-                (session_dates == entry_date) &
-                (df["timestamp"] <= entry_ts + pd.Timedelta(minutes=self.max_hold_minutes))
-            )
-            future_df = df.loc[future_mask]
+            # Fast index slicing for future window
+            j = i + 1
+            max_ts = e_ts + max_hold_ns
+            while j < n and sess_dates[j] == e_date and timestamps[j] <= max_ts:
+                j += 1
 
-            # Evaluate LONG (direction = 1) and SHORT (direction = -1) independently
+            fut_highs = highs[i + 1:j]
+            fut_lows = lows[i + 1:j]
+            fut_ts = timestamps[i + 1:j]
+            fut_closes = closes[i + 1:j]
+
             for direction in [1, -1]:
-                record = entry_row.to_dict()
+                record = dict(entry_row)
 
                 if direction == 1:
-                    target_price = entry_close * (1.0 + self.target_pct)
-                    stop_price = entry_close * (1.0 - self.stop_loss_pct)
+                    target_price = e_close * (1.0 + self.target_pct)
+                    stop_price = e_close * (1.0 - self.stop_loss_pct)
                 else:
-                    target_price = entry_close * (1.0 - self.target_pct)
-                    stop_price = entry_close * (1.0 + self.stop_loss_pct)
+                    target_price = e_close * (1.0 - self.target_pct)
+                    stop_price = e_close * (1.0 + self.stop_loss_pct)
 
                 record["direction"] = direction
-                record["entry_price"] = entry_close
+                record["entry_price"] = e_close
                 record["target_price"] = target_price
                 record["stop_price"] = stop_price
 
-                # Outcome Determination
-                if future_df.empty:
+                if len(fut_highs) == 0:
                     record["label"] = None
                     record["label_status"] = "INSUFFICIENT_FUTURE_DATA"
                     record["exit_timestamp"] = None
@@ -156,10 +169,71 @@ class HistoricalTradeLabeler:
                     record["holding_period_minutes"] = 0.0
                     record["realized_return"] = 0.0
                 else:
-                    outcome = self._evaluate_trade_outcome(
-                        future_df, direction, entry_close, target_price, stop_price, entry_ts
-                    )
-                    record.update(outcome)
+                    resolved = False
+                    for k in range(len(fut_highs)):
+                        fh = fut_highs[k]
+                        fl = fut_lows[k]
+                        fts = fut_ts[k]
+
+                        if direction == 1:
+                            target_hit = (fh >= target_price)
+                            stop_hit = (fl <= stop_price)
+                        else:
+                            target_hit = (fl <= target_price)
+                            stop_hit = (fh >= stop_price)
+
+                        # Same-candle Ambiguity
+                        if target_hit and stop_hit:
+                            hold_mins = float((fts - e_ts) / np.timedelta64(1, "m"))
+                            record["label"] = None
+                            record["label_status"] = "AMBIGUOUS"
+                            record["exit_timestamp"] = fts
+                            record["exit_price"] = None
+                            record["exit_reason"] = "AMBIGUOUS"
+                            record["holding_period_minutes"] = hold_mins
+                            record["realized_return"] = 0.0
+                            resolved = True
+                            break
+
+                        if target_hit:
+                            hold_mins = float((fts - e_ts) / np.timedelta64(1, "m"))
+                            realized_ret = (target_price - e_close) / e_close if direction == 1 else (e_close - target_price) / e_close
+                            record["label"] = 1
+                            record["label_status"] = "VALID"
+                            record["exit_timestamp"] = fts
+                            record["exit_price"] = target_price
+                            record["exit_reason"] = "TARGET"
+                            record["holding_period_minutes"] = hold_mins
+                            record["realized_return"] = round(float(realized_ret), 6)
+                            resolved = True
+                            break
+
+                        if stop_hit:
+                            hold_mins = float((fts - e_ts) / np.timedelta64(1, "m"))
+                            realized_ret = (stop_price - e_close) / e_close if direction == 1 else (e_close - stop_price) / e_close
+                            record["label"] = 0
+                            record["label_status"] = "VALID"
+                            record["exit_timestamp"] = fts
+                            record["exit_price"] = stop_price
+                            record["exit_reason"] = "STOP"
+                            record["holding_period_minutes"] = hold_mins
+                            record["realized_return"] = round(float(realized_ret), 6)
+                            resolved = True
+                            break
+
+                    if not resolved:
+                        # Timeout: Exit at final valid candle in same-session horizon
+                        last_ts = fut_ts[-1]
+                        last_close = fut_closes[-1]
+                        hold_mins = float((last_ts - e_ts) / np.timedelta64(1, "m"))
+                        realized_ret = (last_close - e_close) / e_close if direction == 1 else (e_close - last_close) / e_close
+                        record["label"] = 0
+                        record["label_status"] = "VALID"
+                        record["exit_timestamp"] = last_ts
+                        record["exit_price"] = last_close
+                        record["exit_reason"] = "TIMEOUT"
+                        record["holding_period_minutes"] = hold_mins
+                        record["realized_return"] = round(float(realized_ret), 6)
 
                 output_records.append(record)
 
