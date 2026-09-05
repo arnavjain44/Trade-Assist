@@ -13,15 +13,17 @@ class FeatureEngine:
 
     All feature calculations are strictly causal: for any row at timestamp T,
     only information available at or before timestamp T is utilized.
+
+    Per-symbol isolation is strictly enforced: calculations never bleed across tickers.
     """
 
-    @staticmethod
-    def calculate_features(df: pd.DataFrame) -> pd.DataFrame:
+    @classmethod
+    def calculate_features(cls, df: pd.DataFrame) -> pd.DataFrame:
         """
         Calculates the required 6 technical indicators + normalized features.
 
         Input DataFrame must contain:
-        - timestamp (datetime, timezone-aware IST/UTC)
+        - timestamp (datetime, timezone-aware IST/UTC or naive)
         - open, high, low, close, volume (floats)
 
         Returns DataFrame with added indicator and normalized feature columns.
@@ -42,6 +44,19 @@ class FeatureEngine:
         # Ensure timestamp is datetime
         if not pd.api.types.is_datetime64_any_dtype(df["timestamp"]):
             df["timestamp"] = pd.to_datetime(df["timestamp"])
+
+        # If multiple symbols exist in the DataFrame, process each independently
+        if "symbol" in df.columns and df["symbol"].nunique() > 1:
+            results = []
+            for _, group in df.groupby("symbol", sort=False):
+                results.append(cls._calculate_single_symbol_features(group))
+            return pd.concat(results, ignore_index=True)
+        else:
+            return cls._calculate_single_symbol_features(df)
+
+    @staticmethod
+    def _calculate_single_symbol_features(df: pd.DataFrame) -> pd.DataFrame:
+        df = df.copy()
 
         # Sort chronologically to prevent lookahead / ordering bugs
         df = df.sort_values("timestamp").reset_index(drop=True)
@@ -102,15 +117,18 @@ class FeatureEngine:
         # ----------------------------------------------------------------------
         # 6. VWAP (Intraday Volume Weighted Average Price — SESSION RESET)
         # Formula: Sum(Typical Price * Volume) / Sum(Volume) per session date.
-        # RESETS AT THE START OF EVERY TRADING DAY.
+        # RESETS AT THE START OF EVERY TRADING DAY (Asia/Kolkata IST).
         # Range: [0, +inf)
         # Causality: Causal (resets per session date; strictly intraday).
         # ----------------------------------------------------------------------
         typical_price = (df["high"] + df["low"] + df["close"]) / 3.0
         tp_volume = typical_price * df["volume"]
 
-        # Extract session date (supporting timezone-aware timestamps)
-        session_dates = df["timestamp"].dt.date if hasattr(df["timestamp"].dt, "date") else df["timestamp"].apply(lambda x: x.date())
+        # Extract session date (converting timezone-aware timestamps to Asia/Kolkata)
+        if hasattr(df["timestamp"].dt, "tz") and df["timestamp"].dt.tz is not None:
+            session_dates = df["timestamp"].dt.tz_convert("Asia/Kolkata").dt.date
+        else:
+            session_dates = df["timestamp"].dt.date
 
         df["_session_date"] = session_dates
         df["_tp_vol"] = tp_volume
@@ -118,10 +136,12 @@ class FeatureEngine:
         cum_tp_vol = df.groupby("_session_date")["_tp_vol"].cumsum()
         cum_vol = df.groupby("_session_date")["volume"].cumsum()
 
-        df["vwap"] = (cum_tp_vol / cum_vol.replace(0.0, np.nan)).fillna(df["close"])
+        raw_vwap = cum_tp_vol / cum_vol.replace(0.0, np.nan)
+        df["_raw_vwap"] = raw_vwap
+        df["vwap"] = df.groupby("_session_date")["_raw_vwap"].ffill().fillna(df["close"])
 
         # Clean up temporary helper columns
-        df.drop(columns=["_session_date", "_tp_vol"], inplace=True)
+        df.drop(columns=["_session_date", "_tp_vol", "_raw_vwap"], inplace=True)
 
         # ----------------------------------------------------------------------
         # Normalized Features (Derived from the 6 base indicators)

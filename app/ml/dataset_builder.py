@@ -21,8 +21,8 @@ class DatasetBuilder:
     """
 
     def __init__(self, raw_dir: str = "data/raw", processed_dir: str = "data/processed"):
-        self.raw_dir = raw_dir
-        self.processed_dir = processed_dir
+        self.raw_dir = os.path.abspath(raw_dir)
+        self.processed_dir = os.path.abspath(processed_dir)
         os.makedirs(self.raw_dir, exist_ok=True)
         os.makedirs(self.processed_dir, exist_ok=True)
 
@@ -90,6 +90,14 @@ class DatasetBuilder:
             df["close"] = df["Close"].astype(float)
             df["volume"] = df["Volume"].astype(float)
 
+            # Log if returned candle count is fewer than expected (e.g. < 4000 for 60d 5m)
+            expected_bars = 4000
+            if len(df) < expected_bars:
+                logger.info(
+                    "Symbol %s returned %d candles (fewer than expected %d for period=%s, interval=%s). No synthetic candles fabricated.",
+                    symbol, len(df), expected_bars, period, timeframe
+                )
+
             # Keep canonical raw columns
             raw_cols = ["timestamp", "symbol", "open", "high", "low", "close", "volume"]
             df_raw = df[raw_cols].sort_values("timestamp").reset_index(drop=True)
@@ -111,7 +119,7 @@ class DatasetBuilder:
 
         Returns Tuple[raw_combined_df, processed_combined_df].
         """
-        target_symbols = symbols or settings.DEFAULT_NSE_TICKERS[:10]  # Default to sample universe
+        target_symbols = symbols if symbols is not None else settings.DEFAULT_NSE_TICKERS
         self.verify_provider_capabilities(timeframe, period)
 
         raw_dfs = []
@@ -129,9 +137,10 @@ class DatasetBuilder:
 
             raw_dfs.append(raw_df)
 
-            # Save raw ticker file to disk
-            sym_clean = sym.replace(".NS", "")
-            raw_filepath = os.path.join(self.raw_dir, f"{sym_clean}_raw_{timeframe}.parquet")
+            # Save raw ticker file to disk with sanitized filename (e.g. M&M -> M_M)
+            import re
+            sym_clean = re.sub(r'[^a-zA-Z0-9_-]', '_', sym.replace(".NS", "").replace(".BO", ""))
+            raw_filepath = os.path.abspath(os.path.join(self.raw_dir, f"{sym_clean}_raw_{timeframe}.parquet"))
             raw_df.to_parquet(raw_filepath, index=False)
 
             # Process features using unified FeatureEngine
@@ -139,7 +148,7 @@ class DatasetBuilder:
                 proc_df = feature_engine.calculate_features(raw_df)
                 processed_dfs.append(proc_df)
 
-                proc_filepath = os.path.join(self.processed_dir, f"{sym_clean}_processed_{timeframe}.parquet")
+                proc_filepath = os.path.abspath(os.path.join(self.processed_dir, f"{sym_clean}_processed_{timeframe}.parquet"))
                 proc_df.to_parquet(proc_filepath, index=False)
             except Exception as exc:
                 logger.error("Feature calculation failed for %s: %s", sym, exc)
@@ -151,8 +160,11 @@ class DatasetBuilder:
         combined_processed = pd.concat(processed_dfs, ignore_index=True)
 
         # Save combined datasets
-        combined_raw.to_parquet(os.path.join(self.raw_dir, "combined_raw.parquet"), index=False)
-        combined_processed.to_parquet(os.path.join(self.processed_dir, "combined_processed.parquet"), index=False)
+        combined_raw_path = os.path.abspath(os.path.join(self.raw_dir, "combined_raw.parquet"))
+        combined_proc_path = os.path.abspath(os.path.join(self.processed_dir, "combined_processed.parquet"))
+
+        combined_raw.to_parquet(combined_raw_path, index=False)
+        combined_processed.to_parquet(combined_proc_path, index=False)
 
         logger.info(
             "Dataset build complete. Raw rows: %d | Processed rows: %d | Total symbols: %d",

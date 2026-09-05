@@ -50,6 +50,7 @@ class DataQualityValidator:
                 "zero_prices": 0,
                 "invalid_negative_volumes": 0,
                 "zero_volumes": 0,
+                "invalid_ohlc_relationships": 0,
                 "nan_feature_values": 0,
                 "inf_feature_values": 0,
                 "timezone_missing_or_incorrect": 0,
@@ -58,7 +59,7 @@ class DataQualityValidator:
             "feature_coverage": {}
         }
 
-        # 1. Per-symbol row counts & duplicate timestamp check
+        # 1. Per-symbol row counts & duplicate timestamp check (grouped per symbol)
         for sym in symbols:
             sym_df = df[df["symbol"] == sym] if "symbol" in df.columns else df
             report["per_symbol_row_counts"][sym] = len(sym_df)
@@ -67,7 +68,7 @@ class DataQualityValidator:
                 dups = sym_df.duplicated(subset=["timestamp"]).sum()
                 report["issues_detected"]["duplicate_timestamps"] += int(dups)
 
-        # 2. Price and Volume Integrity Checks
+        # 2. Price, Volume, and OHLC Relationship Integrity Checks
         for col in ["open", "high", "low", "close"]:
             if col in df.columns:
                 negs = (df[col] < 0).sum()
@@ -78,6 +79,16 @@ class DataQualityValidator:
         if "volume" in df.columns:
             report["issues_detected"]["invalid_negative_volumes"] += int((df["volume"] < 0).sum())
             report["issues_detected"]["zero_volumes"] += int((df["volume"] == 0).sum())
+
+        # OHLC logical consistency: High >= max(Open, Close), Low <= min(Open, Close), High >= Low
+        if all(col in df.columns for col in ["open", "high", "low", "close"]):
+            invalid_high = (df["high"] < np.maximum(df["open"], df["close"])).sum()
+            invalid_low = (df["low"] > np.minimum(df["open"], df["close"])).sum()
+            invalid_hl = (df["high"] < df["low"]).sum()
+            total_invalid_ohlc = int(invalid_high + invalid_low + invalid_hl)
+            report["issues_detected"]["invalid_ohlc_relationships"] = total_invalid_ohlc
+            if total_invalid_ohlc > 0:
+                logger.warning("DataQuality: Detected %d invalid OHLC relationship violations.", total_invalid_ohlc)
 
         # 3. Timezone verification
         if "timestamp" in df.columns:
@@ -100,28 +111,44 @@ class DataQualityValidator:
             if nans > 0 and f_col in ["close", "ema_5", "vwap", "rsi"]:
                 report["issues_detected"]["nan_feature_values"] += nans
 
-        # 5. Cross-day VWAP Leakage Verification
-        # Check that VWAP at the start of a new trading day equals the typical price of that candle
+        # 5. Mathematical Session-Reset VWAP Leakage Verification (Per Symbol & Per Candle)
         if "vwap" in df.columns and "timestamp" in df.columns:
             try:
-                df["_date"] = df["timestamp"].dt.date
-                session_starts = df.groupby(["symbol", "_date"]).first().reset_index()
-
                 leakage_count = 0
-                for _, row in session_starts.iterrows():
-                    typical_price = (row["high"] + row["low"] + row["close"]) / 3.0
-                    # At the start of a day, VWAP must equal typical price (within tolerance)
-                    if abs(row["vwap"] - typical_price) > 0.5 and row["volume"] > 0:
-                        leakage_count += 1
+                for sym in symbols:
+                    sym_df = df[df["symbol"] == sym].sort_values("timestamp") if "symbol" in df.columns else df.sort_values("timestamp")
+                    if sym_df.empty:
+                        continue
+
+                    # Extract session dates (Asia/Kolkata aware)
+                    if hasattr(sym_df["timestamp"].dt, "tz") and sym_df["timestamp"].dt.tz is not None:
+                        session_dates = sym_df["timestamp"].dt.tz_convert("Asia/Kolkata").dt.date
+                    else:
+                        session_dates = sym_df["timestamp"].dt.date
+
+                    sym_df["_session"] = session_dates
+                    sym_df["_tp"] = (sym_df["high"] + sym_df["low"] + sym_df["close"]) / 3.0
+                    sym_df["_tp_vol"] = sym_df["_tp"] * sym_df["volume"]
+
+                    for sess_date, sess_df in sym_df.groupby("_session"):
+                        cum_tp_vol = sess_df["_tp_vol"].cumsum()
+                        cum_vol = sess_df["volume"].cumsum()
+                        math_vwap = (cum_tp_vol / cum_vol.replace(0.0, np.nan)).ffill().fillna(sess_df["close"])
+
+                        # Verify each candle against mathematical VWAP
+                        for stored, expected in zip(sess_df["vwap"], math_vwap):
+                            if not np.isclose(stored, expected, atol=1e-3, rtol=1e-4):
+                                leakage_count += 1
 
                 if leakage_count > 0:
                     report["issues_detected"]["cross_day_vwap_leakage_detected"] = True
-                    logger.warning("DataQuality: Detected %d session starts with potential VWAP leakage.", leakage_count)
+                    logger.warning("DataQuality: Detected %d candle VWAP discrepancies / session leaks.", leakage_count)
             except Exception as exc:
                 logger.error("DataQuality: Failed VWAP leakage check — %s", exc)
             finally:
-                if "_date" in df.columns:
-                    df.drop(columns=["_date"], inplace=True)
+                for col in ["_session", "_tp", "_tp_vol"]:
+                    if col in df.columns:
+                        df.drop(columns=[col], inplace=True)
 
         # Export Quality Report JSON
         try:
