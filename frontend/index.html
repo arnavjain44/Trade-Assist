@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NSE AI — Intraday Trading Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        /* ── Font ─────────────────────────────────────────────── */
+        * {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+                         "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            box-sizing: border-box;
+        }
+
+        /* ── Theme Variables ──────────────────────────────────── */
+        :root {
+            --bg:           #FAFAFA;
+            --bg-secondary: #F5F5F5;
+            --surface:      #FFFFFF;
+            --border:       #E5E5E5;
+            --border-soft:  #EFEFEF;
+            --accent:       #EA580C;
+            --accent-hover: #C2410C;
+            --accent-muted: rgba(234, 88, 12, 0.08);
+            --accent-glow:  rgba(234, 88, 12, 0.12);
+            --green:        #16A34A;
+            --green-muted:  rgba(22, 163, 74, 0.08);
+            --green-glow:   rgba(22, 163, 74, 0.12);
+            --red:          #DC2626;
+            --red-muted:    rgba(220, 38, 38, 0.08);
+            --text:         #0A0A0A;
+            --text-muted:   #525252;
+            --text-subtle:  #A3A3A3;
+            --shadow:       rgba(0, 0, 0, 0.06);
+        }
+        html.dark {
+            --bg:           #0A0A0A;
+            --bg-secondary: #111111;
+            --surface:      #141414;
+            --border:       #262626;
+            --border-soft:  #1F1F1F;
+            --accent:       #F97316;
+            --accent-hover: #FB923C;
+            --accent-muted: rgba(249, 115, 22, 0.1);
+            --accent-glow:  rgba(249, 115, 22, 0.15);
+            --green:        #22C55E;
+            --green-muted:  rgba(34, 197, 94, 0.1);
+            --green-glow:   rgba(34, 197, 94, 0.15);
+            --red:          #EF4444;
+            --red-muted:    rgba(239, 68, 68, 0.1);
+            --text:         #FAFAFA;
+            --text-muted:   #A3A3A3;
+            --text-subtle:  #525252;
+            --shadow:       rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+            padding-bottom: 120px;
+        }
+
+        /* ── Card / Surface ───────────────────────────────────── */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+        .card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at top left, var(--accent-glow) 0%, transparent 65%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .card > * { position: relative; z-index: 1; }
+
+        .card-green::before {
+            background: radial-gradient(ellipse at top right, var(--green-glow) 0%, transparent 65%);
+        }
+
+        /* ── Chat Bubbles ─────────────────────────────────────── */
+        .bubble-ai {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            border-radius: 0 14px 14px 14px;
+            padding: 14px 16px;
+            max-width: 88%;
+            align-self: flex-start;
+            box-shadow: 0 2px 8px var(--shadow);
+            animation: slideInLeft 0.25s ease;
+        }
+        .bubble-user {
+            background: var(--accent);
+            color: #fff;
+            border-radius: 14px 14px 0 14px;
+            padding: 12px 16px;
+            max-width: 76%;
+            align-self: flex-end;
+            font-size: 0.875rem;
+            animation: slideInRight 0.2s ease;
+        }
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-12px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(12px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+
+        /* ── Typing Indicator ─────────────────────────────────── */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 14px 16px;
+        }
+        .typing-dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: typingBounce 1.2s infinite ease-in-out;
+        }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typingBounce {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30%            { transform: translateY(-6px); opacity: 1; }
+        }
+
+        /* ── Suggestion Chips ─────────────────────────────────── */
+        .chip {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s, background 0.2s;
+            white-space: nowrap;
+        }
+        .chip:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-muted);
+        }
+
+        /* ── Input Bar ────────────────────────────────────────── */
+        .chat-input {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px 18px;
+            color: var(--text);
+            font-size: 0.9rem;
+            width: 100%;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .chat-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-muted);
+        }
+        .chat-input::placeholder { color: var(--text-subtle); }
+
+        /* ── Buttons ──────────────────────────────────────────── */
+        .btn-accent {
+            background: var(--accent);
+            color: #fff;
+            border-radius: 12px;
+            padding: 12px 22px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            cursor: pointer;
+            border: none;
+            transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+            box-shadow: 0 4px 14px var(--accent-glow);
+        }
+        .btn-accent:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px var(--accent-glow);
+        }
+        .btn-accent:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s;
+        }
+        .btn-ghost:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        .btn-send {
+            background: var(--accent);
+            border: none;
+            border-radius: 10px;
+            width: 44px; height: 44px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background 0.2s, transform 0.15s;
+        }
+        .btn-send:hover { background: var(--accent-hover); transform: scale(1.05); }
+        .btn-send:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        /* ── Mini Stat Card (inside chat bubble) ──────────────── */
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-top: 10px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        .stat-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .stat-label {
+            font-size: 0.68rem;
+            color: var(--text-subtle);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .stat-value {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text);
+            letter-spacing: -0.01em;
+        }
+        .stat-value.bullish { color: var(--green); }
+        .stat-value.bearish { color: var(--red); }
+        .stat-value.accent  { color: var(--accent); }
+
+        /* ── Form Inputs ──────────────────────────────────────── */
+        .form-input {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 11px 16px;
+            color: var(--text);
+            font-size: 0.9rem;
+            width: 100%;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-muted);
+        }
+        select.form-input { cursor: pointer; }
+
+        /* ── Signal Badges ────────────────────────────────────── */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+        .badge-buy   { background: var(--green-muted); color: var(--green); }
+        .badge-sell  { background: var(--red-muted); color: var(--red); }
+        .badge-neutral { background: var(--accent-muted); color: var(--accent); }
+
+        /* ── Section Reveal ───────────────────────────────────── */
+        .section-reveal {
+            animation: revealDown 0.35s cubic-bezier(0.16,1,0.3,1);
+        }
+        @keyframes revealDown {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Chart Tab ────────────────────────────────────────── */
+        .tab-btn {
+            padding: 7px 16px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+        .tab-btn.active {
+            background: var(--accent-muted);
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* ── Scrollbar ────────────────────────────────────────── */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+
+        /* ── Recommendation Card ──────────────────────────────── */
+        .rec-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 18px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .rec-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px var(--shadow);
+        }
+        .rec-card.buy-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at top right, var(--green-glow) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .rec-card.sell-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at top right, var(--red-muted) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        /* ── Table ────────────────────────────────────────────── */
+        .data-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        .data-table th {
+            text-align: left;
+            padding: 8px 12px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-subtle);
+            border-bottom: 1px solid var(--border);
+        }
+        .data-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-soft);
+            color: var(--text-muted);
+        }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table tr.highlight-row td { background: var(--accent-muted); }
+        .data-table tr:hover td { background: var(--bg-secondary); }
+
+        /* ── Loading Spinner ──────────────────────────────────── */
+        .spinner {
+            width: 18px; height: 18px;
+            border: 2.5px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Nav ──────────────────────────────────────────────── */
+        .nav-bar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            position: sticky; top: 0; z-index: 50;
+        }
+
+        /* ── Fixed Prompt Footer Bar ──────────────────────────── */
+        .prompt-footer {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: var(--bg);
+            border-top: 1px solid var(--border);
+            padding: 14px 24px;
+            z-index: 100;
+            box-shadow: 0 -4px 20px var(--shadow);
+        }
+
+        /* ── Confidence Bar ───────────────────────────────────── */
+        .conf-bar-bg {
+            background: var(--border);
+            border-radius: 999px;
+            height: 4px;
+            overflow: hidden;
+            flex: 1;
+        }
+        .conf-bar-fill {
+            height: 100%;
+            border-radius: 999px;
+            background: var(--accent);
+            transition: width 0.8s cubic-bezier(0.16,1,0.3,1);
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── Navigation ───────────────────────────────────────────── -->
+<nav class="nav-bar">
+    <div style="max-width:960px;margin:0 auto;padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent-glow);"></div>
+            <span style="font-size:1rem;font-weight:700;letter-spacing:-0.02em;color:var(--text);">NSE AI</span>
+            <span id="market-status-badge" style="font-size:0.7rem;font-weight:500;color:var(--green);background:var(--green-muted);padding:2px 10px;border-radius:999px;border:1px solid var(--green);letter-spacing:0.02em;">LIVE</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
+            <a href="/docs" target="_blank" style="font-size:0.78rem;color:var(--text-subtle);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-subtle)'">API Docs</a>
+            <button id="theme-toggle" class="btn-ghost" style="padding:6px 14px;font-size:0.78rem;">
+                <span id="theme-label">Light Mode</span>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- ── Main Output Area (All content & charts render ABOVE prompt bar) ────────────────── -->
+<div style="max-width:960px;margin:0 auto;padding:28px 24px 20px;display:flex;flex-direction:column;gap:24px;">
+
+    <!-- Header -->
+    <div style="text-align:center;margin-bottom:12px;">
+        <h1 style="font-size:1.8rem;font-weight:700;letter-spacing:-0.03em;color:var(--text);margin-bottom:6px;">
+            Intraday Trading Intelligence
+        </h1>
+        <p style="font-size:0.875rem;color:var(--text-muted);max-width:540px;margin:0 auto;line-height:1.6;">
+            Ask about any NSE stock or market condition. The AI will analyse live data,
+            explain what it means, and guide you toward a data-backed decision.
+        </p>
+    </div>
+
+    <!-- Chat Messages Transcript -->
+    <div id="chat-messages" style="display:flex;flex-direction:column;gap:14px;min-height:60px;"></div>
+
+    <!-- Technical Charts Section (Revealed right below chat output when requested) -->
+    <div id="charts-section" class="hidden">
+        <div class="card section-reveal" style="padding:24px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
+                <div>
+                    <h2 style="font-size:1rem;font-weight:700;letter-spacing:-0.02em;color:var(--text);margin-bottom:3px;">Technical Charts</h2>
+                    <p style="font-size:0.78rem;color:var(--text-muted);">6-indicator deep-dive with live NSE data</p>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                    <select id="stock-chart-selector" class="form-input" style="width:auto;padding:8px 12px;font-size:0.8rem;" onchange="handleStockChartSelection()"></select>
+                    <div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:10px;padding:4px;display:flex;gap:3px;">
+                        <button class="tab-btn active" data-tab="price" onclick="switchTab(this,'price')">Price / EMA</button>
+                        <button class="tab-btn" data-tab="rsi" onclick="switchTab(this,'rsi')">RSI</button>
+                        <button class="tab-btn" data-tab="macd" onclick="switchTab(this,'macd')">MACD</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Price & EMA -->
+            <div id="tab-price" class="chart-tab" style="display:flex;flex-direction:column;gap:14px;">
+                <div style="height:220px;"><canvas id="priceEmaChart"></canvas></div>
+                <div style="background:var(--bg-secondary);border-radius:12px;padding:14px;border:1px solid var(--border);">
+                    <div style="font-size:0.75rem;font-weight:700;color:var(--text);margin-bottom:6px;">5 EMA &amp; VWAP — What this shows</div>
+                    <p style="font-size:0.78rem;color:var(--text-muted);line-height:1.6;">The 5 EMA reacts quickly to recent price action, making it ideal for intraday trend detection. VWAP represents the true volume-weighted average price — the institutional benchmark. Price above both suggests buying pressure; below signals distribution.</p>
+                    <div id="price-explanation-dynamic" style="margin-top:8px;font-size:0.78rem;font-weight:600;color:var(--accent);"></div>
+                </div>
+            </div>
+
+            <!-- Tab: RSI -->
+            <div id="tab-rsi" class="chart-tab" style="display:none;flex-direction:column;gap:14px;">
+                <div style="height:220px;"><canvas id="rsiChart"></canvas></div>
+                <div style="background:var(--bg-secondary);border-radius:12px;padding:14px;border:1px solid var(--border);">
+                    <div style="font-size:0.75rem;font-weight:700;color:var(--text);margin-bottom:6px;">RSI Momentum — What this shows</div>
+                    <p style="font-size:0.78rem;color:var(--text-muted);line-height:1.6;">RSI measures the speed and change of price movements on a 0–100 scale. Readings above 70 indicate the stock is overbought — a potential pullback zone. Below 30 signals oversold conditions — a potential bounce zone. 40–60 is neutral momentum.</p>
+                    <div id="rsi-explanation-dynamic" style="margin-top:8px;font-size:0.78rem;font-weight:600;color:var(--accent);"></div>
+                </div>
+            </div>
+
+            <!-- Tab: MACD -->
+            <div id="tab-macd" class="chart-tab" style="display:none;flex-direction:column;gap:14px;">
+                <div style="height:220px;"><canvas id="macdChart"></canvas></div>
+                <div style="background:var(--bg-secondary);border-radius:12px;padding:14px;border:1px solid var(--border);">
+                    <div style="font-size:0.75rem;font-weight:700;color:var(--text);margin-bottom:6px;">MACD Signal — What this shows</div>
+                    <p style="font-size:0.78rem;color:var(--text-muted);line-height:1.6;">MACD shows the relationship between the 12-day and 26-day EMAs. When the MACD line crosses above the signal line, it generates a bullish signal — a potential entry opportunity. Crossing below is bearish — consider exiting or shorting.</p>
+                    <div id="macd-explanation-dynamic" style="margin-top:8px;font-size:0.78rem;font-weight:600;color:var(--accent);"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Investment Capital Allocation Section -->
+    <div id="invest-section" class="hidden">
+        <div class="card section-reveal" style="padding:24px;">
+            <div style="margin-bottom:18px;">
+                <h2 style="font-size:1.05rem;font-weight:700;letter-spacing:-0.02em;color:var(--text);margin-bottom:4px;">Capital Allocation</h2>
+                <p style="font-size:0.82rem;color:var(--text-muted);">The AI will screen NSE market conditions, calculate technical indicators, and distribute your capital across top-confidence intraday setups.</p>
+            </div>
+            <div style="margin-bottom:18px;">
+                <div>
+                    <label style="display:block;font-size:0.75rem;font-weight:600;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.04em;">Investment Amount (INR)</label>
+                    <div style="position:relative;">
+                        <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-subtle);font-size:0.9rem;font-weight:600;">₹</span>
+                        <input type="number" id="capital-input" value="5000" min="500" step="500" class="form-input" style="padding-left:32px;" required />
+                    </div>
+                </div>
+            </div>
+            <button id="scan-btn" class="btn-accent" style="width:100%;" onclick="handleScanMarket()">
+                Scan Market and Generate Recommendations
+            </button>
+        </div>
+    </div>
+
+    <!-- Recommendations Breakdown Section -->
+    <div id="recommendations-section" class="hidden">
+        <div class="section-reveal" style="display:flex;flex-direction:column;gap:20px;">
+
+            <!-- Capital summary row -->
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
+                <div class="card" style="padding:18px;">
+                    <div style="font-size:0.72rem;font-weight:600;color:var(--text-subtle);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px;">Total Investment</div>
+                    <div id="stat-total" style="font-size:1.4rem;font-weight:700;letter-spacing:-0.02em;color:var(--text);">—</div>
+                </div>
+                <div class="card card-green" style="padding:18px;">
+                    <div style="font-size:0.72rem;font-weight:600;color:var(--text-subtle);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px;">Allocated</div>
+                    <div id="stat-allocated" style="font-size:1.4rem;font-weight:700;letter-spacing:-0.02em;color:var(--green);">—</div>
+                </div>
+                <div class="card" style="padding:18px;">
+                    <div style="font-size:0.72rem;font-weight:600;color:var(--text-subtle);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px;">Cash Reserve</div>
+                    <div id="stat-unallocated" style="font-size:1.4rem;font-weight:700;letter-spacing:-0.02em;color:var(--text-muted);">—</div>
+                </div>
+            </div>
+
+            <!-- Recommendation cards -->
+            <div>
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+                    <h2 style="font-size:1rem;font-weight:700;letter-spacing:-0.02em;color:var(--text);">Recommended Trades</h2>
+                    <span style="font-size:0.72rem;color:var(--text-subtle);">Same-day exit enforced · 40% max position</span>
+                </div>
+                <div id="recommendations-container" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;"></div>
+            </div>
+
+            <!-- Allocation doughnut -->
+            <div class="card" style="padding:24px;display:flex;gap:28px;align-items:center;flex-wrap:wrap;">
+                <div style="width:160px;height:160px;flex-shrink:0;">
+                    <canvas id="allocationChart"></canvas>
+                </div>
+                <div style="flex:1;min-width:200px;">
+                    <div style="font-size:0.85rem;font-weight:700;color:var(--text);margin-bottom:12px;">Capital Split</div>
+                    <div id="allocation-legend" style="display:flex;flex-direction:column;gap:8px;"></div>
+                </div>
+            </div>
+
+            <!-- Telemetry -->
+            <div class="card" style="padding:18px 22px;">
+                <details class="group">
+                    <summary style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;list-style:none;font-size:0.82rem;font-weight:600;color:var(--text-muted);">
+                        <span>Execution Trace</span>
+                        <span style="font-size:0.7rem;color:var(--text-subtle);">expand</span>
+                    </summary>
+                    <div id="telemetry-content" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+                        <div>
+                            <div style="font-size:0.68rem;color:var(--text-subtle);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.04em;">Latency</div>
+                            <div id="trace-latency" style="font-size:0.9rem;font-weight:600;color:var(--text);">—</div>
+                        </div>
+                        <div>
+                            <div style="font-size:0.68rem;color:var(--text-subtle);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.04em;">Provider</div>
+                            <div id="trace-provider" style="font-size:0.9rem;font-weight:600;color:var(--accent);">—</div>
+                        </div>
+                        <div>
+                            <div style="font-size:0.68rem;color:var(--text-subtle);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.04em;">Tool Calls</div>
+                            <div id="trace-tools" style="font-size:0.9rem;font-weight:600;color:var(--green);">—</div>
+                        </div>
+                        <div>
+                            <div style="font-size:0.68rem;color:var(--text-subtle);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.04em;">Skipped Tickers</div>
+                            <div id="trace-fallback" style="font-size:0.9rem;font-weight:600;color:var(--text);">None</div>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sector Peers Comparison Section -->
+    <div id="peers-section" class="hidden">
+        <div class="card section-reveal" style="padding:24px;">
+            <details id="peers-details">
+                <summary style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;list-style:none;">
+                    <div>
+                        <h2 style="font-size:1rem;font-weight:700;letter-spacing:-0.02em;color:var(--text);margin-bottom:3px;">Compare Sector Peers</h2>
+                        <p style="font-size:0.78rem;color:var(--text-muted);">Vector-similarity peer comparison across the same NSE sector</p>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-subtle)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </summary>
+                <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:16px;">
+                    <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;">
+                        <div>
+                            <label style="display:block;font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-muted);margin-bottom:6px;">Stock</label>
+                            <select id="peer-stock-selector" class="form-input" style="width:auto;padding:8px 12px;font-size:0.82rem;">
+                                <option value="">Run a scan first</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display:block;font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-muted);margin-bottom:6px;">Max Peers</label>
+                            <select id="peer-max-count" class="form-input" style="width:auto;padding:8px 12px;font-size:0.82rem;">
+                                <option value="3">3</option>
+                                <option value="5" selected>5</option>
+                                <option value="8">8</option>
+                            </select>
+                        </div>
+                        <button id="peer-compare-btn" class="btn-accent" style="padding:9px 18px;" onclick="handlePeerCompare()">Find Sector Peers</button>
+                    </div>
+                    <div id="peers-status" class="hidden" style="font-size:0.8rem;color:var(--text-subtle);font-style:italic;"></div>
+                    <div id="peers-table-wrap" class="hidden" style="overflow-x:auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Symbol</th>
+                                    <th>Similarity</th>
+                                    <th>Price</th>
+                                    <th>EMA 5</th>
+                                    <th>RSI</th>
+                                    <th>MACD</th>
+                                    <th>VWAP</th>
+                                    <th>Sentiment</th>
+                                    <th>Confidence</th>
+                                    <th>Direction</th>
+                                </tr>
+                            </thead>
+                            <tbody id="peers-table-body"></tbody>
+                        </table>
+                    </div>
+                    <div id="peers-chart-wrap" class="hidden">
+                        <div style="font-size:0.78rem;font-weight:700;color:var(--text);margin-bottom:10px;">Confidence Comparison — sorted highest to lowest</div>
+                        <div style="height:180px;"><canvas id="peersConfidenceChart"></canvas></div>
+                    </div>
+                </div>
+            </details>
+        </div>
+    </div>
+</div>
+
+<!-- ── Fixed Prompt Bar at the Bottom ────────────────────────────────────── -->
+<div class="prompt-footer">
+    <div style="max-width:960px;margin:0 auto;display:flex;flex-direction:column;gap:10px;">
+
+        <!-- Suggestion Chips -->
+        <div id="suggestions-bar" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px;">
+            <button class="chip" onclick="sendSuggestion('What is the market looking like today?')">What is the market looking like today?</button>
+            <button class="chip" onclick="sendSuggestion('Tell me about HDFC Bank')">Tell me about HDFC Bank</button>
+            <button class="chip" onclick="sendSuggestion('Which banking stocks look strong right now?')">Which banking stocks look strong?</button>
+            <button class="chip" onclick="sendSuggestion('Compare IT sector stocks')">Compare IT sector stocks</button>
+        </div>
+
+        <!-- Sticky Chat Input Bar -->
+        <div style="display:flex;gap:10px;align-items:center;">
+            <input id="chat-input" class="chat-input"
+                   placeholder="Ask about any NSE stock or market condition... (tip: say 'use Gemini' or 'via Groq' to try a specific model)"
+                   autocomplete="off" spellcheck="false" />
+            <button id="send-btn" class="btn-send" onclick="handleChatSend()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

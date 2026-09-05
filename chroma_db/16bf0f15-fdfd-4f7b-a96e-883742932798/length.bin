@@ -1,0 +1,17 @@
+matrix having right singular vectors as rows.
+    Of shape ``(N, N)`` or ``(K, N)`` depending on `full_matrices`.
+    Only present when ``compute_uv=True``.
+
+Raises
+------
+LinAlgError
+    If SVD computation does not converge.
+
+See Also
+--------
+svdvals : Compute singular values of a matrix.
+diagsvd : Construct the Sigma matrix, given the vector s.
+
+Notes
+-----
+The array argument of this function, 
