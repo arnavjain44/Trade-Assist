@@ -1,0 +1,25 @@
+{
+  "dataset_phase": "Phase 5 Real-Context ML",
+  "number_of_candles": 214086,
+  "number_of_candidate_trades": 428172,
+  "number_of_symbols": 48,
+  "number_of_trading_days": 59,
+  "date_range": {
+    "start": "2026-06-15",
+    "end": "2026-09-04"
+  },
+  "valid_labeled_candidates": 422506,
+  "positive_label_count": 4801,
+  "positive_label_prevalence_pct": 1.1363,
+  "has_news_count": 325922,
+  "missing_news_pct": 23.88,
+  "chroma_context_present": true,
+  "neo4j_context_present": false,
+  "neo4j_status": "UNAVAILABLE_NO_URI",
+  "temporal_provenance": {
+    "technical_features": "Contemporaneous (<= T)",
+    "finbert_news": "Strictly prior (< T)",
+    "chroma_fingerprints": "Strictly prior completed days (< current date)",
+    "labels": "Intraday future outcome window (T to T+240m) strictly isolated to label column"
+  }
+}

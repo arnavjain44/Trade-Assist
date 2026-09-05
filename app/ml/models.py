@@ -54,15 +54,18 @@ class TradeSignalClassifier:
         self,
         model_family: str = "lightgbm",
         pos_weight: float = 1.0,
-        random_state: int = 42
+        random_state: int = 42,
+        feature_cols: Optional[List[str]] = None,
     ):
         """
         model_family: 'logistic_regression', 'random_forest', or 'lightgbm' / 'xgboost'
         pos_weight: Weight assigned to positive class (TARGET_HIT)
+        feature_cols: Optional list of feature column names (defaults to FEATURE_COLS)
         """
         self.model_family = model_family.lower()
         self.pos_weight = float(pos_weight)
         self.random_state = random_state
+        self.feature_cols = list(feature_cols) if feature_cols is not None else list(self.FEATURE_COLS)
 
         self.scaler: Optional[StandardScaler] = None
         self.model: Any = None
@@ -144,7 +147,7 @@ class TradeSignalClassifier:
         """
         Fits scaler (if LR) and underlying model on Training data.
         """
-        X_mat = X[self.FEATURE_COLS].values
+        X_mat = X[self.feature_cols].values
         if self.scaler is not None:
             X_mat = self.scaler.fit_transform(X_mat)
 
@@ -155,7 +158,7 @@ class TradeSignalClassifier:
         """
         Predicts raw uncalibrated positive class probabilities P(label=1).
         """
-        X_mat = X[self.FEATURE_COLS].values
+        X_mat = X[self.feature_cols].values
         if self.scaler is not None:
             X_mat = self.scaler.transform(X_mat)
 
@@ -212,11 +215,12 @@ class TradeSignalClassifier:
             fold_clf = TradeSignalClassifier(
                 model_family=self.model_family,
                 pos_weight=self.pos_weight,
-                random_state=self.random_state
+                random_state=self.random_state,
+                feature_cols=self.feature_cols,
             )
-            fold_clf.fit(df_fold_train[self.FEATURE_COLS], df_fold_train[target_col].values)
+            fold_clf.fit(df_fold_train[self.feature_cols], df_fold_train[target_col].values)
 
-            val_probs = fold_clf.predict_proba_raw(df_fold_val[self.FEATURE_COLS])
+            val_probs = fold_clf.predict_proba_raw(df_fold_val[self.feature_cols])
             oof_indices.extend(df_fold_val.index.tolist())
             oof_probs.extend(val_probs.tolist())
 
