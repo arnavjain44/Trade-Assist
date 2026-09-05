@@ -1,71 +1,67 @@
-import random
+"""
+Core Sentiment Analysis Module
+
+Updated for Phase 4:
+Integrates real FinBERT sentiment analyzer (ProsusAI/finbert) and real news fetching.
+Maintains backward compatibility for API endpoints.
+"""
+
 from typing import List, Dict, Any
+import datetime
+import pytz
 from app.schemas.responses import SentimentItem
+from app.ml.news_processor import (
+    LocalNewsCacheProvider,
+    FinBERTSentimentEngine,
+    NewsArticle,
+    IST,
+)
+
 
 class NewsSentimentAnalyzer:
-    """Fetches news headlines and calculates sentiment score per stock (FinBERT / VADER)."""
+    """Fetches real news headlines and calculates sentiment score per stock using FinBERT."""
 
     def __init__(self):
-        # Try loading VADER sentiment analyzer if available
-        try:
-            from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-            self.vader = SentimentIntensityAnalyzer()
-        except ImportError:
-            self.vader = None
+        self.news_provider = LocalNewsCacheProvider()
+        self.finbert_engine = FinBERTSentimentEngine()
 
     def analyze_headlines(self, symbol: str) -> List[SentimentItem]:
-        """Fetches and scores recent news headlines for a given stock symbol."""
-        # Simulated news fetching from NewsAPI or stock-data provider
-        clean_symbol = symbol.split('.')[0]
-        sample_headlines = [
-            f"{clean_symbol} reports strong quarterly revenue growth and expansion plans.",
-            f"Analysts issue positive outlook for {clean_symbol} following strategic partnership.",
-            f"Market volatility impacts short-term momentum for {clean_symbol}.",
-            f"{clean_symbol} increases institutional investments in core business sectors.",
-            f"Regulatory scrutiny noted across sector, {clean_symbol} maintaining steady operations."
-        ]
+        """Fetches and scores real news headlines for a given stock symbol using FinBERT."""
+        clean_symbol = symbol.upper().strip()
+        articles = self.news_provider.fetch_news_for_symbol(clean_symbol)
+
+        if not articles:
+            return []
 
         items = []
-        for i, text in enumerate(sample_headlines):
-            if self.vader:
-                scores = self.vader.polarity_scores(text)
-                compound = scores['compound']
-                if compound >= 0.05:
-                    label = "POSITIVE"
-                elif compound <= -0.05:
-                    label = "NEGATIVE"
-                else:
-                    label = "NEUTRAL"
+        for art in articles[:5]:  # Return top 5 recent articles
+            sent = self.finbert_engine.analyze_text(art.headline)
+            score = sent["sentiment_score"]
+            if score >= 0.05:
+                label = "POSITIVE"
+            elif score <= -0.05:
+                label = "NEGATIVE"
             else:
-                # Rule-based fallback sentiment scoring
-                words = text.lower().split()
-                pos_words = {"strong", "positive", "growth", "expansion", "steady", "increases"}
-                neg_words = {"volatility", "impacts", "scrutiny", "decline", "fall"}
-                pos_cnt = sum(1 for w in words if w in pos_words)
-                neg_cnt = sum(1 for w in words if w in neg_words)
-                if pos_cnt > neg_cnt:
-                    label = "POSITIVE"
-                    compound = 0.65
-                elif neg_cnt > pos_cnt:
-                    label = "NEGATIVE"
-                    compound = -0.50
-                else:
-                    label = "NEUTRAL"
-                    compound = 0.0
+                label = "NEUTRAL"
 
-            items.append(SentimentItem(
-                headline=text,
-                sentiment=label,
-                score=round(compound, 2),
-                date="Today"
-            ))
+            date_str = art.pub_timestamp_ist.strftime("%Y-%m-%d %H:%M IST")
+            items.append(
+                SentimentItem(
+                    headline=art.headline,
+                    sentiment=label,
+                    score=round(score, 2),
+                    date=date_str,
+                )
+            )
+
         return items
 
     def calculate_aggregated_sentiment(self, sentiments: List[SentimentItem]) -> float:
-        """Averages headline sentiment scores into a single daily numeric feature (-1.0 to +1.0)."""
+        """Averages headline sentiment scores into a single numeric feature (-1.0 to +1.0)."""
         if not sentiments:
             return 0.0
         total_score = sum(s.score for s in sentiments)
         return round(total_score / len(sentiments), 2)
+
 
 sentiment_analyzer = NewsSentimentAnalyzer()

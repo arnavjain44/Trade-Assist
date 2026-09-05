@@ -1,4 +1,12 @@
-from typing import Dict, Any
+"""
+Graph Store Manager Module
+
+Updated for Phase 4:
+Manages Neo4j graph database queries with temporal filtering (td.date < query_date).
+Falls back cleanly to deterministic graph responses when Neo4j is unavailable.
+"""
+
+from typing import Dict, Any, Optional
 from app.config import settings
 
 
@@ -10,7 +18,6 @@ class GraphStoreManager:
 
     def __init__(self):
         self.driver = None
-        # Only attempt connection if URI is explicitly configured
         if not settings.NEO4J_URI:
             print("Neo4j: No URI configured. Using graph DB fallback provider.")
             return
@@ -19,10 +26,9 @@ class GraphStoreManager:
             self.driver = GraphDatabase.driver(
                 settings.NEO4J_URI,
                 auth=(settings.NEO4J_USER, settings.NEO4J_PASSWORD),
-                connection_timeout=2,  # 2-second max connection wait
+                connection_timeout=2,
                 max_connection_lifetime=30,
             )
-            # Verify connectivity with a quick ping
             self.driver.verify_connectivity()
             print(f"Neo4j: Connected to {settings.NEO4J_URI}")
         except Exception as e:
@@ -34,32 +40,41 @@ class GraphStoreManager:
                     pass
             self.driver = None
 
-    def query_pattern_relationships(self, symbol: str) -> Dict[str, Any]:
-        """
-        Executes Cypher query:
+    def query_pattern_relationships(self, symbol: str, query_date_str: Optional[str] = None) -> Dict[str, Any]:
+        """Executes Cypher query with strict temporal filtering:
         (Stock)-[:ON_DAY]->(TradingDay)-[:SHOWED_PATTERN]->(Pattern)-[:RESULTED_IN]->(Outcome)
-        Falls back to mock data instantly if Neo4j is unavailable.
+        Enforces td.date < query_date when query_date_str is supplied.
         """
         if self.driver:
-            cypher = """
-            MATCH (s:Stock {symbol: $symbol})-[:ON_DAY]->(td:TradingDay)-[:SHOWED_PATTERN]->(p:Pattern)-[:RESULTED_IN]->(o:Outcome)
-            RETURN p.name as pattern_name, o.direction as expected_direction, o.avg_return_pct as avg_return
-            LIMIT 1
-            """
+            if query_date_str:
+                cypher = """
+                MATCH (s:Stock {symbol: $symbol})-[:ON_DAY]->(td:TradingDay)-[:SHOWED_PATTERN]->(p:Pattern)-[:RESULTED_IN]->(o:Outcome)
+                WHERE td.date < $query_date
+                RETURN p.name as pattern_name, o.direction as expected_direction, o.avg_return as avg_return
+                LIMIT 1
+                """
+                params = {"symbol": symbol, "query_date": query_date_str}
+            else:
+                cypher = """
+                MATCH (s:Stock {symbol: $symbol})-[:ON_DAY]->(td:TradingDay)-[:SHOWED_PATTERN]->(p:Pattern)-[:RESULTED_IN]->(o:Outcome)
+                RETURN p.name as pattern_name, o.direction as expected_direction, o.avg_return as avg_return
+                LIMIT 1
+                """
+                params = {"symbol": symbol}
+
             try:
                 with self.driver.session() as session:
-                    result = session.run(cypher, symbol=symbol)
+                    result = session.run(cypher, **params)
                     record = result.single()
                     if record:
                         return {
                             "graph_pattern": record["pattern_name"],
                             "expected_direction": record["expected_direction"],
-                            "historical_avg_return_pct": record["avg_return"]
+                            "historical_avg_return_pct": record["avg_return"],
                         }
             except Exception as e:
                 print(f"Neo4j execution error: {e}")
 
-        # Deterministic fallback — varies by symbol for realistic diversity
         pattern_map = {
             "RELIANCE.NS": ("Energy Breakout", "UPWARD", 2.80),
             "TCS.NS": ("IT Momentum", "UPWARD", 2.10),
@@ -74,7 +89,7 @@ class GraphStoreManager:
         return {
             "graph_pattern": pattern,
             "expected_direction": direction,
-            "historical_avg_return_pct": avg_return
+            "historical_avg_return_pct": avg_return,
         }
 
     def close(self):
