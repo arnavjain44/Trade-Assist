@@ -2338,5 +2338,65 @@
     "negative_probability": 0.0,
     "neutral_probability": 0.0,
     "sentiment_score": 0.9563
+  },
+  "3665b816ca9990c63188bcbcaa6efe5a": {
+    "positive_probability": 0.6096,
+    "negative_probability": 0.0,
+    "neutral_probability": 0.0,
+    "sentiment_score": 0.6096
+  },
+  "dd985d52d0f350d967e477aaa90fdc1a": {
+    "positive_probability": 0.7243,
+    "negative_probability": 0.0,
+    "neutral_probability": 0.0,
+    "sentiment_score": 0.7243
+  },
+  "7452fe0bb7eebc747d171f0c2a14d4e1": {
+    "positive_probability": 0.0,
+    "negative_probability": 0.0,
+    "neutral_probability": 0.8941,
+    "sentiment_score": 0.0
+  },
+  "81e0314b0392c20395a88754692d5e58": {
+    "positive_probability": 0.0,
+    "negative_probability": 0.0,
+    "neutral_probability": 0.7986,
+    "sentiment_score": 0.0
+  },
+  "6622f539ffe79fae31fa20f40b54ed98": {
+    "positive_probability": 0.0,
+    "negative_probability": 0.8233,
+    "neutral_probability": 0.0,
+    "sentiment_score": -0.8233
+  },
+  "4b9769ddd253226aeba48224916a7f1e": {
+    "positive_probability": 0.0,
+    "negative_probability": 0.0,
+    "neutral_probability": 0.4857,
+    "sentiment_score": 0.0
+  },
+  "50e6584ca770321fb78699c2a46e6ba3": {
+    "positive_probability": 0.0,
+    "negative_probability": 0.9364,
+    "neutral_probability": 0.0,
+    "sentiment_score": -0.9364
+  },
+  "3b38bb3886f28991d446bd86777d8b91": {
+    "positive_probability": 0.9411,
+    "negative_probability": 0.0,
+    "neutral_probability": 0.0,
+    "sentiment_score": 0.9411
+  },
+  "50b0ac91a8e5dd9e984577fd870bd317": {
+    "positive_probability": 0.8697,
+    "negative_probability": 0.0,
+    "neutral_probability": 0.0,
+    "sentiment_score": 0.8697
+  },
+  "cac20fd34000a8a7f55dde0b5edb62c6": {
+    "positive_probability": 0.0,
+    "negative_probability": 0.9113,
+    "neutral_probability": 0.0,
+    "sentiment_score": -0.9113
   }
 }

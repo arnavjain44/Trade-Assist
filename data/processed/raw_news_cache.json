@@ -3908,5 +3908,97 @@
       "provider": "Reuters",
       "url": "https://finance.yahoo.com/news/bse-replace-wipro-indias-benchmark-145100027.html"
     }
+  ],
+  "PAYTM.NS": [
+    {
+      "article_id": "37071ff1-4652-31ba-8570-0bb3fdc0c226",
+      "symbol": "PAYTM.NS",
+      "headline": "Founder Led Stocks Worth Watching As Capital Spending Picks Up",
+      "summary": "Capital expenditure is picking up again, with fresh spending on construction, transport and data centres helping drive new investment across several major economies. That puts founder led companies in a useful spotlight. Leaders who built their business from scratch often commit aggressively to long term projects and own a lot of stock themselves. This article highlights three founder led stocks from our screener that show how that mindset can matter for your portfolio. The three founder led...",
+      "pub_timestamp_ist": "2026-08-28T03:46:42+05:30",
+      "provider": "Simply Wall St.",
+      "url": "https://finance.yahoo.com/markets/stocks/articles/founder-led-stocks-worth-watching-221642598.html"
+    },
+    {
+      "article_id": "02406947-d9c7-3421-8cf6-6d9aefd0cf80",
+      "symbol": "PAYTM.NS",
+      "headline": "3 Founder Led Indian Stocks With Long Term Skin In The Game",
+      "summary": "Eurozone consumer confidence has recently improved and inflation expectations have eased, which gives long term founders more room to plan and invest without constant macro whiplash. When everyday sentiment steadies, founders with real skin in the game can keep executing on their long term vision. This article highlights three founder led companies from our screener that show how aligned leadership can shape durable business stories. The stocks in the list below are just a starting sample,...",
+      "pub_timestamp_ist": "2026-08-25T10:06:14+05:30",
+      "provider": "Simply Wall St.",
+      "url": "https://finance.yahoo.com/markets/stocks/articles/3-founder-led-indian-stocks-043614344.html"
+    },
+    {
+      "article_id": "58c8c978-70b9-34a5-bd4a-3885f994a4c4",
+      "symbol": "PAYTM.NS",
+      "headline": "Resilient Asset Management to offload 4.98% stake in Paytm",
+      "summary": "Resilient had acquired approximately a 10.20% stake in Paytm from Antfin in 2023.",
+      "pub_timestamp_ist": "2026-08-18T12:51:15+05:30",
+      "provider": "Electronic Payments",
+      "url": "https://finance.yahoo.com/markets/stocks/articles/resilient-asset-management-offload-4-072115652.html"
+    },
+    {
+      "article_id": "78ad0582-1a9e-3b73-a308-8d66a615fb79",
+      "symbol": "PAYTM.NS",
+      "headline": "Paytm founder's Resilient Asset Management to sell up to 4.98% stake in fintech firm",
+      "summary": "BENGALURU, Aug 17 (Reuters) - Indian fintech firm Paytm said on Monday that Netherlands-based Resilient Asset Management, fully owned by its\u00a0founder and CEO Vijay Shekhar Sharma, has proposed to sell",
+      "pub_timestamp_ist": "2026-08-17T21:14:57+05:30",
+      "provider": "Reuters",
+      "url": "https://finance.yahoo.com/news/paytm-founders-resilient-asset-management-154457569.html"
+    },
+    {
+      "article_id": "b478de95-8f2e-3133-893d-f92997154346",
+      "symbol": "PAYTM.NS",
+      "headline": "India's Paytm management gets notice over timing of 2023 disclosure curbing small loans",
+      "summary": "Aug 12 - Digital payments firm Paytm said late on Wednesday its top management got a notice from India's markets regulator over the timing of its 2023 announcement curbing small personal loans",
+      "pub_timestamp_ist": "2026-08-13T02:29:38+05:30",
+      "provider": "Reuters",
+      "url": "https://finance.yahoo.com/news/indias-paytm-management-gets-notice-205938142.html"
+    },
+    {
+      "article_id": "50ad7727-9954-3231-b88e-c5a18229ca40",
+      "symbol": "PAYTM.NS",
+      "headline": "Indian payments firms flag competition risks in one-click UPI checkout- report",
+      "summary": "The companies have sent their concerns in a letter to the National Payments Corporation of India (NPCI).",
+      "pub_timestamp_ist": "2026-07-24T17:00:29+05:30",
+      "provider": "Electronic Payments",
+      "url": "https://finance.yahoo.com/economy/policy/articles/indian-payments-firms-flag-competition-113029768.html"
+    },
+    {
+      "article_id": "6a94a473-9d31-3616-b870-117749bba9d7",
+      "symbol": "PAYTM.NS",
+      "headline": "Indian payments firms oppose one-click UPI checkout proposal, citing competition risks",
+      "summary": "By Ashwin Manikandan MUMBAI, July 23 (Reuters) - Several Indian digital payments firms have opposed a proposal that would allow merchants to store customers' preferred Unified Payments Interface",
+      "pub_timestamp_ist": "2026-07-23T18:21:23+05:30",
+      "provider": "Reuters",
+      "url": "https://finance.yahoo.com/news/indian-payments-firms-oppose-one-125123671.html"
+    },
+    {
+      "article_id": "1820e789-146a-37cf-80b8-5da31a5b70a9",
+      "symbol": "PAYTM.NS",
+      "headline": "One97 Communications Ltd (BOM:543396) Q1 2027 Earnings Call Highlights: Strong Profitability ...",
+      "summary": "One97 Communications Ltd (BOM:543396) reports robust market share gains and profitability improvements, leveraging AI for future growth opportunities.",
+      "pub_timestamp_ist": "2026-07-21T22:30:29+05:30",
+      "provider": "GuruFocus.com",
+      "url": "https://finance.yahoo.com/markets/stocks/articles/one97-communications-ltd-bom-543396-170029353.html"
+    },
+    {
+      "article_id": "7ba6554e-b006-335a-9b80-7a020b2cb448",
+      "symbol": "PAYTM.NS",
+      "headline": "Paytm Europe wins CSSF payment institution licence",
+      "summary": "As part of the approval, Paytm Europe has been registered on the regulator\u2019s official list of payment institutions.",
+      "pub_timestamp_ist": "2026-07-03T17:44:47+05:30",
+      "provider": "Electronic Payments",
+      "url": "https://finance.yahoo.com/markets/crypto/articles/paytm-europe-wins-cssf-payment-121447624.html"
+    },
+    {
+      "article_id": "70be7ec9-51d4-3757-ad1f-cd7b4eae2500",
+      "symbol": "PAYTM.NS",
+      "headline": "Apple says India 'copy-pasted' rivals' claims in antitrust probe",
+      "summary": "<body><p>STORY: Apple accused&nbsp;India\u2019s antitrust watchdog of \"copy-pasting\" rivals' claims in the latest escalation of their ongoing fight.&nbsp;</p><p>Regulatory papers reviewed by Reuters showed that Apple said the body failed to conduct its own probe after it concluded the tech giant breached competition laws.</p><p>Apple has called for the findings to be quashed.&nbsp;</p><p>It marks the sharpest move yet in Apple's conflict with the Competition Commission of India (CCI)...</p><p>Where Tinder-owner Match and Indian firms like Paytm are among its opponents.</p><p>In 2024, India\u2019s watchdog published a report saying Apple engaged in \"abusive conduct\" on the apps platform of its iOS operating system...</p><p>And that Apple wrongly mandated the use of its payment system.</p><p>Apple has denied the allegations.&nbsp;</p><p>The tech giant instead branded itself a \u201cminiscule player\u201d in India with a sub-6% share of India's smartphone market.</p><p>And said that any forced alterations to its App Store could disrupt its integrated business model.</p><p>Similar arguments by other big companies, like Alphabet\u2019s Google in 2023, have failed to sway the watchdog.</p><p>The CCI and its head of investigations] did not respond to Reuters queries.</p><p>&nbsp;Apple also did not respond to requests for comment.</p></body>",
+      "pub_timestamp_ist": "2026-06-29T20:41:25+05:30",
+      "provider": "Reuters Videos",
+      "url": "https://finance.yahoo.com/video/apple-says-india-copy-pasted-151125360.html"
+    }
   ]
 }
