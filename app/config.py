@@ -75,6 +75,14 @@ class Settings(BaseSettings):
     
     # ChromaDB Settings
     CHROMA_PERSIST_DIR: str = "./chroma_db"
+
+    # Historical Data Acquisition Settings (Phase 5.4)
+    HISTORICAL_DATA_PROVIDER: str = "kite"
+    HISTORICAL_DATA_API_KEY: Optional[str] = None
+    HISTORICAL_DATA_API_SECRET: Optional[str] = None
+    HISTORICAL_DATA_ACCESS_TOKEN: Optional[str] = None
+    HISTORICAL_DATA_RAW_DIR: str = "data/raw/historical"
+    HISTORICAL_DATA_CLEAN_DIR: str = "data/processed/historical"
     
     class Config:
         env_file = ".env"

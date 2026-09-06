@@ -26,6 +26,23 @@ NSE_MARKET_OPEN = time(9, 15)
 NSE_MARKET_CLOSE = time(15, 30)
 EXPECTED_REGULAR_BARS_5M = 75  # 375 minutes / 5 minutes = 75 bars
 
+# Known Historical Special Sessions (e.g., Diwali Muhurat Trading, Saturday disaster recovery / live trading sessions)
+KNOWN_SPECIAL_SESSIONS: Dict[date, Dict[str, Any]] = {
+    # Diwali Muhurat Trading (1-hour evening sessions)
+    date(2018, 11, 7): {"start": time(17, 30), "end": time(18, 30), "description": "Diwali Muhurat Trading 2018", "expected_bars_5m": 12},
+    date(2019, 10, 27): {"start": time(18, 15), "end": time(19, 15), "description": "Diwali Muhurat Trading 2019", "expected_bars_5m": 12},
+    date(2020, 11, 14): {"start": time(18, 15), "end": time(19, 15), "description": "Diwali Muhurat Trading 2020", "expected_bars_5m": 12},
+    date(2021, 11, 4): {"start": time(18, 15), "end": time(19, 15), "description": "Diwali Muhurat Trading 2021", "expected_bars_5m": 12},
+    date(2022, 10, 24): {"start": time(18, 15), "end": time(19, 15), "description": "Diwali Muhurat Trading 2022", "expected_bars_5m": 12},
+    date(2023, 11, 12): {"start": time(18, 15), "end": time(19, 15), "description": "Diwali Muhurat Trading 2023", "expected_bars_5m": 12},
+    date(2024, 11, 1): {"start": time(18, 0), "end": time(19, 0), "description": "Diwali Muhurat Trading 2024", "expected_bars_5m": 12},
+    date(2025, 10, 21): {"start": time(18, 15), "end": time(19, 15), "description": "Diwali Muhurat Trading 2025", "expected_bars_5m": 12},
+    # Saturday Special Live Trading / Disaster Recovery Sessions
+    date(2024, 1, 20): {"start": time(9, 15), "end": time(12, 30), "description": "Special Saturday Session (Ayodhya pre-closure)", "expected_bars_5m": 39},
+    date(2024, 3, 2): {"start": time(9, 15), "end": time(12, 30), "description": "Saturday DR Live Trading Session 2024-03-02", "expected_bars_5m": 39},
+    date(2024, 5, 18): {"start": time(9, 15), "end": time(12, 30), "description": "Saturday DR Live Trading Session 2024-05-18", "expected_bars_5m": 39},
+}
+
 
 class HistoricalDataValidator:
     """
@@ -38,10 +55,14 @@ class HistoricalDataValidator:
         expected_timeframe: str = "5m",
         timezone_str: str = "Asia/Kolkata",
         allow_special_sessions: bool = True,
+        custom_special_sessions: Optional[Dict[date, Dict[str, Any]]] = None,
     ):
         self.expected_timeframe = expected_timeframe
         self.timezone_str = timezone_str
         self.allow_special_sessions = allow_special_sessions
+        self.special_sessions = dict(KNOWN_SPECIAL_SESSIONS)
+        if custom_special_sessions:
+            self.special_sessions.update(custom_special_sessions)
 
     def validate(self, df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, Any]]:
         """
@@ -200,28 +221,41 @@ class HistoricalDataValidator:
 
     def _validate_market_hours_and_weekends(self, df: pd.DataFrame) -> Tuple[pd.DataFrame, int]:
         """
-        Verifies all bars occur Monday through Friday within 09:15:00 to 15:30:00 IST.
+        Verifies all bars occur within regular trading hours (Monday-Friday 09:15-15:30 IST)
+        OR within authorized special trading sessions (e.g. Muhurat trading, Saturday DR sessions).
         """
         ts = df["timestamp"]
-        # Day of week: Monday=0, Sunday=6
-        weekend_mask = ts.dt.dayofweek >= 5
-        # Time of day
+        dates = ts.dt.date
         bar_times = ts.dt.time
-        off_hours_mask = (bar_times < NSE_MARKET_OPEN) | (bar_times >= NSE_MARKET_CLOSE)
 
-        contamination_mask = weekend_mask | off_hours_mask
+        # 1. Standard regular hours check (Monday=0 to Friday=4, 09:15 <= time < 15:30)
+        is_regular_weekday = ts.dt.dayofweek < 5
+        is_regular_hours = (bar_times >= NSE_MARKET_OPEN) & (bar_times < NSE_MARKET_CLOSE)
+        valid_mask = is_regular_weekday & is_regular_hours
+
+        # 2. Special session check (e.g. Muhurat evening trading or weekend DR live trading)
+        if self.allow_special_sessions and self.special_sessions:
+            special_mask = pd.Series(False, index=df.index)
+            for s_date, s_info in self.special_sessions.items():
+                match_date = (dates == s_date)
+                if match_date.any():
+                    match_time = (bar_times >= s_info["start"]) & (bar_times < s_info["end"])
+                    special_mask = special_mask | (match_date & match_time)
+            valid_mask = valid_mask | special_mask
+
+        contamination_mask = ~valid_mask
         contamination_count = int(contamination_mask.sum())
 
         if contamination_count > 0:
-            logger.warning("Detected %d bars outside regular trading hours or on weekends.", contamination_count)
-            df_clean = df[~contamination_mask].copy()
+            logger.warning("Detected %d bars outside regular/special trading hours or on unauthorized weekends.", contamination_count)
+            df_clean = df[valid_mask].copy()
             return df_clean, contamination_count
         return df, 0
 
     def _audit_trading_sessions(self, df: pd.DataFrame) -> Dict[str, Any]:
         """
         Audits session completeness per date.
-        Flags sessions with fewer or more than standard 75 bars.
+        Distinguishes standard sessions (75 bars), authorized special sessions, partial sessions, and extended sessions.
         """
         df_copy = df.copy()
         df_copy["date"] = df_copy["timestamp"].dt.date
@@ -229,16 +263,35 @@ class HistoricalDataValidator:
         session_counts = df_copy.groupby(["symbol", "date"]).size().unstack(fill_value=0)
         total_sessions = session_counts.shape[1]
 
-        # Calculate frequency of bar counts per session across all symbols
         all_session_lengths = df_copy.groupby(["symbol", "date"]).size()
-        standard_sessions = int((all_session_lengths == EXPECTED_REGULAR_BARS_5M).sum())
-        partial_sessions = int((all_session_lengths < EXPECTED_REGULAR_BARS_5M).sum())
-        extended_sessions = int((all_session_lengths > EXPECTED_REGULAR_BARS_5M).sum())
+        
+        standard_sessions = 0
+        special_sessions = 0
+        partial_sessions = 0
+        extended_sessions = 0
+
+        for (sym, d), count in all_session_lengths.items():
+            if self.allow_special_sessions and d in self.special_sessions:
+                expected = self.special_sessions[d].get("expected_bars_5m", EXPECTED_REGULAR_BARS_5M)
+                if count == expected:
+                    special_sessions += 1
+                elif count < expected:
+                    partial_sessions += 1
+                else:
+                    extended_sessions += 1
+            else:
+                if count == EXPECTED_REGULAR_BARS_5M:
+                    standard_sessions += 1
+                elif count < EXPECTED_REGULAR_BARS_5M:
+                    partial_sessions += 1
+                else:
+                    extended_sessions += 1
 
         return {
             "total_trading_dates": total_sessions,
             "expected_bars_per_regular_session": EXPECTED_REGULAR_BARS_5M,
             "standard_sessions_count": standard_sessions,
+            "special_sessions_count": special_sessions,
             "partial_sessions_count": partial_sessions,
             "extended_sessions_count": extended_sessions,
             "mean_bars_per_session": round(float(all_session_lengths.mean()), 2) if not all_session_lengths.empty else 0.0,
