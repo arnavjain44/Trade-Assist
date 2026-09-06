@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 
 
 class InvestmentRequest(BaseModel):
@@ -30,6 +30,7 @@ class ChatRequest(BaseModel):
     session_id: Optional[str] = Field(default="default_session")
     provider: Optional[str] = Field(default="auto")
     history: Optional[List[Dict[str, str]]] = Field(default=None, description="Prior conversation message turns")
+    stock_analysis: Optional[Dict[str, Any]] = Field(default=None, description="Backend factual stock analysis context")
 
 
 

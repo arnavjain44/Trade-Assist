@@ -15,7 +15,7 @@ async def get_trading_recommendations(request: InvestmentRequest):
     Hard 15-second timeout ensures the endpoint never hangs indefinitely.
     """
     try:
-        recommendations, charts, trace_data = await asyncio.wait_for(
+        recommendations, watchlist, charts, trace_data = await asyncio.wait_for(
             agent_loop.execute_trading_pipeline(
                 investment_amount=request.investment_amount,
                 tickers=request.tickers,
@@ -33,6 +33,7 @@ async def get_trading_recommendations(request: InvestmentRequest):
             total_allocated=round(total_allocated, 2),
             unallocated_cash=unallocated_cash,
             recommendations=recommendations,
+            watchlist=watchlist,
             charts=charts,
             trace=TraceInfo(**trace_data)
         )

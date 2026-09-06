@@ -39,11 +39,35 @@ async def get_stock_indicators(symbol: str):
                 vwap=round(float(row['vwap']), 2) if row.get('vwap') is not None else None
             ))
 
+        # Evaluate Phase 5 model for latest candle
+        latest_ind = indicators_calculator.extract_latest_summary(df_ind)
+        decision_dt = latest_ind.get("timestamp")
+        query_date_str = str(df_ind["timestamp"].iloc[-1].strftime("%Y-%m-%d")) if len(df_ind) > 0 else None
+
+        from app.db.vector_store import vector_store
+        from app.ml.pipeline import ml_engine
+
+        news_feats = sentiment_analyzer.get_phase5_news_features(clean_symbol, decision_timestamp_ist=decision_dt)
+        context_feats = vector_store.query_phase5_context_similarities(clean_symbol, latest_ind, query_date_str) if query_date_str else {"market_similarity": 0.0, "stock_similarity": 0.0}
+
+        pred = ml_engine.predict_trade_signal(
+            clean_symbol,
+            latest_ind["close_price"],
+            latest_ind,
+            news_feats,
+            context_feats,
+            timeframe=latest_ind.get("timeframe", "5m"),
+        )
+        pred["news_features"] = news_feats
+        pred["context_features"] = context_feats
+        pred["latest_indicators"] = latest_ind
+
         return StockChartData(
             symbol=clean_symbol,
             indicators=indicator_points,
             sentiments=sentiments,
-            overall_sentiment_score=agg_sent
+            overall_sentiment_score=agg_sent,
+            latest_prediction=pred,
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error calculating indicators for {symbol}: {str(e)}")

@@ -16,7 +16,8 @@ async def chat_with_agent(request: ChatRequest):
             user_message=request.message,
             session_id=request.session_id or "default_session",
             provider_choice=request.provider or "auto",
-            history=request.history
+            history=request.history,
+            stock_analysis=request.stock_analysis,
         )
 
         return ChatResponse(

@@ -549,10 +549,21 @@
             <!-- Recommendation cards -->
             <div>
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-                    <h2 style="font-size:1rem;font-weight:700;letter-spacing:-0.02em;color:var(--text);">Recommended Trades</h2>
-                    <span style="font-size:0.72rem;color:var(--text-subtle);">Same-day exit enforced · 40% max position</span>
+                    <h2 style="font-size:1rem;font-weight:700;letter-spacing:-0.02em;color:var(--text);">QUALIFIED TRADES</h2>
+                    <span style="font-size:0.72rem;color:var(--text-subtle);">P ≥ 80% threshold required · Same-day exit · 40% max cap</span>
                 </div>
                 <div id="recommendations-container" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;"></div>
+            </div>
+
+            <!-- Watchlist / Top Setups to Watch Section -->
+            <div id="watchlist-section" style="margin-top:10px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+                    <div>
+                        <h2 style="font-size:1rem;font-weight:700;letter-spacing:-0.02em;color:var(--text);">TOP SETUPS TO WATCH</h2>
+                        <p style="font-size:0.75rem;color:var(--text-subtle);margin-top:2px;">Strongest candidates currently below the 80% model threshold — ₹0 allocated, not active trades</p>
+                    </div>
+                </div>
+                <div id="watchlist-container" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;"></div>
             </div>
 
             <!-- Allocation doughnut -->
@@ -684,6 +695,6 @@
     </div>
 </div>
 
-<script src="/static/app.js"></script>
+<script src="/static/app.js?v=1.0.0"></script>
 </body>
 </html>

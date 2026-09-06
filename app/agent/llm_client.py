@@ -141,19 +141,19 @@ class LLMClient:
 
         # 3. Fallback: Intelligent Agentic Knowledge Router
         fallback_res = self._knowledge_fallback(prompt, system_context)
-        return fallback_res, "offline_knowledge_base"
+        return fallback_res, "fallback"
 
 
 
     async def _call_gemini_api(self, prompt: str, system_context: str, api_key: str, history: Optional[List[Dict[str, Any]]] = None) -> Optional[str]:
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key={api_key}"
         full_text = f"{system_context}\n\nUser Question: {prompt}" if system_context else prompt
         payload = {
             "contents": [{"parts": [{"text": full_text}]}]
         }
-        logger.info("[LLM CALL] Invoking Provider: GOOGLE GEMINI (gemini-1.5-flash)...")
+        logger.info("[LLM CALL] Invoking Provider: GOOGLE GEMINI (gemini-3.6-flash)...")
         try:
-            async with httpx.AsyncClient(timeout=10.0) as client:
+            async with httpx.AsyncClient(timeout=25.0) as client:
                 resp = await client.post(url, json=payload)
                 logger.info("[LLM RESPONSE] Provider: GOOGLE GEMINI | Status Code: %d", resp.status_code)
                 if resp.status_code == 200:
@@ -166,7 +166,7 @@ class LLMClient:
                 else:
                     logger.warning("[LLM ERROR] Gemini API returned HTTP %d: %s", resp.status_code, resp.text[:200])
         except Exception as e:
-            logger.warning("[LLM ERROR] Gemini API exception: %s", e)
+            logger.warning("[LLM ERROR] Gemini API exception: %s", e, exc_info=True)
         return None
 
     async def _call_groq_api(self, prompt: str, system_context: str, api_key: str, history: Optional[List[Dict[str, Any]]] = None) -> Optional[str]:
@@ -184,13 +184,13 @@ class LLMClient:
         messages.append({"role": "user", "content": prompt})
 
         payload = {
-            "model": "llama-3.3-70b-versatile",
+            "model": "groq/compound-mini",
             "messages": messages,
             "temperature": 0.5,
         }
-        logger.info("[LLM CALL] Invoking Provider: GROQ (llama-3.3-70b-versatile)...")
+        logger.info("[LLM CALL] Invoking Provider: GROQ (groq/compound-mini)...")
         try:
-            async with httpx.AsyncClient(timeout=10.0) as client:
+            async with httpx.AsyncClient(timeout=25.0) as client:
                 resp = await client.post(url, headers=headers, json=payload)
                 logger.info("[LLM RESPONSE] Provider: GROQ | Status Code: %d", resp.status_code)
                 if resp.status_code == 200:
@@ -224,7 +224,7 @@ class LLMClient:
         }
         logger.info("[LLM CALL] Invoking Provider: OPENROUTER (google/gemini-2.0-flash-exp:free)...")
         try:
-            async with httpx.AsyncClient(timeout=10.0) as client:
+            async with httpx.AsyncClient(timeout=25.0) as client:
                 resp = await client.post(url, headers=headers, json=payload)
                 logger.info("[LLM RESPONSE] Provider: OPENROUTER | Status Code: %d", resp.status_code)
                 if resp.status_code == 200:

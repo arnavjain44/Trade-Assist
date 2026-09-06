@@ -29,7 +29,7 @@ class LLMAgentLoop:
         sector: Optional[str] = None,
         user_provider_choice: str = "auto",
         session_id: str = "default_session"
-    ) -> Tuple[List[Dict[str, Any]], Dict[str, StockChartData], Dict[str, Any]]:
+    ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]], Dict[str, StockChartData], Dict[str, Any]]:
         """
         Executes end-to-end trading pipeline:
         1. Screens top NSE liquid equities (or user-provided tickers/sector scoping).
@@ -96,15 +96,48 @@ class LLMAgentLoop:
 
             candidates.append(pred)
 
-        # 3. Rank by confidence, pick top 3
-        candidates.sort(key=lambda x: x["confidence"], reverse=True)
-        top_picks = candidates[:3]
-        rejected_picks = candidates[3:]
+        # 3. Separate qualified candidates (P >= 0.8000) vs non-qualified (HOLD / WATCHLIST)
+        qualified_candidates = [c for c in candidates if c.get("qualified") is True and c.get("action") in ["BUY", "SELL"]]
+        non_qualified_candidates = [c for c in candidates if not (c.get("qualified") is True and c.get("action") in ["BUY", "SELL"])]
 
-        # 4. Enforce mandatory intraday constraints
-        final_recommendations = agent_tools.enforce_constraints(top_picks, investment_amount)
+        # 4. Enforce mandatory intraday constraints ONLY on qualified candidates
+        qualified_candidates.sort(key=lambda x: x["model_probability"], reverse=True)
+        top_qualified = qualified_candidates[:3]
+        final_recommendations = agent_tools.enforce_constraints(top_qualified, investment_amount)
 
-        # 5. Build chart data series for frontend
+        # 5. Build Watchlist from top non-qualified candidates (up to 5, sorted by max(p_long, p_short))
+        non_qualified_candidates.sort(key=lambda x: max(x.get("p_long", 0.0), x.get("p_short", 0.0)), reverse=True)
+        top_watchlist = non_qualified_candidates[:5]
+
+        watchlist = []
+        for cand in top_watchlist:
+            p_l = cand.get("p_long", 0.0)
+            p_s = cand.get("p_short", 0.0)
+            chosen_dir = "LONG" if p_l >= p_s else "SHORT"
+            best_p = max(p_l, p_s)
+            thresh = cand.get("model_threshold", 0.8000)
+            dist = round((thresh - best_p) * 100.0, 2)
+            ind_sum = cand.get("indicators_summary", {})
+
+            watchlist.append({
+                "symbol": cand["symbol"],
+                "direction": chosen_dir,
+                "model_probability": round(best_p, 6),
+                "model_threshold": thresh,
+                "distance_to_threshold": dist,
+                "current_price": cand["current_price"],
+                "rsi": ind_sum.get("rsi"),
+                "macd": ind_sum.get("macd"),
+                "price_vs_vwap": ind_sum.get("price_vs_vwap"),
+                "sentiment_score": cand.get("feature_summary", {}).get("sentiment_score"),
+                "market_similarity": cand.get("feature_summary", {}).get("market_similarity"),
+                "stock_similarity": cand.get("feature_summary", {}).get("stock_similarity"),
+                "qualified": False,
+                "allocated_capital": 0.0,
+                "shares_to_trade": 0,
+            })
+
+        # 6. Build chart data series for frontend
         charts_dict = {}
         for symbol in target_tickers:
             if symbol in data_res:
@@ -133,11 +166,11 @@ class LLMAgentLoop:
                     overall_sentiment_score=stock_info["sentiment_score"]
                 )
 
-        # 6. Upsert real fingerprints into ChromaDB for future peer comparisons
+        # 7. Upsert real fingerprints into ChromaDB for future peer comparisons
         for rec in final_recommendations:
             agent_tools.upsert_fingerprint(rec["symbol"], rec["indicators_summary"])
 
-        # 7. Synthesise AI rationale per recommendation
+        # 8. Synthesise AI rationale per recommendation
         for rec in final_recommendations:
             ind = rec["indicators_summary"]
             rec["rationale"] = (
@@ -147,6 +180,7 @@ class LLMAgentLoop:
                 f"Capital allocated at {rec['allocation_pct'] * 100:.1f}% (₹{rec['allocated_capital']:.2f}) with mandatory intraday same-day exit."
             )
 
+        rejected_picks = non_qualified_candidates
         agent_memory.save_session_run(session_id, final_recommendations, rejected_picks, investment_amount)
 
         execution_time = round(time.time() - start_time, 3)
@@ -158,14 +192,16 @@ class LLMAgentLoop:
             "model_name": "phase5_d_lightgbm",
         }
 
-        return final_recommendations, charts_dict, trace_info
+        return final_recommendations, watchlist, charts_dict, trace_info
+
 
     async def generate_chat_response(
         self,
         user_message: str,
         session_id: str,
         provider_choice: str = "auto",
-        history: Optional[List[Dict[str, str]]] = None
+        history: Optional[List[Dict[str, str]]] = None,
+        stock_analysis: Optional[Dict[str, Any]] = None,
     ) -> Tuple[str, str, Dict[str, Any]]:
         """Handles agentic chat responses using LLM / financial knowledge client."""
         context = agent_memory.get_session_context(session_id)
@@ -173,16 +209,34 @@ class LLMAgentLoop:
         rejected = context.get("rejected_stocks", [])
         active_stock = context.get("active_stock")
 
-        # Build context summary
         system_context_parts = []
-        if active_stock:
-            system_context_parts.append(f"Currently focused stock context: {active_stock}.")
-        if picked:
-            picks_str = ", ".join([f"{p['symbol']} ({p['action']} {p.get('confidence', 80)}%)" for p in picked])
-            system_context_parts.append(f"Top recommendations in session: {picks_str}.")
-        if rejected:
-            rejs_str = ", ".join([r['symbol'] for r in rejected])
-            system_context_parts.append(f"Rejected candidate stocks: {rejs_str}.")
+
+        if stock_analysis:
+            # Factual stock analysis prompt enforcement
+            system_context_parts.append(
+                "STRICT INSTRUCTION: You are explaining backend-calculated trading data.\n"
+                "- Treat supplied model values as authoritative.\n"
+                "- Do not invent missing market data.\n"
+                "- Do not invent prices.\n"
+                "- Do not invent RSI/MACD/VWAP values.\n"
+                "- Do not invent probabilities.\n"
+                "- Do not change BUY/SELL/HOLD decision.\n"
+                "- Do not change qualification status.\n"
+                "- Do not change the 0.8000 model threshold.\n"
+                "- Do not recommend an unqualified setup as a qualified trade.\n"
+                "- The LLM explains the supplied model result; it does not perform the trading decision itself.\n"
+                "- If some data is missing, state that it is unavailable rather than guessing.\n"
+                f"FACTUAL BACKEND ANALYSIS: {stock_analysis}"
+            )
+        else:
+            if active_stock:
+                system_context_parts.append(f"Currently focused stock context: {active_stock}.")
+            if picked:
+                picks_str = ", ".join([f"{p['symbol']} ({p['action']} {p.get('confidence', 80)}%)" for p in picked])
+                system_context_parts.append(f"Top recommendations in session: {picks_str}.")
+            if rejected:
+                rejs_str = ", ".join([r['symbol'] for r in rejected])
+                system_context_parts.append(f"Rejected candidate stocks: {rejs_str}.")
 
         # Combine session memory history with request history
         past_turns = history or context.get("history", [])
@@ -190,7 +244,7 @@ class LLMAgentLoop:
             turns_str = " | ".join([f"{t.get('role', t.get('user', 'user'))}: {t.get('content', t.get('agent', ''))}" for t in past_turns[-6:]])
             system_context_parts.append(f"Prior Conversation Transcript: [{turns_str}]")
 
-        system_context = " ".join(system_context_parts)
+        system_context = "\n".join(system_context_parts)
 
         # Delegate to LLM client
         answer, provider_used = await llm_client.generate_response(

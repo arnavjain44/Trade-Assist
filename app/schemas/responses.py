@@ -25,6 +25,7 @@ class StockChartData(BaseModel):
     indicators: List[IndicatorPoint]
     sentiments: List[SentimentItem]
     overall_sentiment_score: float
+    latest_prediction: Optional[Dict[str, Any]] = None
 
 class TradeRecommendation(BaseModel):
     symbol: str
@@ -46,6 +47,23 @@ class TradeRecommendation(BaseModel):
     qualified: Optional[bool] = False
     direction: Optional[int] = None
 
+class WatchlistItem(BaseModel):
+    symbol: str
+    direction: str  # "LONG" or "SHORT"
+    model_probability: float
+    model_threshold: float = 0.8000
+    distance_to_threshold: float  # (0.8000 - model_probability) * 100
+    current_price: float
+    rsi: Optional[float] = None
+    macd: Optional[float] = None
+    price_vs_vwap: Optional[float] = None
+    sentiment_score: Optional[float] = None
+    market_similarity: Optional[float] = None
+    stock_similarity: Optional[float] = None
+    qualified: bool = False
+    allocated_capital: float = 0.0
+    shares_to_trade: int = 0
+
 class TraceInfo(BaseModel):
     execution_time_seconds: float
     provider_used: str
@@ -58,6 +76,7 @@ class RecommendationResponse(BaseModel):
     total_allocated: float
     unallocated_cash: float
     recommendations: List[TradeRecommendation]
+    watchlist: List[WatchlistItem] = []
     charts: Dict[str, StockChartData]
     trace: TraceInfo
 

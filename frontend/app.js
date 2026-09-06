@@ -174,38 +174,56 @@ function detectIntent(msg) {
 
 
 
+// ── Chat Input Helper ──────────────────────────────────────────────────────
+function setChatInputEnabled(enabled) {
+    const input = document.getElementById('chat-input');
+    const btn = document.getElementById('send-btn');
+    if (input) {
+        input.disabled = !enabled;
+        input.readOnly = false;
+        if (enabled) {
+            try { input.focus(); } catch (e) {}
+        }
+    }
+    if (btn) {
+        btn.disabled = !enabled;
+    }
+}
+
 // ── Chat Send ──────────────────────────────────────────────────────────────
 async function handleChatSend() {
     const input = document.getElementById('chat-input');
-    const msg = input.value.trim();
+    const msg = input ? input.value.trim() : '';
     if (!msg) return;
 
     hideSuggestions();
     appendUserMessage(msg);
-    input.value = '';
+    if (input) input.value = '';
 
-    const sendBtn = document.getElementById('send-btn');
-    sendBtn.disabled = true;
-
+    setChatInputEnabled(false);
     const typingEl = showTyping();
     const intent = detectIntent(msg);
 
     try {
         switch (intent.type) {
-            case 'stock':   await handleStockIntent(intent, typingEl); break;
-            case 'chart':   await handleChartIntent(intent, typingEl); break;
-            case 'invest':  await handleInvestIntent(intent, typingEl); break;
-            case 'sector':  await handleSectorIntent(intent, typingEl); break;
-            case 'market':  await handleMarketIntent(typingEl); break;
+            case 'stock':   await handleStockIntent(intent, typingEl, msg); break;
+            case 'chart':   await handleChartIntent(intent, typingEl, msg); break;
+            case 'invest':  await handleInvestIntent(intent, typingEl, msg); break;
+            case 'sector':  await handleSectorIntent(intent, typingEl, msg); break;
+            case 'market':  await handleMarketIntent(typingEl, msg); break;
             default:        await handleGeneralIntent(msg, typingEl); break;
         }
+    } catch (err) {
+        removeTyping(typingEl);
+        appendAIMessage("I couldn't reach the AI service right now. Your market-data analysis is still separate from the chat service.", null);
     } finally {
-        sendBtn.disabled = false;
+        setChatInputEnabled(true);
     }
 }
 
 function sendSuggestion(text) {
-    document.getElementById('chat-input').value = text;
+    const input = document.getElementById('chat-input');
+    if (input) input.value = text;
     handleChatSend();
 }
 
@@ -223,42 +241,99 @@ function hideSuggestions() {
 
 
 // ── Intent Handlers ────────────────────────────────────────────────────────
-async function handleStockIntent(intent, typingEl) {
+async function handleStockIntent(intent, typingEl, userPrompt) {
     const sym = intent.symbol;
+    if (!sym) {
+        return await handleGeneralIntent(userPrompt, typingEl);
+    }
     try {
         const data = await fetchIndicators(sym);
-        removeTyping(typingEl);
-        const latest = data.indicators[data.indicators.length - 1];
-        const sentiment = data.overall_sentiment_score;
+        const latest = (data.indicators && data.indicators.length > 0) ? data.indicators[data.indicators.length - 1] : {};
+        const pred = data.latest_prediction || {};
+        const sentiment = data.overall_sentiment_score || 0;
+        const ctxFeats = pred.context_features || {};
 
-        // Set active stock context globally (Fix for Item #3)
         activeStockSymbol = sym;
 
-        // Use deterministic technical bias calculated by backend (Fix for Item #4)
-        const bias = latest.overall_technical_bias || getBias(latest);
-        const rsiSignal = latest.rsi > 70 ? 'overbought' : latest.rsi < 30 ? 'oversold' : 'neutral momentum';
-        const macdSignal = (latest.macd > latest.macd_signal) ? 'bullish crossover' : 'bearish crossover';
-        const vwapSignal = latest.price > latest.vwap ? 'trading above VWAP — intraday buying pressure' : 'trading below VWAP — selling pressure dominant';
+        const pLongPct = (pred.p_long !== undefined && pred.p_long !== null) ? (pred.p_long * 100).toFixed(2) : 'N/A';
+        const pShortPct = (pred.p_short !== undefined && pred.p_short !== null) ? (pred.p_short * 100).toFixed(2) : 'N/A';
+        const threshPct = (pred.model_threshold !== undefined && pred.model_threshold !== null) ? (pred.model_threshold * 100).toFixed(2) : '80.00';
+        const action = pred.action || 'HOLD';
+        const modelName = pred.model_name || 'phase5_d_lightgbm';
 
-        const narrative = `${formatSymbolName(sym)} is currently trading at ₹${latest.price.toLocaleString('en-IN', {minimumFractionDigits: 2})}. The 5 EMA stands at ₹${latest.ema_5?.toFixed(2)}, suggesting the stock is ${latest.price > latest.ema_5 ? 'above its short-term trend — a bullish signal' : 'below its short-term trend — bearish near-term'}. RSI at ${latest.rsi?.toFixed(1)} indicates ${rsiSignal}. MACD shows a ${macdSignal}, and the stock is ${vwapSignal}. Overall technical bias is <strong style="color:${bias==='BULLISH'?'var(--green)':bias==='BEARISH'?'var(--red)':'var(--accent)'}">${bias}</strong>.`;
+        const stockAnalysisContext = {
+            symbol: sym,
+            current_price: latest.price || pred.current_price,
+            ema_5: latest.ema_5,
+            rsi: latest.rsi,
+            macd: latest.macd,
+            macd_signal: latest.macd_signal,
+            vwap: latest.vwap,
+            overall_sentiment_score: sentiment,
+            p_long: pred.p_long,
+            p_short: pred.p_short,
+            threshold: pred.model_threshold || 0.8000,
+            action: action,
+            qualified: pred.qualified || false,
+            market_similarity: ctxFeats.market_similarity || 0.0,
+            stock_similarity: ctxFeats.stock_similarity || 0.0,
+        };
+
+        let llmExplanation = '';
+        let providerUsed = 'fallback';
+        try {
+            const chatRes = await fetch('/api/v1/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: userPrompt || `Explain the technical and ML analysis for ${sym}.`,
+                    session_id: 'default_session',
+                    history: chatHistory,
+                    stock_analysis: stockAnalysisContext
+                })
+            });
+            if (chatRes.ok) {
+                const chatData = await chatRes.json();
+                llmExplanation = chatData.answer || '';
+                providerUsed = chatData.provider_used || 'fallback';
+            } else {
+                llmExplanation = "I couldn't reach the AI explanation service right now. Your market-data analysis is shown below.";
+            }
+        } catch (e) {
+            console.warn('Failed to fetch LLM explanation:', e);
+            llmExplanation = "I couldn't reach the AI explanation service right now. Your market-data analysis is shown below.";
+        }
+
+        removeTyping(typingEl);
+
+        const modelHeader = `<div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:14px;">
+            <div style="font-size:0.75rem;font-weight:600;color:var(--text-subtle);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px;">Model: ${modelName}</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(110px, 1fr));gap:8px;font-size:0.8rem;margin-bottom:6px;">
+                <div><span style="color:var(--text-subtle);">LONG prob:</span> <strong>${pLongPct}%</strong></div>
+                <div><span style="color:var(--text-subtle);">SHORT prob:</span> <strong>${pShortPct}%</strong></div>
+                <div><span style="color:var(--text-subtle);">Threshold:</span> <strong>${threshPct}%</strong></div>
+                <div><span style="color:var(--text-subtle);">Decision:</span> <strong style="color:${action==='BUY'?'var(--green)':action==='SELL'?'var(--red)':'var(--accent)'}">${action}</strong></div>
+            </div>
+        </div>`;
 
         const statCard = buildStatCard([
-            { label: 'Price', value: `₹${latest.price?.toFixed(2)}`, cls: '' },
-            { label: '5 EMA', value: `₹${latest.ema_5?.toFixed(2)}`, cls: '' },
-            { label: 'RSI', value: latest.rsi?.toFixed(1), cls: latest.rsi > 70 ? 'bearish' : latest.rsi < 30 ? 'bullish' : '' },
-            { label: 'MACD', value: latest.macd?.toFixed(3), cls: latest.macd > 0 ? 'bullish' : 'bearish' },
-            { label: 'VWAP', value: `₹${latest.vwap?.toFixed(2)}`, cls: '' },
+            { label: 'Price', value: latest.price ? `₹${latest.price.toFixed(2)}` : 'N/A', cls: '' },
+            { label: '5 EMA', value: latest.ema_5 ? `₹${latest.ema_5.toFixed(2)}` : 'N/A', cls: '' },
+            { label: 'RSI', value: latest.rsi ? latest.rsi.toFixed(1) : 'N/A', cls: latest.rsi > 70 ? 'bearish' : latest.rsi < 30 ? 'bullish' : '' },
+            { label: 'MACD', value: latest.macd ? latest.macd.toFixed(3) : 'N/A', cls: latest.macd > 0 ? 'bullish' : 'bearish' },
+            { label: 'VWAP', value: latest.vwap ? `₹${latest.vwap.toFixed(2)}` : 'N/A', cls: '' },
             { label: 'Sentiment', value: sentiment >= 0 ? `+${sentiment.toFixed(3)}` : sentiment.toFixed(3), cls: sentiment >= 0 ? 'bullish' : 'bearish' },
         ]);
 
         const actions = `<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
             <button class="btn-ghost" style="font-size:0.78rem;" onclick="requestCharts('${sym}')">View technical charts</button>
-            <button class="btn-ghost" style="font-size:0.78rem;border-color:var(--accent);color:var(--accent);" onclick="requestInvest('${sym}')">Allocate capital to this stock</button>
+            <button class="btn-ghost" style="font-size:0.78rem;border-color:var(--accent);color:var(--accent);" onclick="requestInvest('${sym}')">Use this stock in a market scan</button>
         </div>`;
 
-        appendAIMessage(narrative, statCard + actions);
+        const fullMessage = `${modelHeader}${statCard}<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);"><div style="font-size:0.75rem;font-weight:600;color:var(--text-subtle);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px;">AI Explanation</div><div style="line-height:1.6;">${llmExplanation}</div></div>${actions}`;
 
-        // Store chart data for later
+        appendAIMessage(fullMessage, null, providerUsed);
+
         currentChartsData[sym] = data;
         addToChartSelector(sym);
 
@@ -270,23 +345,70 @@ async function handleStockIntent(intent, typingEl) {
             `Explain 5 EMA for ${symName}`
         ]);
 
+        if (intent.amount || (userPrompt && userPrompt.toLowerCase().includes('invest'))) {
+            if (intent.amount) {
+                document.getElementById('capital-input').value = intent.amount;
+            }
+            revealSection('invest-section');
+            revealSection('peers-section');
+        }
+
     } catch (err) {
         removeTyping(typingEl);
         appendAIMessage(`I wasn't able to fetch live data for ${formatSymbolName(sym)} right now. This could be a network issue or the ticker may not be available via yfinance. Please try again in a moment.`, null);
     }
 }
 
-async function handleChartIntent(intent, typingEl) {
-    // Fall back to active stock context if no stock named in user prompt (Fix for Item #3)
+
+async function handleChartIntent(intent, typingEl, userPrompt) {
     const sym = intent.symbol || activeStockSymbol;
     if (!sym) {
         removeTyping(typingEl);
         appendAIMessage('Which stock would you like to see charts for? You can say something like "show me charts for Reliance" or "HDFCBANK technical chart".', null);
         return;
     }
-    removeTyping(typingEl);
+    revealSection('charts-section');
     requestCharts(sym);
-    appendAIMessage(`Loading technical charts for ${formatSymbolName(sym)}. You can switch between the Price / EMA, RSI, and MACD tabs below.`, null);
+
+    let llmExplanation = '';
+    let providerUsed = null;
+    try {
+        const data = currentChartsData[sym] || await fetchIndicators(sym);
+        const latest = (data.indicators && data.indicators.length > 0) ? data.indicators[data.indicators.length - 1] : {};
+        const pred = data.latest_prediction || {};
+
+        const chatRes = await fetch('/api/v1/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message: userPrompt || `Explain the chart and technical indicators for ${sym}.`,
+                session_id: 'default_session',
+                history: chatHistory,
+                stock_analysis: {
+                    symbol: sym,
+                    current_price: latest.price,
+                    ema_5: latest.ema_5,
+                    rsi: latest.rsi,
+                    macd: latest.macd,
+                    vwap: latest.vwap,
+                    p_long: pred.p_long,
+                    p_short: pred.p_short,
+                    action: pred.action
+                }
+            })
+        });
+        if (chatRes.ok) {
+            const chatData = await chatRes.json();
+            llmExplanation = chatData.answer || '';
+            providerUsed = chatData.provider_used;
+        }
+    } catch (e) {
+        console.warn('Failed to fetch LLM chart explanation:', e);
+    }
+
+    removeTyping(typingEl);
+    const msgText = llmExplanation || `Loading technical charts for ${formatSymbolName(sym)}. You can switch between the Price / EMA, RSI, and MACD tabs below.`;
+    appendAIMessage(msgText, null, providerUsed);
     updateSuggestionChips([
         'Explain 5 EMA vs VWAP',
         'Explain RSI momentum',
@@ -296,7 +418,10 @@ async function handleChartIntent(intent, typingEl) {
 }
 
 
-async function handleInvestIntent(intent, typingEl) {
+async function handleInvestIntent(intent, typingEl, userPrompt) {
+    if (intent.symbol) {
+        return await handleStockIntent(intent, typingEl, userPrompt);
+    }
     removeTyping(typingEl);
     const amount = intent.amount;
 
@@ -317,7 +442,7 @@ async function handleInvestIntent(intent, typingEl) {
     ]);
 }
 
-async function handleSectorIntent(intent, typingEl) {
+async function handleSectorIntent(intent, typingEl, userPrompt) {
     const sector = intent.sector;
     const sectorStocks = {
         banking: ['HDFCBANK.NS', 'ICICIBANK.NS', 'SBIN.NS', 'AXISBANK.NS', 'KOTAKBANK.NS'],
@@ -328,18 +453,44 @@ async function handleSectorIntent(intent, typingEl) {
         energy:  ['RELIANCE.NS'],
     };
     const stocks = sectorStocks[sector] || [];
+
+    let llmExplanation = '';
+    let providerUsed = null;
+    try {
+        const chatRes = await fetch('/api/v1/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message: userPrompt || `Compare ${sector} sector stocks.`,
+                session_id: 'default_session',
+                history: chatHistory
+            })
+        });
+        if (chatRes.ok) {
+            const chatData = await chatRes.json();
+            llmExplanation = chatData.answer || '';
+            providerUsed = chatData.provider_used;
+        }
+    } catch (e) {
+        console.warn('Failed to fetch sector LLM explanation:', e);
+    }
+
     removeTyping(typingEl);
 
     if (!stocks.length) {
-        appendAIMessage(`I don't have a predefined stock list for that sector. Try asking about a specific stock like "Tell me about Reliance".`, null);
+        appendAIMessage(llmExplanation || `I don't have a predefined stock list for that sector. Try asking about a specific stock like "Tell me about Reliance".`, null, providerUsed);
         return;
     }
 
+    const defaultMsg = `The ${sector.toUpperCase()} sector on NSE includes: <strong>${stocks.map(formatSymbolName).join(', ')}</strong>. I can pull live data for any of these — just ask about one specifically, or tell me you want to invest and I'll scan the full sector.`;
+    const responseText = llmExplanation ? `${llmExplanation}<br/><br/>${defaultMsg}` : defaultMsg;
+
     appendAIMessage(
-        `The ${sector.toUpperCase()} sector on NSE includes: <strong>${stocks.map(formatSymbolName).join(', ')}</strong>. I can pull live data for any of these — just ask about one specifically, or tell me you want to invest and I'll scan the full sector.`,
+        responseText,
         `<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
             ${stocks.map(s => `<button class="chip" onclick="sendSuggestion('Tell me about ${formatSymbolName(s)}')">${formatSymbolName(s)}</button>`).join('')}
-        </div>`
+        </div>`,
+        providerUsed
     );
 
     const s1 = stocks[0] ? formatSymbolName(stocks[0]) : 'HDFC Bank';
@@ -352,20 +503,43 @@ async function handleSectorIntent(intent, typingEl) {
     ]);
 }
 
-async function handleMarketIntent(typingEl) {
+async function handleMarketIntent(typingEl, userPrompt) {
     removeTyping(typingEl);
+    let llmExplanation = '';
+    let providerUsed = null;
+    try {
+        const chatRes = await fetch('/api/v1/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message: userPrompt || 'What is the market looking like today?',
+                session_id: 'default_session',
+                history: chatHistory
+            })
+        });
+        if (chatRes.ok) {
+            const chatData = await chatRes.json();
+            llmExplanation = chatData.answer || '';
+            providerUsed = chatData.provider_used;
+        }
+    } catch (e) {
+        console.warn('Failed to fetch market overview LLM explanation:', e);
+    }
+
     const hour = new Date().getHours();
     const marketOpen = hour >= 9 && hour < 16;
     const status = marketOpen ? 'NSE is currently within trading hours (9:15 AM – 3:30 PM IST)' : 'NSE markets are closed for regular trading sessions';
+    const defaultMsg = `${status}. I can analyse live price data, technical indicators, and sentiment for top NSE liquid equities.`;
 
     appendAIMessage(
-        `${status}. I can analyse live price data, technical indicators, and sentiment for any of the top 20 NSE liquid equities in my universe — covering IT, Banking, Auto, FMCG, Pharma, and Energy sectors. Ask me about a specific stock or sector to get started, or tell me your investment amount to generate a full intraday allocation plan.`,
+        llmExplanation ? `${llmExplanation}<br/><br/>${defaultMsg}` : defaultMsg,
         `<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
             <button class="chip" onclick="sendSuggestion('Tell me about HDFC Bank')">HDFC Bank</button>
             <button class="chip" onclick="sendSuggestion('Tell me about Reliance')">Reliance</button>
             <button class="chip" onclick="sendSuggestion('Tell me about TCS')">TCS</button>
             <button class="chip" onclick="sendSuggestion('Which banking stocks look strong?')">Banking sector</button>
-        </div>`
+        </div>`,
+        providerUsed
     );
     updateSuggestionChips([
         'Tell me about HDFC Bank',
@@ -376,7 +550,8 @@ async function handleMarketIntent(typingEl) {
 }
 
 async function handleGeneralIntent(msg, typingEl) {
-    // Fall back to backend chat with full conversation transcript (Fix for Item #1)
+    let responseAnswer = '';
+    let providerUsed = null;
     try {
         const r = await fetch('/api/v1/chat', {
             method: 'POST',
@@ -387,12 +562,15 @@ async function handleGeneralIntent(msg, typingEl) {
                 history: chatHistory
             })
         });
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
         const data = await r.json();
+        responseAnswer = data.answer || 'I can help you with NSE stock analysis, market conditions, and intraday capital allocation. Try asking about a specific stock or sector.';
+        providerUsed = data.provider_used;
+    } catch (err) {
+        responseAnswer = "I couldn't reach the AI service right now. Your market-data analysis is still separate from the chat service.";
+    } finally {
         removeTyping(typingEl);
-        appendAIMessage(data.answer || 'I can help you with NSE stock analysis, market conditions, and intraday capital allocation. Try asking about a specific stock or sector.', null, data.provider_used);
-    } catch {
-        removeTyping(typingEl);
-        appendAIMessage('I can help you with NSE stock analysis, market conditions, and intraday capital allocation. Try asking about a specific stock or sector.', null);
+        appendAIMessage(responseAnswer, null, providerUsed);
     }
     updateSuggestionChips([
         'Tell me about HDFC Bank',
@@ -471,11 +649,52 @@ async function handleScanMarket() {
         revealSection('recommendations-section');
         revealSection('charts-section');
 
+        // Fetch LLM explanation for market scan result
+        let llmSummary = '';
+        try {
+            const chatRes = await fetch('/api/v1/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: `Explain the market scan results for investment of Rs ${capital}.`,
+                    session_id: 'default_session',
+                    stock_analysis: {
+                        scan_type: 'market_scan',
+                        investment_amount: capital,
+                        qualified_count: currentRecommendations.length,
+                        watchlist_top: (data.watchlist || []).slice(0, 3).map(w => ({
+                            symbol: w.symbol,
+                            direction: w.direction,
+                            model_probability: w.model_probability,
+                            distance_to_threshold: w.distance_to_threshold
+                        }))
+                    }
+                })
+            });
+            if (chatRes.ok) {
+                const chatData = await chatRes.json();
+                llmSummary = chatData.answer || '';
+            }
+        } catch (e) {
+            console.warn('Failed to fetch LLM scan summary:', e);
+        }
+
         // AI message summary
         const topPick = currentRecommendations[0];
         if (topPick) {
             appendAIMessage(
-                `Scan complete. I found <strong>${currentRecommendations.length} high-confidence trade setups</strong> across your ₹${capital.toLocaleString('en-IN')} allocation. The top pick is <strong>${formatSymbolName(topPick.symbol)}</strong> — ${topPick.action} signal at ${topPick.confidence}% confidence, with ₹${topPick.allocated_capital?.toFixed(2)} allocated. Scroll down for the full breakdown, charts, and sector peer comparison.`,
+                `Scan complete. I found <strong>${currentRecommendations.length} high-confidence trade setups</strong> across your ₹${capital.toLocaleString('en-IN')} allocation. The top pick is <strong>${formatSymbolName(topPick.symbol)}</strong> — ${topPick.action} signal at ${(topPick.confidence || 0).toFixed(2)}% Model probability, with ₹${topPick.allocated_capital?.toFixed(2)} allocated.` +
+                (llmSummary ? `<br/><br/>${llmSummary}` : ''),
+                null
+            );
+        } else {
+            const topWatch = (data.watchlist || [])[0];
+            const watchMsg = topWatch ? ` ${topWatch.symbol.replace('.NS','')} is the strongest monitored setup at ${(topWatch.model_probability*100).toFixed(2)}% (${topWatch.direction}), but it remains ${topWatch.distance_to_threshold.toFixed(2)} percentage points below the required threshold.` : '';
+            appendAIMessage(
+                `No trade currently meets the 80% model threshold across your ₹${capital.toLocaleString('en-IN')} capital input.<br/><br/>` +
+                `• Allocated: <strong>₹0.00</strong><br/>` +
+                `• Cash Reserve: <strong>₹${capital.toLocaleString('en-IN')}</strong> (100% full investment amount preserved)<br/><br/>` +
+                (llmSummary || `No capital allocated because no candidate crossed the strict 80% model threshold.${watchMsg}`),
                 null
             );
         }
@@ -499,7 +718,7 @@ async function handleScanMarket() {
     }
 }
 
-// ── Render Recommendations ─────────────────────────────────────────────────
+// ── Render Recommendations & Watchlist ──────────────────────────────────────
 function renderRecommendations(data) {
     const allocated = Math.min(data.investment_amount, data.total_allocated);
     const unallocated = Math.max(0, data.investment_amount - allocated);
@@ -515,57 +734,152 @@ function renderRecommendations(data) {
         document.getElementById('trace-fallback').textContent = data.trace.fallbacks_triggered?.length ? data.trace.fallbacks_triggered.join(', ') : 'None';
     }
 
-    // Recommendation cards
+    // 1. Qualified Recommendation cards
     const container = document.getElementById('recommendations-container');
     container.innerHTML = '';
 
-    (data.recommendations || []).forEach(rec => {
-        const isBuy = rec.action === 'BUY';
-        const card = document.createElement('div');
-        card.className = `rec-card ${isBuy ? 'buy-card' : 'sell-card'}`;
-        const confPct = rec.confidence || 0;
-        card.innerHTML = `
-            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;position:relative;z-index:1;">
-                <div>
-                    <div style="font-size:0.72rem;font-weight:600;color:var(--text-subtle);letter-spacing:0.04em;text-transform:uppercase;margin-bottom:4px;">${rec.symbol}</div>
-                    <div style="font-size:1.3rem;font-weight:700;letter-spacing:-0.02em;color:var(--text);">₹${rec.current_price?.toFixed(2)}</div>
-                </div>
-                <span class="badge ${isBuy ? 'badge-buy' : 'badge-sell'}">${rec.action}</span>
-            </div>
-            <div style="margin-bottom:14px;position:relative;z-index:1;">
-                <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--text-subtle);margin-bottom:5px;">
-                    <span>Model Confidence</span>
-                    <span style="font-weight:600;color:${isBuy?'var(--green)':'var(--red)'};">${confPct}%</span>
-                </div>
-                <div class="conf-bar-bg">
-                    <div class="conf-bar-fill" style="width:${confPct}%;background:${isBuy?'var(--green)':'var(--red)'};"></div>
-                </div>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.78rem;margin-bottom:14px;position:relative;z-index:1;">
-                <div>
-                    <div style="color:var(--text-subtle);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:2px;">Allocated</div>
-                    <div style="font-weight:600;color:var(--text);">₹${rec.allocated_capital?.toFixed(2)}</div>
-                </div>
-                <div>
-                    <div style="color:var(--text-subtle);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:2px;">Shares</div>
-                    <div style="font-weight:600;color:var(--text);">${rec.shares_to_trade}</div>
-                </div>
-                <div>
-                    <div style="color:var(--text-subtle);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:2px;">Target</div>
-                    <div style="font-weight:600;color:var(--green);">₹${rec.target_price?.toFixed(2)}</div>
-                </div>
-                <div>
-                    <div style="color:var(--text-subtle);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:2px;">Stop Loss</div>
-                    <div style="font-weight:600;color:var(--red);">₹${rec.stop_loss?.toFixed(2)}</div>
-                </div>
-            </div>
-            ${rec.rationale ? `<div style="font-size:0.75rem;color:var(--text-muted);line-height:1.55;padding-top:12px;border-top:1px solid var(--border);position:relative;z-index:1;">${rec.rationale}</div>` : ''}
-            <div style="margin-top:12px;position:relative;z-index:1;">
-                <button class="btn-ghost" style="font-size:0.75rem;width:100%;text-align:center;" onclick="requestCharts('${rec.symbol}')">View charts</button>
+    const recs = data.recommendations || [];
+    if (recs.length === 0) {
+        container.innerHTML = `
+            <div style="grid-column:1/-1;background:var(--surface);border:1px dashed var(--border);border-radius:14px;padding:24px;text-align:center;">
+                <div style="font-size:0.95rem;font-weight:700;color:var(--text);margin-bottom:6px;">No trade currently meets the 80% model threshold.</div>
+                <div style="font-size:0.8rem;color:var(--text-subtle);line-height:1.5;">No capital allocated because no candidate crossed the strict 80% model threshold. Your full capital (₹${data.investment_amount?.toLocaleString('en-IN')}) is preserved in cash reserve.</div>
             </div>
         `;
-        container.appendChild(card);
-    });
+    } else {
+        recs.forEach(rec => {
+            const isBuy = rec.action === 'BUY';
+            const card = document.createElement('div');
+            card.className = `rec-card ${isBuy ? 'buy-card' : 'sell-card'}`;
+            const probPct = rec.model_probability ? (rec.model_probability * 100).toFixed(2) : (rec.confidence || 0).toFixed(2);
+            card.innerHTML = `
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;position:relative;z-index:1;">
+                    <div>
+                        <div style="font-size:0.72rem;font-weight:600;color:var(--text-subtle);letter-spacing:0.04em;text-transform:uppercase;margin-bottom:4px;">${rec.symbol}</div>
+                        <div style="font-size:1.3rem;font-weight:700;letter-spacing:-0.02em;color:var(--text);">₹${rec.current_price?.toFixed(2)}</div>
+                    </div>
+                    <span class="badge ${isBuy ? 'badge-buy' : 'badge-sell'}">${rec.action}</span>
+                </div>
+                <div style="margin-bottom:14px;position:relative;z-index:1;">
+                    <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--text-subtle);margin-bottom:5px;">
+                        <span>Model Probability</span>
+                        <span style="font-weight:600;color:${isBuy?'var(--green)':'var(--red)'};">${probPct}%</span>
+                    </div>
+                    <div class="conf-bar-bg">
+                        <div class="conf-bar-fill" style="width:${probPct}%;background:${isBuy?'var(--green)':'var(--red)'};"></div>
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.78rem;margin-bottom:14px;position:relative;z-index:1;">
+                    <div>
+                        <div style="color:var(--text-subtle);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:2px;">Allocated</div>
+                        <div style="font-weight:600;color:var(--text);">₹${rec.allocated_capital?.toFixed(2)}</div>
+                    </div>
+                    <div>
+                        <div style="color:var(--text-subtle);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:2px;">Shares</div>
+                        <div style="font-weight:600;color:var(--text);">${rec.shares_to_trade}</div>
+                    </div>
+                    <div>
+                        <div style="color:var(--text-subtle);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:2px;">Target</div>
+                        <div style="font-weight:600;color:var(--green);">₹${rec.target_price?.toFixed(2)}</div>
+                    </div>
+                    <div>
+                        <div style="color:var(--text-subtle);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:2px;">Stop Loss</div>
+                        <div style="font-weight:600;color:var(--red);">₹${rec.stop_loss?.toFixed(2)}</div>
+                    </div>
+                </div>
+                ${rec.rationale ? `<div style="font-size:0.75rem;color:var(--text-muted);line-height:1.55;padding-top:12px;border-top:1px solid var(--border);position:relative;z-index:1;">${rec.rationale}</div>` : ''}
+                <div style="margin-top:12px;position:relative;z-index:1;">
+                    <button class="btn-ghost" style="font-size:0.75rem;width:100%;text-align:center;" onclick="requestCharts('${rec.symbol}')">View charts</button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    // 2. Watchlist cards (Top Setups to Monitor)
+    const watchContainer = document.getElementById('watchlist-container');
+    if (watchContainer) {
+        watchContainer.innerHTML = '';
+        const watchlist = data.watchlist || [];
+        if (watchlist.length === 0) {
+            document.getElementById('watchlist-section').style.display = 'none';
+        } else {
+            document.getElementById('watchlist-section').style.display = 'block';
+            watchlist.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'rec-card';
+                card.style.borderColor = 'var(--border)';
+                const probPct = (item.model_probability * 100).toFixed(2);
+                const gapPct = item.distance_to_threshold.toFixed(2);
+                const threshPct = (item.model_threshold * 100).toFixed(2);
+
+                card.innerHTML = `
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;position:relative;z-index:1;">
+                        <div>
+                            <div style="font-size:0.72rem;font-weight:600;color:var(--text-subtle);letter-spacing:0.04em;text-transform:uppercase;margin-bottom:4px;">${item.symbol}</div>
+                            <div style="font-size:1.2rem;font-weight:700;letter-spacing:-0.02em;color:var(--text);">₹${item.current_price?.toFixed(2)}</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <span class="chip" style="font-size:0.7rem;padding:2px 8px;font-weight:700;color:var(--accent);border-color:var(--border);">${item.direction}</span>
+                            <div style="font-size:0.65rem;font-weight:700;color:var(--text-subtle);margin-top:4px;letter-spacing:0.04em;text-transform:uppercase;">STATUS: NOT QUALIFIED</div>
+                        </div>
+                    </div>
+                    <div style="margin-bottom:12px;position:relative;z-index:1;">
+                        <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--text-subtle);margin-bottom:4px;">
+                            <span>Model Probability</span>
+                            <span style="font-weight:600;color:var(--text);">${probPct}%</span>
+                        </div>
+                        <div class="conf-bar-bg">
+                            <div class="conf-bar-fill" style="width:${probPct}%;background:var(--accent);"></div>
+                        </div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.75rem;margin-bottom:12px;position:relative;z-index:1;">
+                        <div>
+                            <div style="color:var(--text-subtle);font-size:0.65rem;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:2px;">Threshold</div>
+                            <div style="font-weight:600;color:var(--text);">${threshPct}%</div>
+                        </div>
+                        <div>
+                            <div style="color:var(--text-subtle);font-size:0.65rem;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:2px;">Gap</div>
+                            <div style="font-weight:600;color:var(--accent);">${gapPct} percentage points</div>
+                        </div>
+                        <div>
+                            <div style="color:var(--text-subtle);font-size:0.65rem;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:2px;">RSI</div>
+                            <div style="font-weight:600;color:var(--text);">${item.rsi !== undefined && item.rsi !== null ? item.rsi.toFixed(1) : 'N/A'}</div>
+                        </div>
+                        <div>
+                            <div style="color:var(--text-subtle);font-size:0.65rem;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:2px;">MACD</div>
+                            <div style="font-weight:600;color:var(--text);">${item.macd !== undefined && item.macd !== null ? item.macd.toFixed(3) : 'N/A'}</div>
+                        </div>
+                        <div>
+                            <div style="color:var(--text-subtle);font-size:0.65rem;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:2px;">Sentiment Score</div>
+                            <div style="font-weight:600;color:var(--text);">${item.sentiment_score !== undefined && item.sentiment_score !== null ? item.sentiment_score.toFixed(3) : 'N/A'}</div>
+                        </div>
+                        <div>
+                            <div style="color:var(--text-subtle);font-size:0.65rem;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:2px;">Market Sim</div>
+                            <div style="font-weight:600;color:var(--text);">${item.market_similarity !== undefined && item.market_similarity !== null ? item.market_similarity.toFixed(4) : '0.0000'}</div>
+                        </div>
+                        <div>
+                            <div style="color:var(--text-subtle);font-size:0.65rem;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:2px;">Stock Sim</div>
+                            <div style="font-weight:600;color:var(--text);">${item.stock_similarity !== undefined && item.stock_similarity !== null ? item.stock_similarity.toFixed(4) : '0.0000'}</div>
+                        </div>
+                        <div>
+                            <div style="color:var(--text-subtle);font-size:0.65rem;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:2px;">Allocation</div>
+                            <div style="font-weight:600;color:var(--text-subtle);">₹0.00</div>
+                        </div>
+                    </div>
+                    <div style="margin-top:10px;position:relative;z-index:1;">
+                        <button class="btn-ghost" style="font-size:0.75rem;width:100%;text-align:center;" onclick="requestCharts('${item.symbol}')">View charts</button>
+                    </div>
+                `;
+                watchContainer.appendChild(card);
+            });
+        }
+    }
+
+
+    // 3. Doughnut chart
+    renderAllocationChart(data.recommendations || [], unallocated);
+}
 
     // Doughnut chart
     renderAllocationChart(data.recommendations || [], unallocated);
