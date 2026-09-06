@@ -230,34 +230,89 @@
         .stat-card {
             background: var(--bg-secondary);
             border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 12px 14px;
-            margin-top: 10px;
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin: 8px 0;
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
+            gap: 8px 14px;
+            align-items: start;
         }
         .stat-cell {
             display: flex;
             flex-direction: column;
             gap: 2px;
+            position: relative;
         }
         .stat-label {
             font-size: 0.68rem;
             color: var(--text-subtle);
-            font-weight: 500;
+            font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.04em;
         }
         .stat-value {
             font-size: 0.875rem;
-            font-weight: 600;
+            font-weight: 700;
             color: var(--text);
             letter-spacing: -0.01em;
         }
         .stat-value.bullish { color: var(--green); }
         .stat-value.bearish { color: var(--red); }
         .stat-value.accent  { color: var(--accent); }
+
+        /* ── Indicator Info Tooltip ────────────────────────────── */
+        .info-tooltip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            background: var(--border);
+            color: var(--text-subtle);
+            font-size: 0.62rem;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            position: relative;
+            user-select: none;
+            transition: background 0.2s, color 0.2s;
+        }
+        .info-tooltip:hover {
+            background: var(--accent);
+            color: #fff;
+        }
+        .info-tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 130%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: #f8fafc;
+            border: 1px solid var(--border);
+            padding: 7px 11px;
+            border-radius: 8px;
+            font-size: 0.73rem;
+            font-weight: 400;
+            line-height: 1.45;
+            white-space: normal;
+            width: max-content;
+            max-width: 220px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+            z-index: 100;
+            text-transform: none;
+            letter-spacing: normal;
+        }
+        .info-tooltip:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
 
         /* ── Form Inputs ──────────────────────────────────────── */
         .form-input {

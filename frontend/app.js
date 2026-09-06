@@ -306,9 +306,8 @@ async function handleStockIntent(intent, typingEl, userPrompt) {
 
         removeTyping(typingEl);
 
-        const modelHeader = `<div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:14px;">
-            <div style="font-size:0.75rem;font-weight:600;color:var(--text-subtle);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px;">Model: ${modelName}</div>
-            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(110px, 1fr));gap:8px;font-size:0.8rem;margin-bottom:6px;">
+        const modelHeader = `<div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:10px;padding:8px 12px;margin-bottom:8px;">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(100px, 1fr));gap:6px;font-size:0.78rem;">
                 <div><span style="color:var(--text-subtle);">LONG prob:</span> <strong>${pLongPct}%</strong></div>
                 <div><span style="color:var(--text-subtle);">SHORT prob:</span> <strong>${pShortPct}%</strong></div>
                 <div><span style="color:var(--text-subtle);">Threshold:</span> <strong>${threshPct}%</strong></div>
@@ -317,12 +316,12 @@ async function handleStockIntent(intent, typingEl, userPrompt) {
         </div>`;
 
         const statCard = buildStatCard([
-            { label: 'Price', value: latest.price ? `₹${latest.price.toFixed(2)}` : 'N/A', cls: '' },
-            { label: '5 EMA', value: latest.ema_5 ? `₹${latest.ema_5.toFixed(2)}` : 'N/A', cls: '' },
-            { label: 'RSI', value: latest.rsi ? latest.rsi.toFixed(1) : 'N/A', cls: latest.rsi > 70 ? 'bearish' : latest.rsi < 30 ? 'bullish' : '' },
-            { label: 'MACD', value: latest.macd ? latest.macd.toFixed(3) : 'N/A', cls: latest.macd > 0 ? 'bullish' : 'bearish' },
-            { label: 'VWAP', value: latest.vwap ? `₹${latest.vwap.toFixed(2)}` : 'N/A', cls: '' },
-            { label: 'Sentiment', value: sentiment >= 0 ? `+${sentiment.toFixed(3)}` : sentiment.toFixed(3), cls: sentiment >= 0 ? 'bullish' : 'bearish' },
+            { label: 'Price', value: latest.price ? `₹${latest.price.toFixed(2)}` : 'N/A', cls: '', info: 'Last traded price on NSE in INR.' },
+            { label: '5 EMA', value: latest.ema_5 ? `₹${latest.ema_5.toFixed(2)}` : 'N/A', cls: '', info: '5-period Exponential Moving Average. Identifies short-term trend direction.' },
+            { label: 'RSI', value: latest.rsi ? latest.rsi.toFixed(1) : 'N/A', cls: latest.rsi > 70 ? 'bearish' : latest.rsi < 30 ? 'bullish' : '', info: 'Relative Strength Index (14). Measures momentum (0-100): >70 overbought, <30 oversold.' },
+            { label: 'MACD', value: latest.macd ? latest.macd.toFixed(3) : 'N/A', cls: latest.macd > 0 ? 'bullish' : 'bearish', info: 'Moving Average Convergence Divergence. Tracks trend momentum vs signal line.' },
+            { label: 'VWAP', value: latest.vwap ? `₹${latest.vwap.toFixed(2)}` : 'N/A', cls: '', info: 'Volume-Weighted Average Price. Session-wide institutional benchmark.' },
+            { label: 'Sentiment', value: sentiment >= 0 ? `+${sentiment.toFixed(3)}` : sentiment.toFixed(3), cls: sentiment >= 0 ? 'bullish' : 'bearish', info: 'FinBERT NLP sentiment score (-1.0 to +1.0) calculated from recent financial news.' },
         ]);
 
         const actions = `<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
@@ -1336,7 +1335,10 @@ function getBias(latest) {
 function buildStatCard(stats) {
     return `<div class="stat-card">${stats.map(s => `
         <div class="stat-cell">
-            <span class="stat-label">${s.label}</span>
+            <div style="display:flex;align-items:center;gap:4px;">
+                <span class="stat-label">${s.label}</span>
+                ${s.info ? `<span class="info-tooltip" data-tooltip="${s.info.replace(/"/g, '&quot;')}">i</span>` : ''}
+            </div>
             <span class="stat-value ${s.cls}">${s.value}</span>
         </div>`).join('')}
     </div>`;
