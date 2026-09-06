@@ -12,13 +12,13 @@ let rsiChartInstance = null;
 let macdChartInstance = null;
 let peersChartInstance = null;
 
-// NSE symbol lookup — common names + direct ticker input
+// NSE symbol lookup — common names + direct ticker input (Full NIFTY 50 Universe)
 const SYMBOL_MAP = {
     'reliance': 'RELIANCE.NS', 'ril': 'RELIANCE.NS',
     'tcs': 'TCS.NS', 'tata consultancy': 'TCS.NS',
     'infosys': 'INFY.NS', 'infy': 'INFY.NS',
     'hdfc bank': 'HDFCBANK.NS', 'hdfcbank': 'HDFCBANK.NS', 'hdfc': 'HDFCBANK.NS',
-    'icici': 'ICICIBANK.NS', 'icici bank': 'ICICIBANK.NS', 'icicicbank': 'ICICIBANK.NS',
+    'icici': 'ICICIBANK.NS', 'icici bank': 'ICICIBANK.NS', 'icicibank': 'ICICIBANK.NS',
     'tata motors': 'TATAMOTORS.NS', 'tatamotors': 'TATAMOTORS.NS',
     'airtel': 'BHARTIARTL.NS', 'bharti': 'BHARTIARTL.NS', 'bhartiartl': 'BHARTIARTL.NS',
     'sbi': 'SBIN.NS', 'state bank': 'SBIN.NS', 'sbin': 'SBIN.NS',
@@ -28,17 +28,44 @@ const SYMBOL_MAP = {
     'bajaj finance': 'BAJFINANCE.NS', 'bajfinance': 'BAJFINANCE.NS',
     'maruti': 'MARUTI.NS', 'maruti suzuki': 'MARUTI.NS',
     'lt': 'LT.NS', 'larsen': 'LT.NS', 'l&t': 'LT.NS',
-    'hcl': 'HCLTECH.NS', 'hcltech': 'HCLTECH.NS',
+    'hcl': 'HCLTECH.NS', 'hcltech': 'HCLTECH.NS', 'hcl tech': 'HCLTECH.NS',
     'sun pharma': 'SUNPHARMA.NS', 'sunpharma': 'SUNPHARMA.NS',
     'titan': 'TITAN.NS',
     'ultratech': 'ULTRACEMCO.NS', 'ultracemco': 'ULTRACEMCO.NS',
     'asian paints': 'ASIANPAINT.NS', 'asianpaint': 'ASIANPAINT.NS',
-    'kotak': 'KOTAKBANK.NS', 'kotakbank': 'KOTAKBANK.NS',
-    'paytm': 'PAYTM.NS', 'one97': 'PAYTM.NS',
-    'zomato': 'ZOMATO.NS',
+    'kotak': 'KOTAKBANK.NS', 'kotakbank': 'KOTAKBANK.NS', 'kotak bank': 'KOTAKBANK.NS',
     'tata steel': 'TATASTEEL.NS', 'tatasteel': 'TATASTEEL.NS',
+    'indusind': 'INDUSINDBK.NS', 'indusindbank': 'INDUSINDBK.NS', 'indusind bank': 'INDUSINDBK.NS',
+    'ntpc': 'NTPC.NS',
+    'powergrid': 'POWERGRID.NS', 'power grid': 'POWERGRID.NS',
     'coal india': 'COALINDIA.NS', 'coalindia': 'COALINDIA.NS',
-    'hal': 'HAL.NS', 'bel': 'BEL.NS', 'dlf': 'DLF.NS',
+    'ongc': 'ONGC.NS',
+    'hdfc life': 'HDFCLIFE.NS', 'hdfclife': 'HDFCLIFE.NS',
+    'sbi life': 'SBILIFE.NS', 'sbilife': 'SBILIFE.NS',
+    'bajaj auto': 'BAJAJ-AUTO.NS', 'bajajauto': 'BAJAJ-AUTO.NS', 'bajaj-auto': 'BAJAJ-AUTO.NS',
+    'm&m': 'M&M.NS', 'mahindra': 'M&M.NS', 'mahindra & mahindra': 'M&M.NS',
+    'hero': 'HEROMOTOCO.NS', 'heromotoco': 'HEROMOTOCO.NS', 'hero motocorp': 'HEROMOTOCO.NS',
+    'eicher': 'EICHERMOT.NS', 'eichermot': 'EICHERMOT.NS', 'eicher motors': 'EICHERMOT.NS',
+    'bpcl': 'BPCL.NS',
+    'ioc': 'IOC.NS', 'indian oil': 'IOC.NS',
+    'divis': 'DIVISLAB.NS', 'divislab': 'DIVISLAB.NS', "divi's": 'DIVISLAB.NS',
+    'drreddy': 'DRREDDY.NS', 'dr reddy': 'DRREDDY.NS', "dr. reddy's": 'DRREDDY.NS',
+    'cipla': 'CIPLA.NS',
+    'apollo': 'APOLLOHOSP.NS', 'apollohosp': 'APOLLOHOSP.NS', 'apollo hospitals': 'APOLLOHOSP.NS',
+    'britannia': 'BRITANNIA.NS',
+    'nestle': 'NESTLEIND.NS', 'nestleind': 'NESTLEIND.NS', 'nestle india': 'NESTLEIND.NS',
+    'hul': 'HINDUNILVR.NS', 'hindunilvr': 'HINDUNILVR.NS', 'hindustan unilever': 'HINDUNILVR.NS',
+    'grasim': 'GRASIM.NS',
+    'jsw steel': 'JSWSTEEL.NS', 'jswsteel': 'JSWSTEEL.NS',
+    'hindalco': 'HINDALCO.NS',
+    'adani ent': 'ADANIENT.NS', 'adanient': 'ADANIENT.NS', 'adani enterprises': 'ADANIENT.NS',
+    'adani ports': 'ADANIPORTS.NS', 'adaniports': 'ADANIPORTS.NS',
+    'bel': 'BEL.NS',
+    'hal': 'HAL.NS',
+    'trent': 'TRENT.NS',
+    'zomato': 'ZOMATO.NS',
+    'paytm': 'PAYTM.NS', 'one97': 'PAYTM.NS',
+    'dlf': 'DLF.NS',
 };
 
 const SECTOR_KEYWORDS = {
@@ -126,36 +153,47 @@ function applyTheme() {
 }
 
 // ── Intent Detection (Extract stock FIRST, protect sector & command keywords) ───
+// ── Intent Detection (Priority-based: Investment > Chart > Sector > Stock > Market > General) ───
 function detectIntent(msg) {
-    const lower = msg.toLowerCase();
+    const lower = msg.toLowerCase().trim();
 
-    // Amount pattern: ₹50000 or 50000 or 50k
-    const amountMatch = lower.match(/(?:₹|rs\.?\s*|inr\s*)(\d[\d,]*(?:k)?)|(\d[\d,]*(?:k)?)\s*(?:rupees?|rs|inr)/i)
-                     || lower.match(/invest\s+(?:₹|rs\.?\s*)?(\d[\d,]*k?)/i);
+    // 1. Amount pattern extraction (e.g. ₹50000, 50000, 50k, rs 50000, 50,000, 50 thousand)
+    const amountMatch = lower.match(/(?:₹|rs\.?\s*|inr\s*)(\d[\d,]*(?:\.\d+)?k?)|(\d[\d,]*(?:\.\d+)?k?)\s*(?:rupees?|rs|inr)/i)
+                     || lower.match(/invest\s+(?:₹|rs\.?\s*)?(\d[\d,]*(?:\.\d+)?k?)/i)
+                     || lower.match(/\b(\d+k)\b/i);
 
-    // Invest intent
-    const investWords = ['invest', 'allocate', 'put money', 'trade with', 'use', 'buy stocks', 'ready to invest', 'want to invest'];
-    const isInvest = investWords.some(w => lower.includes(w)) || !!amountMatch;
-
-    // Chart request
-    const chartWords = ['chart', 'graph', 'technical', 'indicator', 'show me', 'plot', 'visuali', 'draw', '5 ema', 'ema', 'rsi', 'macd', 'vwap'];
-    const isChart = chartWords.some(w => lower.includes(w));
-
-    // Sector detection — BEFORE DYNAMIC TICKER EXTRACTION
-    let detectedSector = null;
-    for (const [sector, words] of Object.entries(SECTOR_KEYWORDS)) {
-        if (words.some(w => lower.includes(w))) { detectedSector = sector; break; }
+    let amount = null;
+    if (amountMatch) {
+        const raw = (amountMatch[1] || amountMatch[2] || '').replace(/,/g, '');
+        if (raw.endsWith('k')) {
+            amount = parseFloat(raw) * 1000;
+        } else if (raw) {
+            amount = parseFloat(raw);
+        }
+    }
+    if (!amount && (lower.includes('fifty thousand') || lower.includes('50 thousand'))) {
+        amount = 50000;
     }
 
-    // Stock detection
+    // 2. Investment intent triggers
+    const investWords = ['invest', 'allocate', 'put money', 'trade with', 'buy stocks', 'ready to invest', 'want to invest'];
+    const isInvest = investWords.some(w => lower.includes(w)) || !!amount;
+
+    // 3. Strict Stock Symbol Detection (ONLY validated SYMBOL_MAP aliases or explicit .NS / .BO tickers)
     let detectedSymbol = null;
 
-    // 1. Direct SYMBOL_MAP lookup
-    for (const [name, sym] of Object.entries(SYMBOL_MAP)) {
-        if (lower.includes(name)) { detectedSymbol = sym; break; }
+    // 3a. Whole-word match in SYMBOL_MAP (sorted longest match first)
+    const sortedSymbolKeys = Object.keys(SYMBOL_MAP).sort((a, b) => b.length - a.length);
+    for (const name of sortedSymbolKeys) {
+        const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const reg = new RegExp(`\\b${escaped}\\b`, 'i');
+        if (reg.test(lower)) {
+            detectedSymbol = SYMBOL_MAP[name];
+            break;
+        }
     }
 
-    // 2. Direct .NS / .BO tickers
+    // 3b. Direct .NS / .BO ticker suffix match
     if (!detectedSymbol) {
         const directTicker = lower.match(/\b([a-z0-9\-]+)\.(ns|bo)\b/i);
         if (directTicker) {
@@ -163,50 +201,78 @@ function detectIntent(msg) {
         }
     }
 
-    // 3. Dynamic phrase extraction (only if NOT a sector comparison query)
-    if (!detectedSymbol && !detectedSector) {
-        const words = lower.replace(/[^a-z0-9\s]/g, ' ').split(/\s+/);
-        const ignoreWords = [
-            'the', 'a', 'an', 'what', 'how', 'why', 'is', 'my', 'this', 'that', 'for', 'me',
-            'explain', 'show', 'tell', 'about', 'chart', 'charts', 'graph', 'indicator',
-            'indicators', 'ema', 'rsi', 'macd', 'vwap', 'stock', 'stocks', 'price', 'trend',
-            'compare', 'comparison', 'sector', 'sectors', 'which', 'top', 'best', 'market',
-            'good', 'strong', 'weak', 'look', 'looking', 'like', 'today'
-        ];
-        for (const w of words) {
-            if (w.length >= 3 && !ignoreWords.includes(w)) {
-                if (SYMBOL_MAP[w]) {
-                    detectedSymbol = SYMBOL_MAP[w];
-                    break;
-                } else {
-                    detectedSymbol = `${w.toUpperCase()}.NS`;
-                    break;
-                }
-            }
+    // NOTE: Arbitrary 3-letter English words like "want", "should", "today" are NEVER dynamically turned into stock symbols!
+
+    // 4. Sector detection
+    let detectedSector = null;
+    for (const [sector, words] of Object.entries(SECTOR_KEYWORDS)) {
+        if (words.some(w => lower.includes(w))) {
+            detectedSector = sector;
+            break;
         }
     }
 
-    // Market query
-    const marketWords = ['market', 'nse', 'bse', 'sensex', 'nifty', "what's happening", 'today', 'overview', 'condition'];
-    const isMarket = marketWords.some(w => lower.includes(w)) && !detectedSymbol && !detectedSector;
+    // 5. Chart request triggers
+    const chartWords = ['chart', 'graph', 'technical', 'indicator', 'show me', 'plot', 'visuali', 'draw', '5 ema', 'ema', 'rsi', 'macd', 'vwap'];
+    const isChart = chartWords.some(w => lower.includes(w));
 
-    // Extract amount
-    let amount = null;
-    if (amountMatch) {
-        const raw = (amountMatch[1] || amountMatch[2] || '').replace(/,/g, '');
-        amount = raw.endsWith('k') ? parseFloat(raw) * 1000 : parseFloat(raw);
+    // 6. Market overview triggers
+    const marketWords = ['market', 'nse', 'bse', 'sensex', 'nifty', "what's happening", 'today', 'overview', 'condition'];
+    const isMarket = marketWords.some(w => lower.includes(w)) && !detectedSymbol && !detectedSector && !isInvest;
+
+    // ── Intent Precedence Resolution ──
+    // A. Investment Intent Priority
+    if (isInvest) {
+        if (detectedSymbol) {
+            // e.g. "I want to invest ₹50,000 in HDFC Bank" -> Stock analysis + investment
+            return { type: 'stock', symbol: detectedSymbol, amount };
+        }
+        // e.g. "i want to invest 50000" -> Pure investment intent (NO stock)
+        return { type: 'invest', symbol: null, amount, sector: detectedSector };
     }
 
-    if (isInvest) return { type: 'invest', symbol: detectedSymbol, sector: detectedSector, amount };
-    if (isChart)  return { type: 'chart', symbol: detectedSymbol };
-    if (detectedSector && lower.includes('compare')) return { type: 'sector', sector: detectedSector };
-    if (detectedSymbol) return { type: 'stock', symbol: detectedSymbol };
-    if (detectedSector) return { type: 'sector', sector: detectedSector };
-    if (isMarket)       return { type: 'market' };
-    return { type: 'general', symbol: detectedSymbol };
+    // B. Technical Chart Intent
+    if (isChart) {
+        return { type: 'chart', symbol: detectedSymbol };
+    }
+
+    // C. Sector Comparison Intent
+    if (detectedSector && (lower.includes('compare') || lower.includes('sector') || !detectedSymbol)) {
+        return { type: 'sector', sector: detectedSector };
+    }
+
+    // D. Stock Analysis Intent
+    if (detectedSymbol) {
+        return { type: 'stock', symbol: detectedSymbol };
+    }
+
+    // E. Sector Overview Intent
+    if (detectedSector) {
+        return { type: 'sector', sector: detectedSector };
+    }
+
+    // F. Market Overview Intent
+    if (isMarket) {
+        return { type: 'market' };
+    }
+
+    // G. General Q&A Intent
+    return { type: 'general', symbol: null };
 }
 
+// ── Stale Panel Helper ──────────────────────────────────────────────────────
+function closeSection(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.add('hidden');
+    el.classList.remove('section-reveal');
+}
 
+function closeStaleIntentPanels() {
+    closeSection('charts-section');
+    closeSection('invest-section');
+    closeSection('peers-section');
+}
 
 // ── Chat Input Helper ──────────────────────────────────────────────────────
 function setChatInputEnabled(enabled) {
@@ -236,6 +302,10 @@ async function handleChatSend() {
 
     setChatInputEnabled(false);
     const typingEl = showTyping();
+
+    // Automatically close stale visual panels from previous prompts
+    closeStaleIntentPanels();
+
     const intent = detectIntent(msg);
 
     try {

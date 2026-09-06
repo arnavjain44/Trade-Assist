@@ -159,3 +159,43 @@ def test_watchlist_no_trade_preservation():
             assert w["model_threshold"] == 0.8000
             assert w["allocated_capital"] == 0.0
     asyncio.run(_run())
+
+
+# ── P. Investment intent precedence test (No WANT ticker misclassification) ─
+def test_investment_prompt_intent_no_want_ticker():
+    # 1. Pure investment prompt: "i want to invest 50000"
+    payload = {
+        "message": "i want to invest 50000",
+        "session_id": "invest_intent_session"
+    }
+    response = client.post("/api/v1/chat", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert "answer" in data
+    assert data.get("reasoning_context", {}).get("active_stock") != "WANT.NS"
+
+    # 2. Stock + Investment prompt: "I want to invest ₹50,000 in HDFC Bank"
+    stock_analysis_data = {
+        "symbol": "HDFCBANK.NS",
+        "current_price": 1450.0,
+        "ema_5": 1445.0,
+        "rsi": 55.0,
+        "macd": 2.5,
+        "vwap": 1448.0,
+        "p_long": 0.72,
+        "p_short": 0.12,
+        "threshold": 0.8000,
+        "action": "HOLD",
+        "qualified": False
+    }
+    payload_stock = {
+        "message": "I want to invest ₹50,000 in HDFC Bank",
+        "session_id": "invest_hdfc_session",
+        "stock_analysis": stock_analysis_data
+    }
+    response_stock = client.post("/api/v1/chat", json=payload_stock)
+    assert response_stock.status_code == 200
+    data_stock = response_stock.json()
+    assert "answer" in data_stock
+    assert len(data_stock["answer"]) > 0
+
