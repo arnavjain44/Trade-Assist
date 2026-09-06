@@ -1150,6 +1150,101 @@ function appendUserMessage(text) {
     scrollChat();
 }
 
+function renderMarkdownToHTML(text) {
+    if (!text) return '';
+    let str = text;
+
+    // 1. Expand squished markdown tables where newlines became ||
+    str = str.replace(/\|\|/g, '\n|');
+
+    // 2. Parse Markdown tables into clean HTML tables
+    str = str.replace(/(?:(?:\|.+?\|(?:\r?\n|\r)?)+)/g, (match) => {
+        const lines = match.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+        if (lines.length < 2) return match;
+
+        let html = '<div style="overflow-x:auto;margin:12px 0;"><table class="data-table" style="width:100%;font-size:0.8rem;border-collapse:collapse;background:var(--bg-secondary);border-radius:8px;">';
+        let isHeader = true;
+
+        lines.forEach((line) => {
+            if (/^\|?\s*[-:]+[-|\s:]*\|?$/.test(line)) return;
+            const cells = line.split('|').map(c => c.trim()).filter((c, idx, arr) => (idx > 0 && idx < arr.length - 1) || (arr.length <= 2 && c !== ''));
+            if (cells.length === 0) return;
+
+            if (isHeader) {
+                html += '<thead><tr style="border-bottom:1px solid var(--border);background:var(--surface);">';
+                cells.forEach(c => { html += `<th style="padding:8px 12px;text-align:left;font-size:0.75rem;color:var(--text-subtle);text-transform:uppercase;">${c}</th>`; });
+                html += '</tr></thead><tbody>';
+                isHeader = false;
+            } else {
+                html += '<tr>';
+                cells.forEach(c => { html += `<td style="padding:8px 12px;border-bottom:1px solid var(--border-soft);">${c}</td>`; });
+                html += '</tr>';
+            }
+        });
+        html += '</tbody></table></div>';
+        return html;
+    });
+
+    // 3. Headings ### -> <h4>
+    str = str.replace(/###\s+(.+?)(?=\n|$)/g, '<h4 style="font-size:0.9rem;font-weight:700;color:var(--text);margin-top:16px;margin-bottom:8px;">$1</h4>');
+    str = str.replace(/##\s+(.+?)(?=\n|$)/g, '<h3 style="font-size:0.95rem;font-weight:700;color:var(--text);margin-top:18px;margin-bottom:8px;">$1</h3>');
+
+    // 4. Split unformatted inline points " 1. **Header**" or " 2. **Header**" onto separate lines
+    str = str.replace(/\s+(\d+\.\s+\*\*)/g, '\n$1');
+    str = str.replace(/\s+([\*\-•]\s+\*\*)/g, '\n$1');
+
+    // 5. Convert bullet points and numbered points into HTML <ul>/<ol> lists
+    const lines = str.split(/\r?\n/);
+    let inList = false;
+    let listType = 'ul';
+    const processed = [];
+
+    lines.forEach(line => {
+        const trimmed = line.trim();
+        const numMatch = trimmed.match(/^(\d+)\.\s+(.*)/);
+        const bulletMatch = trimmed.match(/^[\*\-•]\s+(.*)/);
+
+        if (numMatch) {
+            if (!inList || listType !== 'ol') {
+                if (inList) processed.push(`</${listType}>`);
+                processed.push('<ol style="margin:10px 0;padding-left:22px;display:flex;flex-direction:column;gap:8px;">');
+                inList = true;
+                listType = 'ol';
+            }
+            processed.push(`<li style="line-height:1.6;color:var(--text);">${numMatch[2]}</li>`);
+        } else if (bulletMatch) {
+            if (!inList || listType !== 'ul') {
+                if (inList) processed.push(`</${listType}>`);
+                processed.push('<ul style="margin:10px 0;padding-left:22px;display:flex;flex-direction:column;gap:8px;">');
+                inList = true;
+                listType = 'ul';
+            }
+            processed.push(`<li style="line-height:1.6;color:var(--text);">${bulletMatch[1]}</li>`);
+        } else {
+            if (inList) {
+                processed.push(`</${listType}>`);
+                inList = false;
+            }
+            processed.push(line);
+        }
+    });
+    if (inList) processed.push(`</${listType}>`);
+
+    str = processed.join('\n');
+
+    // 6. Convert Bold **text** -> <strong>text</strong>
+    str = str.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+    // 7. Convert remaining newlines into <br/>
+    str = str.replace(/\n\n+/g, '<br/><br/>').replace(/\n/g, '<br/>');
+
+    // Clean up excessive <br/> next to block elements
+    str = str.replace(/(?:<br\s*\/?>\s*)+(<(?:h[1-6]|table|div|ul|ol))/gi, '$1');
+    str = str.replace(/(<\/(?:h[1-6]|table|div|ul|ol)>)(?:\s*<br\s*\/?>)+/gi, '$1');
+
+    return str;
+}
+
 function appendAIMessage(htmlText, extraHtml, providerUsed) {
     chatHistory.push({ role: 'agent', content: htmlText.replace(/<[^>]*>/g, '') });
     const container = document.getElementById('chat-messages');
@@ -1166,7 +1261,9 @@ function appendAIMessage(htmlText, extraHtml, providerUsed) {
         </div>`;
     }
 
-    div.innerHTML = `<div style="font-size:0.85rem;color:var(--text);line-height:1.65;">${htmlText}</div>${extraHtml ? `<div style="margin-top:0;">${extraHtml}</div>` : ''}${badgeHtml}`;
+    const formattedContent = renderMarkdownToHTML(htmlText);
+
+    div.innerHTML = `<div style="font-size:0.85rem;color:var(--text);line-height:1.65;">${formattedContent}</div>${extraHtml ? `<div style="margin-top:0;">${extraHtml}</div>` : ''}${badgeHtml}`;
     container.appendChild(div);
     scrollChat();
 }

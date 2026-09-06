@@ -226,6 +226,10 @@ class LLMAgentLoop:
                 "- Do not recommend an unqualified setup as a qualified trade.\n"
                 "- The LLM explains the supplied model result; it does not perform the trading decision itself.\n"
                 "- If some data is missing, state that it is unavailable rather than guessing.\n"
+                "FORMATTING & DISPLAY RULES:\n"
+                "- Format explanations using clear bullet points (1., 2., 3. or •).\n"
+                "- Do NOT output raw Markdown pipe tables (| Metric | Value |).\n"
+                "- Group key rationale under clear bold headers with clean spacing for easy reading.\n"
                 f"FACTUAL BACKEND ANALYSIS: {stock_analysis}"
             )
         else:
