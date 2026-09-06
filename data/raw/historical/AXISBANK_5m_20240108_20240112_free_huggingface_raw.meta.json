@@ -1,0 +1,25 @@
+{
+  "symbol": "AXISBANK.NS",
+  "provider": "free_huggingface",
+  "interval": "5m",
+  "requested_start": "2024-01-08T09:15:00",
+  "requested_end": "2024-01-12T15:30:00",
+  "actual_earliest_timestamp": "2024-01-08 09:20:00+05:30",
+  "actual_latest_timestamp": "2024-01-12 15:10:00+05:30",
+  "row_count": 371,
+  "columns": [
+    "timestamp",
+    "symbol",
+    "open",
+    "high",
+    "low",
+    "close",
+    "volume",
+    "trading_date",
+    "source"
+  ],
+  "adjustment_status": "split_and_bonus_adjusted",
+  "download_timestamp": "2026-09-06T11:16:39.482693",
+  "sha256_checksum": "37d2e6f97d61a40a472264f23eff63ca59b4a1c58ec68cb2e2125604447c38e4",
+  "immutable": true
+}

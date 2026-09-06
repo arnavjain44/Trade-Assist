@@ -1,0 +1,397 @@
+{
+  "coverage_assessment": "Historical news coverage is provider-limited and incomplete.",
+  "number_of_symbols": 48,
+  "number_of_trading_days": 59,
+  "number_of_candles": 214086,
+  "total_news_articles_fetched": 424,
+  "unique_articles_retained": 424,
+  "in_window_articles": 424,
+  "timestamp_valid_articles": 424,
+  "symbol_valid_articles": 424,
+  "total_symbol_days": 2832,
+  "total_symbol_days_with_news": 2182,
+  "total_symbol_days_without_news": 650,
+  "number_of_news_articles": 424,
+  "number_of_candles_with_usable_news": 162961,
+  "total_candles_with_usable_prior_news": 162961,
+  "total_candles_without_usable_news": 51125,
+  "percentage_missing_news": 23.88,
+  "news_coverage_by_symbol": {
+    "ADANIENT.NS": {
+      "articles_fetched": 10,
+      "total_candles": 4367,
+      "usable_news_candles": 3692,
+      "missing_news_candles": 675,
+      "percentage_missing_news": 15.46
+    },
+    "ADANIPORTS.NS": {
+      "articles_fetched": 3,
+      "total_candles": 4368,
+      "usable_news_candles": 3352,
+      "missing_news_candles": 1016,
+      "percentage_missing_news": 23.26
+    },
+    "APOLLOHOSP.NS": {
+      "articles_fetched": 0,
+      "total_candles": 4363,
+      "usable_news_candles": 0,
+      "missing_news_candles": 4363,
+      "percentage_missing_news": 100.0
+    },
+    "ASIANPAINT.NS": {
+      "articles_fetched": 10,
+      "total_candles": 4365,
+      "usable_news_candles": 4365,
+      "missing_news_candles": 0,
+      "percentage_missing_news": 0.0
+    },
+    "AXISBANK.NS": {
+      "articles_fetched": 10,
+      "total_candles": 4370,
+      "usable_news_candles": 3620,
+      "missing_news_candles": 750,
+      "percentage_missing_news": 17.16
+    },
+    "BAJAJ-AUTO.NS": {
+      "articles_fetched": 10,
+      "total_candles": 4366,
+      "usable_news_candles": 4366,
+      "missing_news_candles": 0,
+      "percentage_missing_news": 0.0
+    },
+    "BAJFINANCE.NS": {
+      "articles_fetched": 10,
+      "total_candles": 4369,
+      "usable_news_candles": 4369,
+      "missing_news_candles": 0,
+      "percentage_missing_news": 0.0
+    },
+    "BEL.NS": {
+      "articles_fetched": 7,
+      "total_candles": 4373,
+      "usable_news_candles": 4373,
+      "missing_news_candles": 0,
+      "percentage_missing_news": 0.0
+    },
+    "BHARTIARTL.NS": {
+      "articles_fetched": 9,
+      "total_candles": 4368,
+      "usable_news_candles": 2943,
+      "missing_news_candles": 1425,
+      "percentage_missing_news": 32.62
+    },
+    "BPCL.NS": {
+      "articles_fetched": 5,
+      "total_candles": 4369,
+      "usable_news_candles": 2344,
+      "missing_news_candles": 2025,
+      "percentage_missing_news": 46.35
+    },
+    "BRITANNIA.NS": {
+      "articles_fetched": 10,
+      "total_candles": 4363,
+      "usable_news_candles": 4363,
+      "missing_news_candles": 0,
+      "percentage_missing_news": 0.0
+    },
+    "CIPLA.NS": {
+      "articles_fetched": 10,
+      "total_candles": 4368,
+      "usable_news_candles": 4368,
+      "missing_news_candles": 0,
+      "percentage_missing_news": 0.0
+    },
+    "COALINDIA.NS": {
+      "articles_fetched": 10,
+      "total_candles": 4373,
+      "usable_news_candles": 4373,
+      "missing_news_candles": 0,
+      "percentage_missing_news": 0.0
+    },
+    "DIVISLAB.NS": {
+      "articles_fetched": 8,
+      "total_candles": 4364,
+      "usable_news_candles": 4364,
+      "missing_news_candles": 0,
+      "percentage_missing_news": 0.0
+    },
+    "DRREDDY.NS": {
+      "articles_fetched": 10,
+      "total_candles": 4369,
+      "usable_news_candles": 4369,
+      "missing_news_candles": 0,
+      "percentage_missing_news": 0.0
+    },
+    "EICHERMOT.NS": {
+      "articles_fetched": 10,
+      "total_candles": 4370,
+      "usable_news_candles": 4370,
+      "missing_news_candles": 0,
+      "percentage_missing_news": 0.0
+    },
+    "GRASIM.NS": {
+      "articles_fetched": 10,
+      "total_candles": 4368,
+      "usable_news_candles": 4368,
+      "missing_news_candles": 0,
+      "percentage_missing_news": 0.0
+    },
+    "HAL.NS": {
+      "articles_fetched": 9,
+      "total_candles": 4369,
+      "usable_news_candles": 4369,
+      "missing_news_candles": 0,
+      "percentage_missing_news": 0.0
+    },
+    "HCLTECH.NS": {
+      "articles_fetched": 10,
+      "total_candles": 4368,
+      "usable_news_candles": 3693,
+      "missing_news_candles": 675,
+      "percentage_missing_news": 15.45
+    },
+    "HDFCBANK.NS": {
+      "articles_fetched": 10,
+      "total_candles": 4374,
+      "usable_news_candles": 1751,
+      "missing_news_candles": 2623,
+      "percentage_missing_news": 59.97
+    },
+    "HDFCLIFE.NS": {
+      "articles_fetched": 10,
+      "total_candles": 4372,
+      "usable_news_candles": 4372,
+      "missing_news_candles": 0,
+      "percentage_missing_news": 0.0
+    },
+    "HEROMOTOCO.NS": {
+      "articles_fetched": 10,
+      "total_candles": 4365,
+      "usable_news_candles": 4365,
+      "missing_news_candles": 0,
+      "percentage_missing_news": 0.0
+    },
+    "HINDALCO.NS": {
+      "articles_fetched": 10,
+      "total_candles": 4372,
+      "usable_news_candles": 4372,
+      "missing_news_candles": 0,
+      "percentage_missing_news": 0.0
+    },
+    "HINDUNILVR.NS": {
+      "articles_fetched": 10,
+      "total_candles": 4368,
+      "usable_news_candles": 4368,
+      "missing_news_candles": 0,
+      "percentage_missing_news": 0.0
+    },
+    "ICICIBANK.NS": {
+      "articles_fetched": 10,
+      "total_candles": 4370,
+      "usable_news_candles": 1456,
+      "missing_news_candles": 2914,
+      "percentage_missing_news": 66.68
+    },
+    "INDUSINDBK.NS": {
+      "articles_fetched": 10,
+      "total_candles": 4368,
+      "usable_news_candles": 4368,
+      "missing_news_candles": 0,
+      "percentage_missing_news": 0.0
+    },
+    "INFY.NS": {
+      "articles_fetched": 10,
+      "total_candles": 4371,
+      "usable_news_candles": 2196,
+      "missing_news_candles": 2175,
+      "percentage_missing_news": 49.76
+    },
+    "IOC.NS": {
+      "articles_fetched": 10,
+      "total_candles": 4370,
+      "usable_news_candles": 2434,
+      "missing_news_candles": 1936,
+      "percentage_missing_news": 44.3
+    },
+    "ITC.NS": {
+      "articles_fetched": 1,
+      "total_candles": 4372,
+      "usable_news_candles": 4372,
+      "missing_news_candles": 0,
+      "percentage_missing_news": 0.0
+    },
+    "JSWSTEEL.NS": {
+      "articles_fetched": 10,
+      "total_candles": 4362,
+      "usable_news_candles": 4362,
+      "missing_news_candles": 0,
+      "percentage_missing_news": 0.0
+    },
+    "KOTAKBANK.NS": {
+      "articles_fetched": 10,
+      "total_candles": 4374,
+      "usable_news_candles": 3474,
+      "missing_news_candles": 900,
+      "percentage_missing_news": 20.58
+    },
+    "LT.NS": {
+      "articles_fetched": 10,
+      "total_candles": 4372,
+      "usable_news_candles": 1897,
+      "missing_news_candles": 2475,
+      "percentage_missing_news": 56.61
+    },
+    "M&M.NS": {
+      "articles_fetched": 10,
+      "total_candles": 8740,
+      "usable_news_candles": 3972,
+      "missing_news_candles": 4768,
+      "percentage_missing_news": 54.55
+    },
+    "MARUTI.NS": {
+      "articles_fetched": 10,
+      "total_candles": 4372,
+      "usable_news_candles": 1822,
+      "missing_news_candles": 2550,
+      "percentage_missing_news": 58.33
+    },
+    "NESTLEIND.NS": {
+      "articles_fetched": 10,
+      "total_candles": 4367,
+      "usable_news_candles": 4367,
+      "missing_news_candles": 0,
+      "percentage_missing_news": 0.0
+    },
+    "NTPC.NS": {
+      "articles_fetched": 6,
+      "total_candles": 4373,
+      "usable_news_candles": 2423,
+      "missing_news_candles": 1950,
+      "percentage_missing_news": 44.59
+    },
+    "ONGC.NS": {
+      "articles_fetched": 10,
+      "total_candles": 4372,
+      "usable_news_candles": 728,
+      "missing_news_candles": 3644,
+      "percentage_missing_news": 83.35
+    },
+    "POWERGRID.NS": {
+      "articles_fetched": 7,
+      "total_candles": 4373,
+      "usable_news_candles": 4373,
+      "missing_news_candles": 0,
+      "percentage_missing_news": 0.0
+    },
+    "RELIANCE.NS": {
+      "articles_fetched": 2,
+      "total_candles": 4372,
+      "usable_news_candles": 291,
+      "missing_news_candles": 4081,
+      "percentage_missing_news": 93.34
+    },
+    "SBILIFE.NS": {
+      "articles_fetched": 9,
+      "total_candles": 4365,
+      "usable_news_candles": 4365,
+      "missing_news_candles": 0,
+      "percentage_missing_news": 0.0
+    },
+    "SBIN.NS": {
+      "articles_fetched": 10,
+      "total_candles": 4372,
+      "usable_news_candles": 2318,
+      "missing_news_candles": 2054,
+      "percentage_missing_news": 46.98
+    },
+    "SUNPHARMA.NS": {
+      "articles_fetched": 10,
+      "total_candles": 4368,
+      "usable_news_candles": 3018,
+      "missing_news_candles": 1350,
+      "percentage_missing_news": 30.91
+    },
+    "TATASTEEL.NS": {
+      "articles_fetched": 10,
+      "total_candles": 4371,
+      "usable_news_candles": 4371,
+      "missing_news_candles": 0,
+      "percentage_missing_news": 0.0
+    },
+    "TCS.NS": {
+      "articles_fetched": 10,
+      "total_candles": 4369,
+      "usable_news_candles": 581,
+      "missing_news_candles": 3788,
+      "percentage_missing_news": 86.7
+    },
+    "TITAN.NS": {
+      "articles_fetched": 9,
+      "total_candles": 4368,
+      "usable_news_candles": 4368,
+      "missing_news_candles": 0,
+      "percentage_missing_news": 0.0
+    },
+    "TRENT.NS": {
+      "articles_fetched": 9,
+      "total_candles": 4369,
+      "usable_news_candles": 4369,
+      "missing_news_candles": 0,
+      "percentage_missing_news": 0.0
+    },
+    "ULTRACEMCO.NS": {
+      "articles_fetched": 10,
+      "total_candles": 4361,
+      "usable_news_candles": 4361,
+      "missing_news_candles": 0,
+      "percentage_missing_news": 0.0
+    },
+    "WIPRO.NS": {
+      "articles_fetched": 10,
+      "total_candles": 4374,
+      "usable_news_candles": 1386,
+      "missing_news_candles": 2988,
+      "percentage_missing_news": 68.31
+    }
+  },
+  "finbert_processing_success_rate": 1.0,
+  "chroma_market_fingerprints_count": 59,
+  "chroma_stock_fingerprints_count": 2832,
+  "neo4j_trading_day_nodes_count": 0,
+  "duplicate_counts": 4370,
+  "timestamp_timezone_validity": true,
+  "temporal_leakage_checks_passed": true,
+  "missing_value_counts": {
+    "timestamp": 0,
+    "symbol": 0,
+    "open": 0,
+    "high": 0,
+    "low": 0,
+    "close": 0,
+    "volume": 0,
+    "ema_5": 0,
+    "rsi": 0,
+    "obv": 0,
+    "bollinger_middle": 0,
+    "bollinger_upper": 0,
+    "bollinger_lower": 0,
+    "macd": 0,
+    "macd_signal": 0,
+    "macd_diff": 0,
+    "vwap": 0,
+    "bollinger_position": 0,
+    "price_vs_vwap": 0,
+    "price_vs_ema5": 0,
+    "sentiment_score": 214086,
+    "trading_date": 0,
+    "number_of_articles": 0,
+    "mean_sentiment": 51125,
+    "positive_probability_mean": 51125,
+    "negative_probability_mean": 51125,
+    "neutral_probability_mean": 51125,
+    "latest_news_timestamp": 51125,
+    "has_news": 0,
+    "market_similarity": 0,
+    "stock_similarity": 0
+  }
+}

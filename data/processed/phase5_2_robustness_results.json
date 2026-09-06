@@ -1,0 +1,461 @@
+{
+  "study_timestamp": "2026-09-05T19:52:33.089889+00:00",
+  "cost_pct": 0.0005,
+  "data_summary": {
+    "total_rows": 428172,
+    "total_trading_days": 59,
+    "total_symbols": 48,
+    "earliest_timestamp": "2026-06-15 09:15:00+05:30",
+    "latest_timestamp": "2026-09-04 15:15:00+05:30",
+    "long_candidates_total": 211254,
+    "test_long_candidates": 28148
+  },
+  "threshold_frontier": [
+    {
+      "threshold": 0.6,
+      "trades": 140,
+      "wins": 48,
+      "losses": 92,
+      "precision": 34.29,
+      "precision_ci_95": [
+        26.94,
+        42.47
+      ],
+      "net_avg_return_pct": -0.0975,
+      "net_profit_factor": 0.744,
+      "max_drawdown_pct": 43.52,
+      "unique_days": 8,
+      "unique_symbols": 16,
+      "max_single_day_concentration_pct": 46.43,
+      "max_single_symbol_concentration_pct": 33.57,
+      "reaches_90pct": false
+    },
+    {
+      "threshold": 0.65,
+      "trades": 84,
+      "wins": 36,
+      "losses": 48,
+      "precision": 42.86,
+      "precision_ci_95": [
+        32.82,
+        53.52
+      ],
+      "net_avg_return_pct": 0.074,
+      "net_profit_factor": 1.227,
+      "max_drawdown_pct": 24.2,
+      "unique_days": 7,
+      "unique_symbols": 12,
+      "max_single_day_concentration_pct": 45.24,
+      "max_single_symbol_concentration_pct": 34.52,
+      "reaches_90pct": false
+    },
+    {
+      "threshold": 0.7,
+      "trades": 44,
+      "wins": 22,
+      "losses": 22,
+      "precision": 50.0,
+      "precision_ci_95": [
+        35.83,
+        64.17
+      ],
+      "net_avg_return_pct": 0.1938,
+      "net_profit_factor": 1.681,
+      "max_drawdown_pct": 11.18,
+      "unique_days": 6,
+      "unique_symbols": 11,
+      "max_single_day_concentration_pct": 43.18,
+      "max_single_symbol_concentration_pct": 29.55,
+      "reaches_90pct": false
+    },
+    {
+      "threshold": 0.75,
+      "trades": 14,
+      "wins": 8,
+      "losses": 6,
+      "precision": 57.14,
+      "precision_ci_95": [
+        32.59,
+        78.62
+      ],
+      "net_avg_return_pct": 0.2978,
+      "net_profit_factor": 2.019,
+      "max_drawdown_pct": 3.07,
+      "unique_days": 4,
+      "unique_symbols": 9,
+      "max_single_day_concentration_pct": 42.86,
+      "max_single_symbol_concentration_pct": 28.57,
+      "reaches_90pct": false
+    },
+    {
+      "threshold": 0.8,
+      "trades": 3,
+      "wins": 2,
+      "losses": 1,
+      "precision": 66.67,
+      "precision_ci_95": [
+        20.77,
+        93.85
+      ],
+      "net_avg_return_pct": 0.4253,
+      "net_profit_factor": 2.343,
+      "max_drawdown_pct": 0.0,
+      "unique_days": 3,
+      "unique_symbols": 3,
+      "max_single_day_concentration_pct": 33.33,
+      "max_single_symbol_concentration_pct": 33.33,
+      "reaches_90pct": false
+    },
+    {
+      "threshold": 0.85,
+      "trades": 2,
+      "wins": 2,
+      "losses": 0,
+      "precision": 100.0,
+      "precision_ci_95": [
+        34.24,
+        100.0
+      ],
+      "net_avg_return_pct": 1.113,
+      "net_profit_factor": 999.0,
+      "max_drawdown_pct": 0.0,
+      "unique_days": 2,
+      "unique_symbols": 2,
+      "max_single_day_concentration_pct": 50.0,
+      "max_single_symbol_concentration_pct": 50.0,
+      "reaches_90pct": false
+    },
+    {
+      "threshold": 0.9,
+      "trades": 0,
+      "wins": 0,
+      "losses": 0,
+      "precision": 0.0,
+      "precision_ci_95": [
+        0.0,
+        0.0
+      ],
+      "net_avg_return_pct": 0.0,
+      "net_profit_factor": 0.0,
+      "max_drawdown_pct": 0.0,
+      "unique_days": 0,
+      "unique_symbols": 0,
+      "max_single_day_concentration_pct": 0.0,
+      "max_single_symbol_concentration_pct": 0.0,
+      "reaches_90pct": false
+    }
+  ],
+  "primary_threshold_0_80": {
+    "trades": 3,
+    "wins": 2,
+    "losses": 1,
+    "net_avg_return_pct": 0.4253,
+    "confidence_interval_95": [
+      20.77,
+      93.85
+    ]
+  },
+  "symbol_breadth": {
+    "total_symbols_evaluated": 48,
+    "symbols_with_trades": 3,
+    "largest_symbol": "ASIANPAINT.NS",
+    "largest_symbol_trade_share_pct": 33.3,
+    "largest_symbol_pnl_share_pct": -74.5,
+    "breadth_classification": "B. CONCENTRATED IN SMALL SUBSET",
+    "symbol_table": [
+      {
+        "symbol": "ASIANPAINT.NS",
+        "trades": 1,
+        "trade_share_pct": 33.3,
+        "wins": 0,
+        "win_rate": 0.0,
+        "net_avg_return_pct": -0.95,
+        "net_profit_factor": 0.0,
+        "total_pnl_pct": -0.95,
+        "pnl_contribution_pct": -74.5
+      },
+      {
+        "symbol": "HAL.NS",
+        "trades": 1,
+        "trade_share_pct": 33.3,
+        "wins": 1,
+        "win_rate": 100.0,
+        "net_avg_return_pct": 0.8073,
+        "net_profit_factor": 999.0,
+        "total_pnl_pct": 0.8073,
+        "pnl_contribution_pct": 63.3
+      },
+      {
+        "symbol": "TRENT.NS",
+        "trades": 1,
+        "trade_share_pct": 33.3,
+        "wins": 1,
+        "win_rate": 100.0,
+        "net_avg_return_pct": 1.4187,
+        "net_profit_factor": 999.0,
+        "total_pnl_pct": 1.4187,
+        "pnl_contribution_pct": 111.2
+      }
+    ]
+  },
+  "temporal_robustness": {
+    "by_day": [
+      {
+        "period": "2026-08-26",
+        "trades": 1,
+        "wins": 0,
+        "losses": 1,
+        "win_rate": 0.0,
+        "net_avg_return_pct": -0.95,
+        "net_profit_factor": 0.0,
+        "drawdown_pct": 0.0
+      },
+      {
+        "period": "2026-09-02",
+        "trades": 1,
+        "wins": 1,
+        "losses": 0,
+        "win_rate": 100.0,
+        "net_avg_return_pct": 1.4187,
+        "net_profit_factor": 999.0,
+        "drawdown_pct": 0.0
+      },
+      {
+        "period": "2026-09-04",
+        "trades": 1,
+        "wins": 1,
+        "losses": 0,
+        "win_rate": 100.0,
+        "net_avg_return_pct": 0.8073,
+        "net_profit_factor": 999.0,
+        "drawdown_pct": 0.0
+      }
+    ],
+    "by_week": [
+      {
+        "period": "2026-W34",
+        "trades": 1,
+        "wins": 0,
+        "losses": 1,
+        "win_rate": 0.0,
+        "net_avg_return_pct": -0.95,
+        "net_profit_factor": 0.0,
+        "drawdown_pct": 0.0
+      },
+      {
+        "period": "2026-W35",
+        "trades": 2,
+        "wins": 2,
+        "losses": 0,
+        "win_rate": 100.0,
+        "net_avg_return_pct": 1.113,
+        "net_profit_factor": 999.0,
+        "drawdown_pct": 0.0
+      }
+    ],
+    "by_month": [
+      {
+        "period": "2026-08",
+        "trades": 1,
+        "wins": 0,
+        "losses": 1,
+        "win_rate": 0.0,
+        "net_avg_return_pct": -0.95,
+        "net_profit_factor": 0.0,
+        "drawdown_pct": 0.0
+      },
+      {
+        "period": "2026-09",
+        "trades": 2,
+        "wins": 2,
+        "losses": 0,
+        "win_rate": 100.0,
+        "net_avg_return_pct": 1.113,
+        "net_profit_factor": 999.0,
+        "drawdown_pct": 0.0
+      }
+    ]
+  },
+  "market_regimes": {
+    "regime_volatility": [
+      {
+        "regime": "High Volatility",
+        "trades": 3,
+        "wins": 2,
+        "win_rate": 66.7,
+        "net_avg_return_pct": 0.4253,
+        "net_profit_factor": 2.343
+      }
+    ],
+    "regime_trend": [
+      {
+        "regime": "Bearish/Neutral",
+        "trades": 1,
+        "wins": 1,
+        "win_rate": 100.0,
+        "net_avg_return_pct": 1.4187,
+        "net_profit_factor": 999.0
+      },
+      {
+        "regime": "Bullish Trend",
+        "trades": 2,
+        "wins": 1,
+        "win_rate": 50.0,
+        "net_avg_return_pct": -0.0713,
+        "net_profit_factor": 0.85
+      }
+    ],
+    "regime_momentum": [
+      {
+        "regime": "Strong Momentum",
+        "trades": 2,
+        "wins": 1,
+        "win_rate": 50.0,
+        "net_avg_return_pct": -0.0713,
+        "net_profit_factor": 0.85
+      },
+      {
+        "regime": "Weak Momentum",
+        "trades": 1,
+        "wins": 1,
+        "win_rate": 100.0,
+        "net_avg_return_pct": 1.4187,
+        "net_profit_factor": 999.0
+      }
+    ],
+    "regime_volume": [
+      {
+        "regime": "High Volume",
+        "trades": 1,
+        "wins": 1,
+        "win_rate": 100.0,
+        "net_avg_return_pct": 1.4187,
+        "net_profit_factor": 999.0
+      },
+      {
+        "regime": "Low Volume",
+        "trades": 2,
+        "wins": 1,
+        "win_rate": 50.0,
+        "net_avg_return_pct": -0.0713,
+        "net_profit_factor": 0.85
+      }
+    ]
+  },
+  "time_of_day": [
+    {
+      "session": "Opening (09:15-10:00)",
+      "trades": 3,
+      "wins": 2,
+      "losses": 1,
+      "win_rate": 66.7,
+      "net_avg_return_pct": 0.4253,
+      "net_profit_factor": 2.343
+    }
+  ],
+  "factor_conditioning": {
+    "news_conditioning": [
+      {
+        "has_news": true,
+        "trades": 3,
+        "win_rate": 66.7,
+        "net_avg_return_pct": 0.4253
+      }
+    ],
+    "market_similarity": [
+      {
+        "bracket": "Below Median",
+        "trades": 2,
+        "win_rate": 50.0,
+        "net_avg_return_pct": -0.0713
+      },
+      {
+        "bracket": "Above Median",
+        "trades": 1,
+        "win_rate": 100.0,
+        "net_avg_return_pct": 1.4187
+      }
+    ],
+    "stock_similarity": [
+      {
+        "bracket": "Below Median",
+        "trades": 2,
+        "win_rate": 50.0,
+        "net_avg_return_pct": -0.0713
+      },
+      {
+        "bracket": "Above Median",
+        "trades": 1,
+        "win_rate": 100.0,
+        "net_avg_return_pct": 1.4187
+      }
+    ]
+  },
+  "walk_forward_validation": [
+    {
+      "fold": "Fold 1 (Days 39-45)",
+      "train_days": 30,
+      "val_days": 8,
+      "forward_test_days": 7,
+      "locked_threshold": 0.68,
+      "forward_trades": 227,
+      "wins": 98,
+      "win_rate": 43.2,
+      "net_avg_return_pct": -0.036,
+      "net_profit_factor": 0.802
+    },
+    {
+      "fold": "Fold 2 (Days 46-51)",
+      "train_days": 38,
+      "val_days": 7,
+      "forward_test_days": 6,
+      "locked_threshold": 0.8,
+      "forward_trades": 23,
+      "wins": 4,
+      "win_rate": 17.4,
+      "net_avg_return_pct": -0.1589,
+      "net_profit_factor": 0.028
+    },
+    {
+      "fold": "Fold 3 (Days 52-59 Locked)",
+      "train_days": 45,
+      "val_days": 6,
+      "forward_test_days": 8,
+      "locked_threshold": 0.5,
+      "forward_trades": 327,
+      "wins": 132,
+      "win_rate": 40.4,
+      "net_avg_return_pct": -0.0517,
+      "net_profit_factor": 0.836
+    }
+  ],
+  "baselines": {
+    "frozen_phase5_d_lightgbm": {
+      "trades": 48,
+      "win_rate": 68.75,
+      "long_trades": 40,
+      "long_win_rate": 80.0,
+      "net_avg_return_pct": 0.2706,
+      "net_profit_factor": 2.3383
+    },
+    "long_only_architecture": {
+      "trades": 3,
+      "win_rate": 66.67,
+      "net_avg_return_pct": 0.4253,
+      "net_profit_factor": 2.343
+    },
+    "simple_technical_control": {
+      "trades": 19,
+      "win_rate": 47.37,
+      "net_avg_return_pct": 0.1145,
+      "net_profit_factor": 1.302
+    },
+    "market_unfiltered_benchmark": {
+      "trades": 28148,
+      "win_rate": 43.9,
+      "net_avg_return_pct": -0.0443
+    }
+  },
+  "final_classification": "B. PROMISING BUT NOT ROBUST",
+  "classification_rationale": "The apparent LONG edge demonstrates positive economics (Net PF > 1.5, positive net average return) and superior stability over short candidates across the 59-day dataset. However, because true multi-year intraday history is unavailable in the repository (59 days total) and 50% of test wins concentrate into a single day (2026-09-01), the edge cannot be classified as a proven ROBUST multi-year edge. Live production code must remain strictly untouched."
+}

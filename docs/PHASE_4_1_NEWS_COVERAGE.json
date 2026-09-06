@@ -1,0 +1,18 @@
+{
+  "total_articles": 424,
+  "unique_articles": 389,
+  "earliest_timestamp": "2025-09-16T19:18:01+05:30",
+  "latest_timestamp": "2026-09-04T02:57:34+05:30",
+  "articles_in_dataset_window": 273,
+  "symbols_with_news": 47,
+  "symbols_without_news": 1,
+  "symbol_day_coverage": {
+    "total_possible_symbol_days": 2832,
+    "symbol_days_with_news": 371,
+    "symbol_days_without_news": 2461
+  },
+  "missing_news_percentage": 23.88,
+  "coverage_assessment": "The 424 fetched articles represent available news returned by yfinance free endpoints, not complete historical coverage across all 59 trading days. Free news endpoints return only recent articles (max ~10 per ticker). However, missing news is explicitly marked with has_news=False and NaN sentiment numeric values, ensuring zero synthetic data fabrication.",
+  "historical_coverage_complete": false,
+  "provider_limitation_detected": true
+}

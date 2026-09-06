@@ -1,0 +1,2461 @@
+{
+  "experiment_timestamp": "2026-09-05T18:20:08.022867+00:00",
+  "cost_pct": 0.0005,
+  "split_metadata": {
+    "total_rows": 428172,
+    "total_days": 59,
+    "train_days": 42,
+    "val_days": 9,
+    "test_days": 8,
+    "train_rows": 306972,
+    "val_rows": 64136,
+    "test_rows": 57064,
+    "purged_train_rows": 0,
+    "purged_val_rows": 0,
+    "val_start_date": "2026-08-13",
+    "test_start_date": "2026-08-26"
+  },
+  "neo4j_available": false,
+  "frozen_phase3_benchmark": [
+    {
+      "target_formulation": "Model A",
+      "target_pct": 0.022,
+      "model_family": "logistic_regression",
+      "selected_pos_weight": 25,
+      "selected_calibrator": "isotonic",
+      "selected_threshold": 0.5,
+      "validation_statistical_metrics": {
+        "pr_auc": 0.0298,
+        "precision": 0.0,
+        "recall": 0.0,
+        "brier_score": 0.002124,
+        "ece": 0.0098,
+        "tp": 0,
+        "fp": 0,
+        "tn": 61838,
+        "fn": 126,
+        "threshold_used": 0.5
+      },
+      "validation_economic_metrics": {
+        "threshold_used": 0.5,
+        "selected_trade_count": 0,
+        "trade_frequency_per_day": 0.0,
+        "gross_avg_return_pct": 0.0,
+        "net_avg_return_pct": 0.0,
+        "gross_total_return_pct": 0.0,
+        "net_total_return_pct": 0.0,
+        "gross_profit_factor": 0.0,
+        "net_profit_factor": 0.0,
+        "max_drawdown_pct": 0.0,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 0,
+        "long_count": 0,
+        "short_count": 0,
+        "long_net_avg_return_pct": 0.0,
+        "short_net_avg_return_pct": 0.0
+      },
+      "locked_test_statistical_metrics": {
+        "pr_auc": 0.0112,
+        "precision": 0.0,
+        "recall": 0.0,
+        "brier_score": 0.018808,
+        "ece": 0.0073,
+        "tp": 0,
+        "fp": 0,
+        "tn": 54073,
+        "fn": 1054,
+        "threshold_used": 0.5
+      },
+      "locked_test_economic_metrics": {
+        "threshold_used": 0.5,
+        "selected_trade_count": 0,
+        "trade_frequency_per_day": 0.0,
+        "gross_avg_return_pct": 0.0,
+        "net_avg_return_pct": 0.0,
+        "gross_total_return_pct": 0.0,
+        "net_total_return_pct": 0.0,
+        "gross_profit_factor": 0.0,
+        "net_profit_factor": 0.0,
+        "max_drawdown_pct": 0.0,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 0,
+        "long_count": 0,
+        "short_count": 0,
+        "long_net_avg_return_pct": 0.0,
+        "short_net_avg_return_pct": 0.0
+      },
+      "split_metadata": {
+        "total_rows": 419432,
+        "total_days": 59,
+        "train_days": 42,
+        "val_days": 9,
+        "test_days": 8,
+        "train_rows": 300708,
+        "val_rows": 62828,
+        "test_rows": 55896,
+        "purged_train_rows": 0,
+        "purged_val_rows": 0,
+        "val_start_date": "2026-08-13",
+        "test_start_date": "2026-08-26"
+      }
+    },
+    {
+      "target_formulation": "Model A",
+      "target_pct": 0.022,
+      "model_family": "random_forest",
+      "selected_pos_weight": 100,
+      "selected_calibrator": "sigmoid",
+      "selected_threshold": 0.0137,
+      "validation_statistical_metrics": {
+        "pr_auc": 0.0016,
+        "precision": 0.0009,
+        "recall": 0.0714,
+        "brier_score": 0.002122,
+        "ece": 0.0094,
+        "tp": 9,
+        "fp": 9958,
+        "tn": 51880,
+        "fn": 117,
+        "threshold_used": 0.0137
+      },
+      "validation_economic_metrics": {
+        "threshold_used": 0.0137,
+        "selected_trade_count": 9967,
+        "trade_frequency_per_day": 1107.44,
+        "gross_avg_return_pct": -0.0037,
+        "net_avg_return_pct": -0.0537,
+        "gross_total_return_pct": -37.2078,
+        "net_total_return_pct": -535.5578,
+        "gross_profit_factor": 0.9813,
+        "net_profit_factor": 0.7621,
+        "max_drawdown_pct": 544.6066,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 9108,
+        "long_count": 4850,
+        "short_count": 5117,
+        "long_net_avg_return_pct": 0.04,
+        "short_net_avg_return_pct": -0.1426
+      },
+      "locked_test_statistical_metrics": {
+        "pr_auc": 0.0248,
+        "precision": 0.0282,
+        "recall": 0.259,
+        "brier_score": 0.018803,
+        "ece": 0.0076,
+        "tp": 273,
+        "fp": 9403,
+        "tn": 44670,
+        "fn": 781,
+        "threshold_used": 0.0137
+      },
+      "locked_test_economic_metrics": {
+        "threshold_used": 0.0137,
+        "selected_trade_count": 9676,
+        "trade_frequency_per_day": 1209.5,
+        "gross_avg_return_pct": 0.0394,
+        "net_avg_return_pct": -0.0106,
+        "gross_total_return_pct": 381.4577,
+        "net_total_return_pct": -102.3423,
+        "gross_profit_factor": 1.1645,
+        "net_profit_factor": 0.9602,
+        "max_drawdown_pct": 207.2901,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 8277,
+        "long_count": 4697,
+        "short_count": 4979,
+        "long_net_avg_return_pct": 0.0439,
+        "short_net_avg_return_pct": -0.062
+      },
+      "split_metadata": {
+        "total_rows": 419432,
+        "total_days": 59,
+        "train_days": 42,
+        "val_days": 9,
+        "test_days": 8,
+        "train_rows": 300708,
+        "val_rows": 62828,
+        "test_rows": 55896,
+        "purged_train_rows": 0,
+        "purged_val_rows": 0,
+        "val_start_date": "2026-08-13",
+        "test_start_date": "2026-08-26"
+      }
+    },
+    {
+      "target_formulation": "Model A",
+      "target_pct": 0.022,
+      "model_family": "lightgbm",
+      "selected_pos_weight": 100,
+      "selected_calibrator": "sigmoid",
+      "selected_threshold": 0.0133,
+      "validation_statistical_metrics": {
+        "pr_auc": 0.0013,
+        "precision": 0.0006,
+        "recall": 0.0317,
+        "brier_score": 0.002127,
+        "ece": 0.0097,
+        "tp": 4,
+        "fp": 6931,
+        "tn": 54907,
+        "fn": 122,
+        "threshold_used": 0.0133
+      },
+      "validation_economic_metrics": {
+        "threshold_used": 0.0133,
+        "selected_trade_count": 6935,
+        "trade_frequency_per_day": 770.56,
+        "gross_avg_return_pct": -0.0014,
+        "net_avg_return_pct": -0.0514,
+        "gross_total_return_pct": -9.6903,
+        "net_total_return_pct": -356.4403,
+        "gross_profit_factor": 0.9931,
+        "net_profit_factor": 0.7753,
+        "max_drawdown_pct": 372.3693,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 6358,
+        "long_count": 3508,
+        "short_count": 3427,
+        "long_net_avg_return_pct": 0.0242,
+        "short_net_avg_return_pct": -0.1288
+      },
+      "locked_test_statistical_metrics": {
+        "pr_auc": 0.0206,
+        "precision": 0.0209,
+        "recall": 0.1518,
+        "brier_score": 0.018806,
+        "ece": 0.0073,
+        "tp": 160,
+        "fp": 7485,
+        "tn": 46588,
+        "fn": 894,
+        "threshold_used": 0.0133
+      },
+      "locked_test_economic_metrics": {
+        "threshold_used": 0.0133,
+        "selected_trade_count": 7645,
+        "trade_frequency_per_day": 955.62,
+        "gross_avg_return_pct": 0.0277,
+        "net_avg_return_pct": -0.0223,
+        "gross_total_return_pct": 211.9057,
+        "net_total_return_pct": -170.3443,
+        "gross_profit_factor": 1.1222,
+        "net_profit_factor": 0.9118,
+        "max_drawdown_pct": 227.2074,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 6700,
+        "long_count": 3816,
+        "short_count": 3829,
+        "long_net_avg_return_pct": -0.0712,
+        "short_net_avg_return_pct": 0.0265
+      },
+      "split_metadata": {
+        "total_rows": 419432,
+        "total_days": 59,
+        "train_days": 42,
+        "val_days": 9,
+        "test_days": 8,
+        "train_rows": 300708,
+        "val_rows": 62828,
+        "test_rows": 55896,
+        "purged_train_rows": 0,
+        "purged_val_rows": 0,
+        "val_start_date": "2026-08-13",
+        "test_start_date": "2026-08-26"
+      }
+    },
+    {
+      "target_formulation": "Model B",
+      "target_pct": 0.01,
+      "model_family": "logistic_regression",
+      "selected_pos_weight": 4,
+      "selected_calibrator": "isotonic",
+      "selected_threshold": 0.5,
+      "validation_statistical_metrics": {
+        "pr_auc": 0.5334,
+        "precision": 0.0,
+        "recall": 0.0,
+        "brier_score": 0.064689,
+        "ece": 0.0482,
+        "tp": 0,
+        "fp": 0,
+        "tn": 57823,
+        "fn": 4141,
+        "threshold_used": 0.5
+      },
+      "validation_economic_metrics": {
+        "threshold_used": 0.5,
+        "selected_trade_count": 0,
+        "trade_frequency_per_day": 0.0,
+        "gross_avg_return_pct": 0.0,
+        "net_avg_return_pct": 0.0,
+        "gross_total_return_pct": 0.0,
+        "net_total_return_pct": 0.0,
+        "gross_profit_factor": 0.0,
+        "net_profit_factor": 0.0,
+        "max_drawdown_pct": 0.0,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 0,
+        "long_count": 0,
+        "short_count": 0,
+        "long_net_avg_return_pct": 0.0,
+        "short_net_avg_return_pct": 0.0
+      },
+      "locked_test_statistical_metrics": {
+        "pr_auc": 0.0523,
+        "precision": 0.0,
+        "recall": 0.0,
+        "brier_score": 0.092289,
+        "ece": 0.0123,
+        "tp": 0,
+        "fp": 0,
+        "tn": 49467,
+        "fn": 5660,
+        "threshold_used": 0.5
+      },
+      "locked_test_economic_metrics": {
+        "threshold_used": 0.5,
+        "selected_trade_count": 0,
+        "trade_frequency_per_day": 0.0,
+        "gross_avg_return_pct": 0.0,
+        "net_avg_return_pct": 0.0,
+        "gross_total_return_pct": 0.0,
+        "net_total_return_pct": 0.0,
+        "gross_profit_factor": 0.0,
+        "net_profit_factor": 0.0,
+        "max_drawdown_pct": 0.0,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 0,
+        "long_count": 0,
+        "short_count": 0,
+        "long_net_avg_return_pct": 0.0,
+        "short_net_avg_return_pct": 0.0
+      },
+      "split_metadata": {
+        "total_rows": 419432,
+        "total_days": 59,
+        "train_days": 42,
+        "val_days": 9,
+        "test_days": 8,
+        "train_rows": 300708,
+        "val_rows": 62828,
+        "test_rows": 55896,
+        "purged_train_rows": 0,
+        "purged_val_rows": 0,
+        "val_start_date": "2026-08-13",
+        "test_start_date": "2026-08-26"
+      }
+    },
+    {
+      "target_formulation": "Model B",
+      "target_pct": 0.01,
+      "model_family": "random_forest",
+      "selected_pos_weight": 12,
+      "selected_calibrator": "isotonic",
+      "selected_threshold": 0.1407,
+      "validation_statistical_metrics": {
+        "pr_auc": 0.1039,
+        "precision": 0.1426,
+        "recall": 0.1304,
+        "brier_score": 0.063959,
+        "ece": 0.0455,
+        "tp": 540,
+        "fp": 3248,
+        "tn": 54575,
+        "fn": 3601,
+        "threshold_used": 0.1407
+      },
+      "validation_economic_metrics": {
+        "threshold_used": 0.1407,
+        "selected_trade_count": 3788,
+        "trade_frequency_per_day": 420.89,
+        "gross_avg_return_pct": 0.0057,
+        "net_avg_return_pct": -0.0443,
+        "gross_total_return_pct": 21.6381,
+        "net_total_return_pct": -167.7619,
+        "gross_profit_factor": 1.0216,
+        "net_profit_factor": 0.847,
+        "max_drawdown_pct": 185.4103,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 2535,
+        "long_count": 1706,
+        "short_count": 2082,
+        "long_net_avg_return_pct": -0.0927,
+        "short_net_avg_return_pct": -0.0046
+      },
+      "locked_test_statistical_metrics": {
+        "pr_auc": 0.146,
+        "precision": 0.1606,
+        "recall": 0.1442,
+        "brier_score": 0.091519,
+        "ece": 0.011,
+        "tp": 816,
+        "fp": 4265,
+        "tn": 45202,
+        "fn": 4844,
+        "threshold_used": 0.1407
+      },
+      "locked_test_economic_metrics": {
+        "threshold_used": 0.1407,
+        "selected_trade_count": 5081,
+        "trade_frequency_per_day": 635.12,
+        "gross_avg_return_pct": -0.0046,
+        "net_avg_return_pct": -0.0546,
+        "gross_total_return_pct": -23.5075,
+        "net_total_return_pct": -277.5575,
+        "gross_profit_factor": 0.9839,
+        "net_profit_factor": 0.8256,
+        "max_drawdown_pct": 281.3946,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 3207,
+        "long_count": 2294,
+        "short_count": 2787,
+        "long_net_avg_return_pct": -0.0806,
+        "short_net_avg_return_pct": -0.0332
+      },
+      "split_metadata": {
+        "total_rows": 419432,
+        "total_days": 59,
+        "train_days": 42,
+        "val_days": 9,
+        "test_days": 8,
+        "train_rows": 300708,
+        "val_rows": 62828,
+        "test_rows": 55896,
+        "purged_train_rows": 0,
+        "purged_val_rows": 0,
+        "val_start_date": "2026-08-13",
+        "test_start_date": "2026-08-26"
+      }
+    },
+    {
+      "target_formulation": "Model B",
+      "target_pct": 0.01,
+      "model_family": "lightgbm",
+      "selected_pos_weight": 12,
+      "selected_calibrator": "isotonic",
+      "selected_threshold": 0.1571,
+      "validation_statistical_metrics": {
+        "pr_auc": 0.1035,
+        "precision": 0.1687,
+        "recall": 0.0821,
+        "brier_score": 0.063569,
+        "ece": 0.0426,
+        "tp": 340,
+        "fp": 1675,
+        "tn": 56148,
+        "fn": 3801,
+        "threshold_used": 0.1571
+      },
+      "validation_economic_metrics": {
+        "threshold_used": 0.1571,
+        "selected_trade_count": 2015,
+        "trade_frequency_per_day": 223.89,
+        "gross_avg_return_pct": 0.0144,
+        "net_avg_return_pct": -0.0356,
+        "gross_total_return_pct": 28.9524,
+        "net_total_return_pct": -71.7976,
+        "gross_profit_factor": 1.0506,
+        "net_profit_factor": 0.8847,
+        "max_drawdown_pct": 78.3209,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 1225,
+        "long_count": 964,
+        "short_count": 1051,
+        "long_net_avg_return_pct": -0.0595,
+        "short_net_avg_return_pct": -0.0138
+      },
+      "locked_test_statistical_metrics": {
+        "pr_auc": 0.148,
+        "precision": 0.189,
+        "recall": 0.1021,
+        "brier_score": 0.091356,
+        "ece": 0.01,
+        "tp": 578,
+        "fp": 2480,
+        "tn": 46987,
+        "fn": 5082,
+        "threshold_used": 0.1571
+      },
+      "locked_test_economic_metrics": {
+        "threshold_used": 0.1571,
+        "selected_trade_count": 3058,
+        "trade_frequency_per_day": 382.25,
+        "gross_avg_return_pct": -0.0075,
+        "net_avg_return_pct": -0.0575,
+        "gross_total_return_pct": -22.8108,
+        "net_total_return_pct": -175.7108,
+        "gross_profit_factor": 0.9754,
+        "net_profit_factor": 0.8259,
+        "max_drawdown_pct": 176.9867,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 1748,
+        "long_count": 1450,
+        "short_count": 1608,
+        "long_net_avg_return_pct": -0.0532,
+        "short_net_avg_return_pct": -0.0613
+      },
+      "split_metadata": {
+        "total_rows": 419432,
+        "total_days": 59,
+        "train_days": 42,
+        "val_days": 9,
+        "test_days": 8,
+        "train_rows": 300708,
+        "val_rows": 62828,
+        "test_rows": 55896,
+        "purged_train_rows": 0,
+        "purged_val_rows": 0,
+        "val_start_date": "2026-08-13",
+        "test_start_date": "2026-08-26"
+      }
+    }
+  ],
+  "phase5_experiments": [
+    {
+      "experiment_id": "A2",
+      "experiment_name": "Phase 5 Technical-Only Control",
+      "model_family": "logistic_regression",
+      "feature_count": 9,
+      "feature_cols": [
+        "rsi",
+        "obv",
+        "bollinger_position",
+        "macd",
+        "macd_signal",
+        "macd_diff",
+        "price_vs_vwap",
+        "price_vs_ema5",
+        "direction"
+      ],
+      "selected_pos_weight": 50,
+      "selected_calibrator": "none",
+      "selected_threshold": 0.54,
+      "validation_statistical": {
+        "pr_auc": 0.0137,
+        "precision": 0.0667,
+        "recall": 0.0317,
+        "brier_score": 0.141171,
+        "ece": 0.3703,
+        "tp": 4,
+        "fp": 56,
+        "tn": 63090,
+        "fn": 122,
+        "threshold_used": 0.54
+      },
+      "validation_economic": {
+        "threshold_used": 0.54,
+        "selected_trade_count": 60,
+        "trade_frequency_per_day": 10.0,
+        "gross_avg_return_pct": 0.1468,
+        "net_avg_return_pct": 0.0968,
+        "gross_total_return_pct": 8.8087,
+        "net_total_return_pct": 5.8087,
+        "gross_profit_factor": 1.5562,
+        "net_profit_factor": 1.338,
+        "max_drawdown_pct": 7.906,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 46,
+        "long_count": 55,
+        "short_count": 5,
+        "long_net_avg_return_pct": 0.0917,
+        "short_net_avg_return_pct": 0.1525
+      },
+      "test_statistical": {
+        "pr_auc": 0.0306,
+        "precision": 0.0,
+        "recall": 0.0,
+        "brier_score": 0.143958,
+        "ece": 0.3499,
+        "tp": 0,
+        "fp": 124,
+        "tn": 55073,
+        "fn": 1098,
+        "threshold_used": 0.54
+      },
+      "test_economic": {
+        "threshold_used": 0.54,
+        "selected_trade_count": 124,
+        "trade_frequency_per_day": 20.67,
+        "gross_avg_return_pct": 0.3467,
+        "net_avg_return_pct": 0.2967,
+        "gross_total_return_pct": 42.9936,
+        "net_total_return_pct": 36.7936,
+        "gross_profit_factor": 2.9498,
+        "net_profit_factor": 2.5022,
+        "max_drawdown_pct": 10.8438,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 109,
+        "long_count": 113,
+        "short_count": 11,
+        "long_net_avg_return_pct": 0.3897,
+        "short_net_avg_return_pct": -0.6587
+      },
+      "test_long_breakdown": {
+        "trades": 113,
+        "win_rate": 64.6,
+        "net_avg_return_pct": 0.3897,
+        "net_profit_factor": 3.6409
+      },
+      "test_short_breakdown": {
+        "trades": 11,
+        "win_rate": 18.18,
+        "net_avg_return_pct": -0.6587,
+        "net_profit_factor": 0.0731
+      },
+      "test_daily_breakdown": [
+        {
+          "date": "2026-08-26",
+          "trades": 16,
+          "wins": 9,
+          "win_rate": 56.2,
+          "net_avg_return_pct": 0.4211,
+          "net_total_return_pct": 6.7371
+        },
+        {
+          "date": "2026-08-28",
+          "trades": 13,
+          "wins": 10,
+          "win_rate": 76.9,
+          "net_avg_return_pct": 0.2373,
+          "net_total_return_pct": 3.0847
+        },
+        {
+          "date": "2026-08-31",
+          "trades": 7,
+          "wins": 7,
+          "win_rate": 100.0,
+          "net_avg_return_pct": 0.9352,
+          "net_total_return_pct": 6.5465
+        },
+        {
+          "date": "2026-09-01",
+          "trades": 28,
+          "wins": 10,
+          "win_rate": 35.7,
+          "net_avg_return_pct": -0.2439,
+          "net_total_return_pct": -6.83
+        },
+        {
+          "date": "2026-09-02",
+          "trades": 49,
+          "wins": 36,
+          "win_rate": 73.5,
+          "net_avg_return_pct": 0.5614,
+          "net_total_return_pct": 27.51
+        },
+        {
+          "date": "2026-09-04",
+          "trades": 11,
+          "wins": 3,
+          "win_rate": 27.3,
+          "net_avg_return_pct": -0.0232,
+          "net_total_return_pct": -0.2547
+        }
+      ],
+      "test_extremes": {
+        "largest_winning_trade_pct": 1.967,
+        "largest_losing_trade_pct": -0.95,
+        "mean_holding_period_minutes": 140.2,
+        "median_holding_period_minutes": 145.0
+      }
+    },
+    {
+      "experiment_id": "A2",
+      "experiment_name": "Phase 5 Technical-Only Control",
+      "model_family": "random_forest",
+      "feature_count": 9,
+      "feature_cols": [
+        "rsi",
+        "obv",
+        "bollinger_position",
+        "macd",
+        "macd_signal",
+        "macd_diff",
+        "price_vs_vwap",
+        "price_vs_ema5",
+        "direction"
+      ],
+      "selected_pos_weight": 25,
+      "selected_calibrator": "sigmoid",
+      "selected_threshold": 0.0133,
+      "validation_statistical": {
+        "pr_auc": 0.0014,
+        "precision": 0.0,
+        "recall": 0.0,
+        "brier_score": 0.002091,
+        "ece": 0.0101,
+        "tp": 0,
+        "fp": 233,
+        "tn": 62913,
+        "fn": 126,
+        "threshold_used": 0.0133
+      },
+      "validation_economic": {
+        "threshold_used": 0.0133,
+        "selected_trade_count": 233,
+        "trade_frequency_per_day": 25.89,
+        "gross_avg_return_pct": 0.1819,
+        "net_avg_return_pct": 0.1319,
+        "gross_total_return_pct": 42.3888,
+        "net_total_return_pct": 30.7388,
+        "gross_profit_factor": 2.5474,
+        "net_profit_factor": 1.9468,
+        "max_drawdown_pct": 24.4488,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 229,
+        "long_count": 233,
+        "short_count": 0,
+        "long_net_avg_return_pct": 0.1319,
+        "short_net_avg_return_pct": 0.0
+      },
+      "test_statistical": {
+        "pr_auc": 0.0258,
+        "precision": 0.0686,
+        "recall": 0.0064,
+        "brier_score": 0.019178,
+        "ece": 0.0074,
+        "tp": 7,
+        "fp": 95,
+        "tn": 55102,
+        "fn": 1091,
+        "threshold_used": 0.0133
+      },
+      "test_economic": {
+        "threshold_used": 0.0133,
+        "selected_trade_count": 102,
+        "trade_frequency_per_day": 12.75,
+        "gross_avg_return_pct": 0.1338,
+        "net_avg_return_pct": 0.0838,
+        "gross_total_return_pct": 13.6506,
+        "net_total_return_pct": 8.5506,
+        "gross_profit_factor": 1.6795,
+        "net_profit_factor": 1.3727,
+        "max_drawdown_pct": 6.895,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 91,
+        "long_count": 102,
+        "short_count": 0,
+        "long_net_avg_return_pct": 0.0838,
+        "short_net_avg_return_pct": 0.0
+      },
+      "test_long_breakdown": {
+        "trades": 102,
+        "win_rate": 41.18,
+        "net_avg_return_pct": 0.0838,
+        "net_profit_factor": 1.3727
+      },
+      "test_short_breakdown": {
+        "trades": 0,
+        "win_rate": 0.0,
+        "net_avg_return_pct": 0.0,
+        "net_profit_factor": 0.0
+      },
+      "test_daily_breakdown": [
+        {
+          "date": "2026-08-26",
+          "trades": 5,
+          "wins": 3,
+          "win_rate": 60.0,
+          "net_avg_return_pct": 0.2257,
+          "net_total_return_pct": 1.1287
+        },
+        {
+          "date": "2026-08-27",
+          "trades": 11,
+          "wins": 0,
+          "win_rate": 0.0,
+          "net_avg_return_pct": -0.43,
+          "net_total_return_pct": -4.7305
+        },
+        {
+          "date": "2026-08-28",
+          "trades": 14,
+          "wins": 11,
+          "win_rate": 78.6,
+          "net_avg_return_pct": 0.233,
+          "net_total_return_pct": 3.2617
+        },
+        {
+          "date": "2026-08-31",
+          "trades": 14,
+          "wins": 8,
+          "win_rate": 57.1,
+          "net_avg_return_pct": 0.8539,
+          "net_total_return_pct": 11.9546
+        },
+        {
+          "date": "2026-09-01",
+          "trades": 7,
+          "wins": 2,
+          "win_rate": 28.6,
+          "net_avg_return_pct": -0.3967,
+          "net_total_return_pct": -2.777
+        },
+        {
+          "date": "2026-09-02",
+          "trades": 19,
+          "wins": 13,
+          "win_rate": 68.4,
+          "net_avg_return_pct": 0.3236,
+          "net_total_return_pct": 6.1475
+        },
+        {
+          "date": "2026-09-03",
+          "trades": 13,
+          "wins": 5,
+          "win_rate": 38.5,
+          "net_avg_return_pct": -0.1548,
+          "net_total_return_pct": -2.012
+        },
+        {
+          "date": "2026-09-04",
+          "trades": 19,
+          "wins": 0,
+          "win_rate": 0.0,
+          "net_avg_return_pct": -0.2328,
+          "net_total_return_pct": -4.4224
+        }
+      ],
+      "test_extremes": {
+        "largest_winning_trade_pct": 2.15,
+        "largest_losing_trade_pct": -0.95,
+        "mean_holding_period_minutes": 129.75,
+        "median_holding_period_minutes": 127.5
+      }
+    },
+    {
+      "experiment_id": "A2",
+      "experiment_name": "Phase 5 Technical-Only Control",
+      "model_family": "lightgbm",
+      "feature_count": 9,
+      "feature_cols": [
+        "rsi",
+        "obv",
+        "bollinger_position",
+        "macd",
+        "macd_signal",
+        "macd_diff",
+        "price_vs_vwap",
+        "price_vs_ema5",
+        "direction"
+      ],
+      "selected_pos_weight": 25,
+      "selected_calibrator": "none",
+      "selected_threshold": 0.82,
+      "validation_statistical": {
+        "pr_auc": 0.0045,
+        "precision": 0.0,
+        "recall": 0.0,
+        "brier_score": 0.039625,
+        "ece": 0.1559,
+        "tp": 0,
+        "fp": 38,
+        "tn": 63108,
+        "fn": 126,
+        "threshold_used": 0.82
+      },
+      "validation_economic": {
+        "threshold_used": 0.82,
+        "selected_trade_count": 38,
+        "trade_frequency_per_day": 5.43,
+        "gross_avg_return_pct": 0.0814,
+        "net_avg_return_pct": 0.0314,
+        "gross_total_return_pct": 3.0942,
+        "net_total_return_pct": 1.1942,
+        "gross_profit_factor": 1.6928,
+        "net_profit_factor": 1.2227,
+        "max_drawdown_pct": 3.9532,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 38,
+        "long_count": 4,
+        "short_count": 34,
+        "long_net_avg_return_pct": -0.2716,
+        "short_net_avg_return_pct": 0.0671
+      },
+      "test_statistical": {
+        "pr_auc": 0.023,
+        "precision": 0.1562,
+        "recall": 0.0046,
+        "brier_score": 0.052204,
+        "ece": 0.1344,
+        "tp": 5,
+        "fp": 27,
+        "tn": 55170,
+        "fn": 1093,
+        "threshold_used": 0.82
+      },
+      "test_economic": {
+        "threshold_used": 0.82,
+        "selected_trade_count": 32,
+        "trade_frequency_per_day": 4.57,
+        "gross_avg_return_pct": 0.1847,
+        "net_avg_return_pct": 0.1347,
+        "gross_total_return_pct": 5.9113,
+        "net_total_return_pct": 4.3113,
+        "gross_profit_factor": 1.4789,
+        "net_profit_factor": 1.3243,
+        "max_drawdown_pct": 9.0809,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 15,
+        "long_count": 12,
+        "short_count": 20,
+        "long_net_avg_return_pct": -0.276,
+        "short_net_avg_return_pct": 0.3812
+      },
+      "test_long_breakdown": {
+        "trades": 12,
+        "win_rate": 25.0,
+        "net_avg_return_pct": -0.276,
+        "net_profit_factor": 0.5698
+      },
+      "test_short_breakdown": {
+        "trades": 20,
+        "win_rate": 50.0,
+        "net_avg_return_pct": 0.3812,
+        "net_profit_factor": 2.3627
+      },
+      "test_daily_breakdown": [
+        {
+          "date": "2026-08-26",
+          "trades": 10,
+          "wins": 2,
+          "win_rate": 20.0,
+          "net_avg_return_pct": -0.221,
+          "net_total_return_pct": -2.2103
+        },
+        {
+          "date": "2026-08-27",
+          "trades": 6,
+          "wins": 6,
+          "win_rate": 100.0,
+          "net_avg_return_pct": 2.0919,
+          "net_total_return_pct": 12.5512
+        },
+        {
+          "date": "2026-08-28",
+          "trades": 1,
+          "wins": 1,
+          "win_rate": 100.0,
+          "net_avg_return_pct": 0.4219,
+          "net_total_return_pct": 0.4219
+        },
+        {
+          "date": "2026-09-01",
+          "trades": 3,
+          "wins": 1,
+          "win_rate": 33.3,
+          "net_avg_return_pct": -0.4329,
+          "net_total_return_pct": -1.2988
+        },
+        {
+          "date": "2026-09-02",
+          "trades": 10,
+          "wins": 1,
+          "win_rate": 10.0,
+          "net_avg_return_pct": -0.6002,
+          "net_total_return_pct": -6.0022
+        },
+        {
+          "date": "2026-09-03",
+          "trades": 1,
+          "wins": 1,
+          "win_rate": 100.0,
+          "net_avg_return_pct": 0.7228,
+          "net_total_return_pct": 0.7228
+        },
+        {
+          "date": "2026-09-04",
+          "trades": 1,
+          "wins": 1,
+          "win_rate": 100.0,
+          "net_avg_return_pct": 0.1267,
+          "net_total_return_pct": 0.1267
+        }
+      ],
+      "test_extremes": {
+        "largest_winning_trade_pct": 2.15,
+        "largest_losing_trade_pct": -0.95,
+        "mean_holding_period_minutes": 172.81,
+        "median_holding_period_minutes": 230.0
+      }
+    },
+    {
+      "experiment_id": "B",
+      "experiment_name": "Technical + Real News Sentiment",
+      "model_family": "logistic_regression",
+      "feature_count": 12,
+      "feature_cols": [
+        "rsi",
+        "obv",
+        "bollinger_position",
+        "macd",
+        "macd_signal",
+        "macd_diff",
+        "price_vs_vwap",
+        "price_vs_ema5",
+        "direction",
+        "sentiment_score",
+        "has_news",
+        "number_of_articles"
+      ],
+      "selected_pos_weight": 100,
+      "selected_calibrator": "none",
+      "selected_threshold": 0.6,
+      "validation_statistical": {
+        "pr_auc": 0.0056,
+        "precision": 0.005,
+        "recall": 0.5079,
+        "brier_score": 0.306217,
+        "ece": 0.549,
+        "tp": 64,
+        "fp": 12827,
+        "tn": 50319,
+        "fn": 62,
+        "threshold_used": 0.6
+      },
+      "validation_economic": {
+        "threshold_used": 0.6,
+        "selected_trade_count": 12891,
+        "trade_frequency_per_day": 1432.33,
+        "gross_avg_return_pct": 0.0609,
+        "net_avg_return_pct": 0.0109,
+        "gross_total_return_pct": 784.7411,
+        "net_total_return_pct": 140.1911,
+        "gross_profit_factor": 1.3255,
+        "net_profit_factor": 1.0514,
+        "max_drawdown_pct": 760.2462,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 11900,
+        "long_count": 12218,
+        "short_count": 673,
+        "long_net_avg_return_pct": 0.0136,
+        "short_net_avg_return_pct": -0.0382
+      },
+      "test_statistical": {
+        "pr_auc": 0.0254,
+        "precision": 0.034,
+        "recall": 0.3543,
+        "brier_score": 0.302589,
+        "ece": 0.5293,
+        "tp": 389,
+        "fp": 11040,
+        "tn": 44157,
+        "fn": 709,
+        "threshold_used": 0.6
+      },
+      "test_economic": {
+        "threshold_used": 0.6,
+        "selected_trade_count": 11429,
+        "trade_frequency_per_day": 1428.62,
+        "gross_avg_return_pct": 0.0371,
+        "net_avg_return_pct": -0.0129,
+        "gross_total_return_pct": 424.1422,
+        "net_total_return_pct": -147.3078,
+        "gross_profit_factor": 1.1403,
+        "net_profit_factor": 0.9558,
+        "max_drawdown_pct": 620.501,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 9276,
+        "long_count": 10630,
+        "short_count": 799,
+        "long_net_avg_return_pct": -0.0023,
+        "short_net_avg_return_pct": -0.1531
+      },
+      "test_long_breakdown": {
+        "trades": 10630,
+        "win_rate": 45.05,
+        "net_avg_return_pct": -0.0023,
+        "net_profit_factor": 0.9918
+      },
+      "test_short_breakdown": {
+        "trades": 799,
+        "win_rate": 37.05,
+        "net_avg_return_pct": -0.1531,
+        "net_profit_factor": 0.5898
+      },
+      "test_daily_breakdown": [
+        {
+          "date": "2026-08-26",
+          "trades": 1170,
+          "wins": 429,
+          "win_rate": 36.7,
+          "net_avg_return_pct": -0.1296,
+          "net_total_return_pct": -151.6643
+        },
+        {
+          "date": "2026-08-27",
+          "trades": 1403,
+          "wins": 493,
+          "win_rate": 35.1,
+          "net_avg_return_pct": -0.1911,
+          "net_total_return_pct": -268.1277
+        },
+        {
+          "date": "2026-08-28",
+          "trades": 1325,
+          "wins": 683,
+          "win_rate": 51.5,
+          "net_avg_return_pct": -0.0493,
+          "net_total_return_pct": -65.3054
+        },
+        {
+          "date": "2026-08-31",
+          "trades": 1817,
+          "wins": 892,
+          "win_rate": 49.1,
+          "net_avg_return_pct": 0.3393,
+          "net_total_return_pct": 616.4208
+        },
+        {
+          "date": "2026-09-01",
+          "trades": 1190,
+          "wins": 434,
+          "win_rate": 36.5,
+          "net_avg_return_pct": -0.2156,
+          "net_total_return_pct": -256.5828
+        },
+        {
+          "date": "2026-09-02",
+          "trades": 2091,
+          "wins": 1194,
+          "win_rate": 57.1,
+          "net_avg_return_pct": 0.1347,
+          "net_total_return_pct": 281.6572
+        },
+        {
+          "date": "2026-09-03",
+          "trades": 884,
+          "wins": 271,
+          "win_rate": 30.7,
+          "net_avg_return_pct": -0.2829,
+          "net_total_return_pct": -250.1151
+        },
+        {
+          "date": "2026-09-04",
+          "trades": 1549,
+          "wins": 689,
+          "win_rate": 44.5,
+          "net_avg_return_pct": -0.0346,
+          "net_total_return_pct": -53.5905
+        }
+      ],
+      "test_extremes": {
+        "largest_winning_trade_pct": 2.15,
+        "largest_losing_trade_pct": -0.95,
+        "mean_holding_period_minutes": 146.92,
+        "median_holding_period_minutes": 150.0
+      }
+    },
+    {
+      "experiment_id": "B",
+      "experiment_name": "Technical + Real News Sentiment",
+      "model_family": "random_forest",
+      "feature_count": 12,
+      "feature_cols": [
+        "rsi",
+        "obv",
+        "bollinger_position",
+        "macd",
+        "macd_signal",
+        "macd_diff",
+        "price_vs_vwap",
+        "price_vs_ema5",
+        "direction",
+        "sentiment_score",
+        "has_news",
+        "number_of_articles"
+      ],
+      "selected_pos_weight": 25,
+      "selected_calibrator": "sigmoid",
+      "selected_threshold": 0.0131,
+      "validation_statistical": {
+        "pr_auc": 0.002,
+        "precision": 0.0097,
+        "recall": 0.0238,
+        "brier_score": 0.002091,
+        "ece": 0.0102,
+        "tp": 3,
+        "fp": 307,
+        "tn": 62839,
+        "fn": 123,
+        "threshold_used": 0.0131
+      },
+      "validation_economic": {
+        "threshold_used": 0.0131,
+        "selected_trade_count": 310,
+        "trade_frequency_per_day": 34.44,
+        "gross_avg_return_pct": 0.1737,
+        "net_avg_return_pct": 0.1237,
+        "gross_total_return_pct": 53.8596,
+        "net_total_return_pct": 38.3596,
+        "gross_profit_factor": 1.9473,
+        "net_profit_factor": 1.5994,
+        "max_drawdown_pct": 13.9577,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 281,
+        "long_count": 230,
+        "short_count": 80,
+        "long_net_avg_return_pct": 0.2736,
+        "short_net_avg_return_pct": -0.3072
+      },
+      "test_statistical": {
+        "pr_auc": 0.0257,
+        "precision": 0.0742,
+        "recall": 0.0282,
+        "brier_score": 0.019177,
+        "ece": 0.0073,
+        "tp": 31,
+        "fp": 387,
+        "tn": 54810,
+        "fn": 1067,
+        "threshold_used": 0.0131
+      },
+      "test_economic": {
+        "threshold_used": 0.0131,
+        "selected_trade_count": 418,
+        "trade_frequency_per_day": 52.25,
+        "gross_avg_return_pct": 0.1635,
+        "net_avg_return_pct": 0.1135,
+        "gross_total_return_pct": 68.3408,
+        "net_total_return_pct": 47.4408,
+        "gross_profit_factor": 1.6215,
+        "net_profit_factor": 1.3961,
+        "max_drawdown_pct": 27.2827,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 325,
+        "long_count": 252,
+        "short_count": 166,
+        "long_net_avg_return_pct": 0.0693,
+        "short_net_avg_return_pct": 0.1806
+      },
+      "test_long_breakdown": {
+        "trades": 252,
+        "win_rate": 47.62,
+        "net_avg_return_pct": 0.0693,
+        "net_profit_factor": 1.2187
+      },
+      "test_short_breakdown": {
+        "trades": 166,
+        "win_rate": 60.24,
+        "net_avg_return_pct": 0.1806,
+        "net_profit_factor": 1.7504
+      },
+      "test_daily_breakdown": [
+        {
+          "date": "2026-08-26",
+          "trades": 94,
+          "wins": 52,
+          "win_rate": 55.3,
+          "net_avg_return_pct": 0.119,
+          "net_total_return_pct": 11.1827
+        },
+        {
+          "date": "2026-08-27",
+          "trades": 37,
+          "wins": 28,
+          "win_rate": 75.7,
+          "net_avg_return_pct": 0.0769,
+          "net_total_return_pct": 2.8466
+        },
+        {
+          "date": "2026-08-28",
+          "trades": 41,
+          "wins": 17,
+          "win_rate": 41.5,
+          "net_avg_return_pct": -0.0367,
+          "net_total_return_pct": -1.5045
+        },
+        {
+          "date": "2026-08-31",
+          "trades": 41,
+          "wins": 31,
+          "win_rate": 75.6,
+          "net_avg_return_pct": 1.3939,
+          "net_total_return_pct": 57.15
+        },
+        {
+          "date": "2026-09-01",
+          "trades": 54,
+          "wins": 9,
+          "win_rate": 16.7,
+          "net_avg_return_pct": -0.3459,
+          "net_total_return_pct": -18.6808
+        },
+        {
+          "date": "2026-09-02",
+          "trades": 65,
+          "wins": 39,
+          "win_rate": 60.0,
+          "net_avg_return_pct": 0.0736,
+          "net_total_return_pct": 4.7808
+        },
+        {
+          "date": "2026-09-03",
+          "trades": 46,
+          "wins": 36,
+          "win_rate": 78.3,
+          "net_avg_return_pct": 0.1287,
+          "net_total_return_pct": 5.9205
+        },
+        {
+          "date": "2026-09-04",
+          "trades": 40,
+          "wins": 8,
+          "win_rate": 20.0,
+          "net_avg_return_pct": -0.3564,
+          "net_total_return_pct": -14.2545
+        }
+      ],
+      "test_extremes": {
+        "largest_winning_trade_pct": 2.15,
+        "largest_losing_trade_pct": -0.95,
+        "mean_holding_period_minutes": 100.33,
+        "median_holding_period_minutes": 90.0
+      }
+    },
+    {
+      "experiment_id": "B",
+      "experiment_name": "Technical + Real News Sentiment",
+      "model_family": "lightgbm",
+      "feature_count": 12,
+      "feature_cols": [
+        "rsi",
+        "obv",
+        "bollinger_position",
+        "macd",
+        "macd_signal",
+        "macd_diff",
+        "price_vs_vwap",
+        "price_vs_ema5",
+        "direction",
+        "sentiment_score",
+        "has_news",
+        "number_of_articles"
+      ],
+      "selected_pos_weight": 50,
+      "selected_calibrator": "none",
+      "selected_threshold": 0.82,
+      "validation_statistical": {
+        "pr_auc": 0.0023,
+        "precision": 0.0182,
+        "recall": 0.0079,
+        "brier_score": 0.055464,
+        "ece": 0.1694,
+        "tp": 1,
+        "fp": 54,
+        "tn": 63092,
+        "fn": 125,
+        "threshold_used": 0.82
+      },
+      "validation_economic": {
+        "threshold_used": 0.82,
+        "selected_trade_count": 55,
+        "trade_frequency_per_day": 6.11,
+        "gross_avg_return_pct": 0.0262,
+        "net_avg_return_pct": -0.0238,
+        "gross_total_return_pct": 1.4394,
+        "net_total_return_pct": -1.3106,
+        "gross_profit_factor": 1.0928,
+        "net_profit_factor": 0.9222,
+        "max_drawdown_pct": 3.9853,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 44,
+        "long_count": 37,
+        "short_count": 18,
+        "long_net_avg_return_pct": -0.126,
+        "short_net_avg_return_pct": 0.1862
+      },
+      "test_statistical": {
+        "pr_auc": 0.0209,
+        "precision": 0.0469,
+        "recall": 0.0027,
+        "brier_score": 0.059711,
+        "ece": 0.1299,
+        "tp": 3,
+        "fp": 61,
+        "tn": 55136,
+        "fn": 1095,
+        "threshold_used": 0.82
+      },
+      "test_economic": {
+        "threshold_used": 0.82,
+        "selected_trade_count": 64,
+        "trade_frequency_per_day": 10.67,
+        "gross_avg_return_pct": 0.2012,
+        "net_avg_return_pct": 0.1512,
+        "gross_total_return_pct": 12.8743,
+        "net_total_return_pct": 9.6743,
+        "gross_profit_factor": 1.7931,
+        "net_profit_factor": 1.549,
+        "max_drawdown_pct": 4.0361,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 51,
+        "long_count": 43,
+        "short_count": 21,
+        "long_net_avg_return_pct": 0.2143,
+        "short_net_avg_return_pct": 0.022
+      },
+      "test_long_breakdown": {
+        "trades": 43,
+        "win_rate": 58.14,
+        "net_avg_return_pct": 0.2143,
+        "net_profit_factor": 1.7963
+      },
+      "test_short_breakdown": {
+        "trades": 21,
+        "win_rate": 47.62,
+        "net_avg_return_pct": 0.022,
+        "net_profit_factor": 1.0762
+      },
+      "test_daily_breakdown": [
+        {
+          "date": "2026-08-26",
+          "trades": 10,
+          "wins": 7,
+          "win_rate": 70.0,
+          "net_avg_return_pct": 0.7799,
+          "net_total_return_pct": 7.7986
+        },
+        {
+          "date": "2026-08-28",
+          "trades": 5,
+          "wins": 2,
+          "win_rate": 40.0,
+          "net_avg_return_pct": -0.1721,
+          "net_total_return_pct": -0.8606
+        },
+        {
+          "date": "2026-09-01",
+          "trades": 5,
+          "wins": 3,
+          "win_rate": 60.0,
+          "net_avg_return_pct": 0.4164,
+          "net_total_return_pct": 2.082
+        },
+        {
+          "date": "2026-09-02",
+          "trades": 33,
+          "wins": 18,
+          "win_rate": 54.5,
+          "net_avg_return_pct": 0.0588,
+          "net_total_return_pct": 1.9398
+        },
+        {
+          "date": "2026-09-03",
+          "trades": 5,
+          "wins": 3,
+          "win_rate": 60.0,
+          "net_avg_return_pct": -0.0959,
+          "net_total_return_pct": -0.4793
+        },
+        {
+          "date": "2026-09-04",
+          "trades": 6,
+          "wins": 2,
+          "win_rate": 33.3,
+          "net_avg_return_pct": -0.1344,
+          "net_total_return_pct": -0.8062
+        }
+      ],
+      "test_extremes": {
+        "largest_winning_trade_pct": 2.15,
+        "largest_losing_trade_pct": -0.95,
+        "mean_holding_period_minutes": 201.8,
+        "median_holding_period_minutes": 240.0
+      }
+    },
+    {
+      "experiment_id": "C",
+      "experiment_name": "Technical + Chroma Historical Context",
+      "model_family": "logistic_regression",
+      "feature_count": 11,
+      "feature_cols": [
+        "rsi",
+        "obv",
+        "bollinger_position",
+        "macd",
+        "macd_signal",
+        "macd_diff",
+        "price_vs_vwap",
+        "price_vs_ema5",
+        "direction",
+        "market_similarity",
+        "stock_similarity"
+      ],
+      "selected_pos_weight": 74,
+      "selected_calibrator": "sigmoid",
+      "selected_threshold": 0.0153,
+      "validation_statistical": {
+        "pr_auc": 0.0012,
+        "precision": 0.0,
+        "recall": 0.0,
+        "brier_score": 0.002097,
+        "ece": 0.0101,
+        "tp": 0,
+        "fp": 1144,
+        "tn": 62002,
+        "fn": 126,
+        "threshold_used": 0.0153
+      },
+      "validation_economic": {
+        "threshold_used": 0.0153,
+        "selected_trade_count": 1144,
+        "trade_frequency_per_day": 163.43,
+        "gross_avg_return_pct": 0.21,
+        "net_avg_return_pct": 0.16,
+        "gross_total_return_pct": 240.2045,
+        "net_total_return_pct": 183.0045,
+        "gross_profit_factor": 2.5157,
+        "net_profit_factor": 2.0408,
+        "max_drawdown_pct": 13.0419,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 1108,
+        "long_count": 238,
+        "short_count": 906,
+        "long_net_avg_return_pct": -0.481,
+        "short_net_avg_return_pct": 0.3284
+      },
+      "test_statistical": {
+        "pr_auc": 0.0421,
+        "precision": 0.0312,
+        "recall": 0.0893,
+        "brier_score": 0.019193,
+        "ece": 0.0071,
+        "tp": 98,
+        "fp": 3043,
+        "tn": 52154,
+        "fn": 1000,
+        "threshold_used": 0.0153
+      },
+      "test_economic": {
+        "threshold_used": 0.0153,
+        "selected_trade_count": 3141,
+        "trade_frequency_per_day": 392.62,
+        "gross_avg_return_pct": 0.1462,
+        "net_avg_return_pct": 0.0962,
+        "gross_total_return_pct": 459.1192,
+        "net_total_return_pct": 302.0692,
+        "gross_profit_factor": 1.5835,
+        "net_profit_factor": 1.3531,
+        "max_drawdown_pct": 24.8359,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 2586,
+        "long_count": 1166,
+        "short_count": 1975,
+        "long_net_avg_return_pct": -0.4922,
+        "short_net_avg_return_pct": 0.4435
+      },
+      "test_long_breakdown": {
+        "trades": 1166,
+        "win_rate": 15.27,
+        "net_avg_return_pct": -0.4922,
+        "net_profit_factor": 0.1127
+      },
+      "test_short_breakdown": {
+        "trades": 1975,
+        "win_rate": 78.78,
+        "net_avg_return_pct": 0.4435,
+        "net_profit_factor": 5.1975
+      },
+      "test_daily_breakdown": [
+        {
+          "date": "2026-08-26",
+          "trades": 939,
+          "wins": 598,
+          "win_rate": 63.7,
+          "net_avg_return_pct": 0.1522,
+          "net_total_return_pct": 142.9615
+        },
+        {
+          "date": "2026-08-27",
+          "trades": 381,
+          "wins": 222,
+          "win_rate": 58.3,
+          "net_avg_return_pct": 0.0763,
+          "net_total_return_pct": 29.0802
+        },
+        {
+          "date": "2026-08-28",
+          "trades": 10,
+          "wins": 4,
+          "win_rate": 40.0,
+          "net_avg_return_pct": -0.0698,
+          "net_total_return_pct": -0.6985
+        },
+        {
+          "date": "2026-08-31",
+          "trades": 393,
+          "wins": 196,
+          "win_rate": 49.9,
+          "net_avg_return_pct": 0.3551,
+          "net_total_return_pct": 139.5664
+        },
+        {
+          "date": "2026-09-01",
+          "trades": 84,
+          "wins": 34,
+          "win_rate": 40.5,
+          "net_avg_return_pct": -0.2273,
+          "net_total_return_pct": -19.0958
+        },
+        {
+          "date": "2026-09-02",
+          "trades": 108,
+          "wins": 78,
+          "win_rate": 72.2,
+          "net_avg_return_pct": 0.2652,
+          "net_total_return_pct": 28.6444
+        },
+        {
+          "date": "2026-09-03",
+          "trades": 540,
+          "wins": 253,
+          "win_rate": 46.9,
+          "net_avg_return_pct": -0.0274,
+          "net_total_return_pct": -14.7746
+        },
+        {
+          "date": "2026-09-04",
+          "trades": 686,
+          "wins": 349,
+          "win_rate": 50.9,
+          "net_avg_return_pct": -0.0053,
+          "net_total_return_pct": -3.6144
+        }
+      ],
+      "test_extremes": {
+        "largest_winning_trade_pct": 2.15,
+        "largest_losing_trade_pct": -0.95,
+        "mean_holding_period_minutes": 150.62,
+        "median_holding_period_minutes": 160.0
+      }
+    },
+    {
+      "experiment_id": "C",
+      "experiment_name": "Technical + Chroma Historical Context",
+      "model_family": "random_forest",
+      "feature_count": 11,
+      "feature_cols": [
+        "rsi",
+        "obv",
+        "bollinger_position",
+        "macd",
+        "macd_signal",
+        "macd_diff",
+        "price_vs_vwap",
+        "price_vs_ema5",
+        "direction",
+        "market_similarity",
+        "stock_similarity"
+      ],
+      "selected_pos_weight": 25,
+      "selected_calibrator": "none",
+      "selected_threshold": 0.5,
+      "validation_statistical": {
+        "pr_auc": 0.0088,
+        "precision": 0.1212,
+        "recall": 0.0317,
+        "brier_score": 0.030812,
+        "ece": 0.15,
+        "tp": 4,
+        "fp": 29,
+        "tn": 63117,
+        "fn": 122,
+        "threshold_used": 0.5
+      },
+      "validation_economic": {
+        "threshold_used": 0.5,
+        "selected_trade_count": 33,
+        "trade_frequency_per_day": 4.12,
+        "gross_avg_return_pct": 0.3219,
+        "net_avg_return_pct": 0.2719,
+        "gross_total_return_pct": 10.6227,
+        "net_total_return_pct": 8.9727,
+        "gross_profit_factor": 2.0173,
+        "net_profit_factor": 1.8066,
+        "max_drawdown_pct": 3.8,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 20,
+        "long_count": 24,
+        "short_count": 9,
+        "long_net_avg_return_pct": 0.2022,
+        "short_net_avg_return_pct": 0.4577
+      },
+      "test_statistical": {
+        "pr_auc": 0.0257,
+        "precision": 0.1111,
+        "recall": 0.0064,
+        "brier_score": 0.040944,
+        "ece": 0.1254,
+        "tp": 7,
+        "fp": 56,
+        "tn": 55141,
+        "fn": 1091,
+        "threshold_used": 0.5
+      },
+      "test_economic": {
+        "threshold_used": 0.5,
+        "selected_trade_count": 63,
+        "trade_frequency_per_day": 7.88,
+        "gross_avg_return_pct": -0.0129,
+        "net_avg_return_pct": -0.0629,
+        "gross_total_return_pct": -0.8131,
+        "net_total_return_pct": -3.9631,
+        "gross_profit_factor": 0.9703,
+        "net_profit_factor": 0.8639,
+        "max_drawdown_pct": 6.4595,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 29,
+        "long_count": 53,
+        "short_count": 10,
+        "long_net_avg_return_pct": -0.2531,
+        "short_net_avg_return_pct": 0.9451
+      },
+      "test_long_breakdown": {
+        "trades": 53,
+        "win_rate": 39.62,
+        "net_avg_return_pct": -0.2531,
+        "net_profit_factor": 0.5021
+      },
+      "test_short_breakdown": {
+        "trades": 10,
+        "win_rate": 70.0,
+        "net_avg_return_pct": 0.9451,
+        "net_profit_factor": 5.3477
+      },
+      "test_daily_breakdown": [
+        {
+          "date": "2026-08-26",
+          "trades": 10,
+          "wins": 2,
+          "win_rate": 20.0,
+          "net_avg_return_pct": -0.5848,
+          "net_total_return_pct": -5.8481
+        },
+        {
+          "date": "2026-08-27",
+          "trades": 2,
+          "wins": 1,
+          "win_rate": 50.0,
+          "net_avg_return_pct": -0.3844,
+          "net_total_return_pct": -0.7689
+        },
+        {
+          "date": "2026-08-28",
+          "trades": 12,
+          "wins": 8,
+          "win_rate": 66.7,
+          "net_avg_return_pct": 0.3071,
+          "net_total_return_pct": 3.6851
+        },
+        {
+          "date": "2026-08-31",
+          "trades": 2,
+          "wins": 1,
+          "win_rate": 50.0,
+          "net_avg_return_pct": -0.1654,
+          "net_total_return_pct": -0.3307
+        },
+        {
+          "date": "2026-09-01",
+          "trades": 4,
+          "wins": 1,
+          "win_rate": 25.0,
+          "net_avg_return_pct": -0.175,
+          "net_total_return_pct": -0.7
+        },
+        {
+          "date": "2026-09-02",
+          "trades": 28,
+          "wins": 13,
+          "win_rate": 46.4,
+          "net_avg_return_pct": 0.0397,
+          "net_total_return_pct": 1.1109
+        },
+        {
+          "date": "2026-09-03",
+          "trades": 3,
+          "wins": 0,
+          "win_rate": 0.0,
+          "net_avg_return_pct": -0.7181,
+          "net_total_return_pct": -2.1544
+        },
+        {
+          "date": "2026-09-04",
+          "trades": 2,
+          "wins": 2,
+          "win_rate": 100.0,
+          "net_avg_return_pct": 0.5215,
+          "net_total_return_pct": 1.043
+        }
+      ],
+      "test_extremes": {
+        "largest_winning_trade_pct": 2.15,
+        "largest_losing_trade_pct": -0.95,
+        "mean_holding_period_minutes": 135.4,
+        "median_holding_period_minutes": 135.0
+      }
+    },
+    {
+      "experiment_id": "C",
+      "experiment_name": "Technical + Chroma Historical Context",
+      "model_family": "lightgbm",
+      "feature_count": 11,
+      "feature_cols": [
+        "rsi",
+        "obv",
+        "bollinger_position",
+        "macd",
+        "macd_signal",
+        "macd_diff",
+        "price_vs_vwap",
+        "price_vs_ema5",
+        "direction",
+        "market_similarity",
+        "stock_similarity"
+      ],
+      "selected_pos_weight": 25,
+      "selected_calibrator": "none",
+      "selected_threshold": 0.76,
+      "validation_statistical": {
+        "pr_auc": 0.0043,
+        "precision": 0.0476,
+        "recall": 0.0159,
+        "brier_score": 0.032238,
+        "ece": 0.1277,
+        "tp": 2,
+        "fp": 40,
+        "tn": 63106,
+        "fn": 124,
+        "threshold_used": 0.76
+      },
+      "validation_economic": {
+        "threshold_used": 0.76,
+        "selected_trade_count": 42,
+        "trade_frequency_per_day": 5.25,
+        "gross_avg_return_pct": 0.1887,
+        "net_avg_return_pct": 0.1387,
+        "gross_total_return_pct": 7.9274,
+        "net_total_return_pct": 5.8274,
+        "gross_profit_factor": 1.7382,
+        "net_profit_factor": 1.4926,
+        "max_drawdown_pct": 4.0936,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 35,
+        "long_count": 30,
+        "short_count": 12,
+        "long_net_avg_return_pct": 0.274,
+        "short_net_avg_return_pct": -0.1994
+      },
+      "test_statistical": {
+        "pr_auc": 0.0258,
+        "precision": 0.0169,
+        "recall": 0.0009,
+        "brier_score": 0.041418,
+        "ece": 0.0971,
+        "tp": 1,
+        "fp": 58,
+        "tn": 55139,
+        "fn": 1097,
+        "threshold_used": 0.76
+      },
+      "test_economic": {
+        "threshold_used": 0.76,
+        "selected_trade_count": 59,
+        "trade_frequency_per_day": 8.43,
+        "gross_avg_return_pct": 0.2572,
+        "net_avg_return_pct": 0.2072,
+        "gross_total_return_pct": 15.1774,
+        "net_total_return_pct": 12.2274,
+        "gross_profit_factor": 2.2732,
+        "net_profit_factor": 1.95,
+        "max_drawdown_pct": 5.7157,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 48,
+        "long_count": 54,
+        "short_count": 5,
+        "long_net_avg_return_pct": 0.2241,
+        "short_net_avg_return_pct": 0.0253
+      },
+      "test_long_breakdown": {
+        "trades": 54,
+        "win_rate": 68.52,
+        "net_avg_return_pct": 0.2241,
+        "net_profit_factor": 2.0536
+      },
+      "test_short_breakdown": {
+        "trades": 5,
+        "win_rate": 60.0,
+        "net_avg_return_pct": 0.0253,
+        "net_profit_factor": 1.0912
+      },
+      "test_daily_breakdown": [
+        {
+          "date": "2026-08-26",
+          "trades": 19,
+          "wins": 11,
+          "win_rate": 57.9,
+          "net_avg_return_pct": -0.0218,
+          "net_total_return_pct": -0.4137
+        },
+        {
+          "date": "2026-08-27",
+          "trades": 4,
+          "wins": 2,
+          "win_rate": 50.0,
+          "net_avg_return_pct": -0.05,
+          "net_total_return_pct": -0.2
+        },
+        {
+          "date": "2026-08-28",
+          "trades": 2,
+          "wins": 2,
+          "win_rate": 100.0,
+          "net_avg_return_pct": 1.3972,
+          "net_total_return_pct": 2.7944
+        },
+        {
+          "date": "2026-08-31",
+          "trades": 1,
+          "wins": 1,
+          "win_rate": 100.0,
+          "net_avg_return_pct": 1.2366,
+          "net_total_return_pct": 1.2366
+        },
+        {
+          "date": "2026-09-01",
+          "trades": 16,
+          "wins": 16,
+          "win_rate": 100.0,
+          "net_avg_return_pct": 0.6107,
+          "net_total_return_pct": 9.7719
+        },
+        {
+          "date": "2026-09-02",
+          "trades": 13,
+          "wins": 6,
+          "win_rate": 46.2,
+          "net_avg_return_pct": -0.1497,
+          "net_total_return_pct": -1.9466
+        },
+        {
+          "date": "2026-09-03",
+          "trades": 4,
+          "wins": 2,
+          "win_rate": 50.0,
+          "net_avg_return_pct": 0.2462,
+          "net_total_return_pct": 0.9848
+        }
+      ],
+      "test_extremes": {
+        "largest_winning_trade_pct": 2.15,
+        "largest_losing_trade_pct": -0.95,
+        "mean_holding_period_minutes": 205.59,
+        "median_holding_period_minutes": 240.0
+      }
+    },
+    {
+      "experiment_id": "D",
+      "experiment_name": "Full Phase 5 Model (Technical + News + Chroma)",
+      "model_family": "logistic_regression",
+      "feature_count": 14,
+      "feature_cols": [
+        "rsi",
+        "obv",
+        "bollinger_position",
+        "macd",
+        "macd_signal",
+        "macd_diff",
+        "price_vs_vwap",
+        "price_vs_ema5",
+        "direction",
+        "sentiment_score",
+        "has_news",
+        "number_of_articles",
+        "market_similarity",
+        "stock_similarity"
+      ],
+      "selected_pos_weight": 100,
+      "selected_calibrator": "sigmoid",
+      "selected_threshold": 0.0142,
+      "validation_statistical": {
+        "pr_auc": 0.0012,
+        "precision": 0.0,
+        "recall": 0.0,
+        "brier_score": 0.002087,
+        "ece": 0.0098,
+        "tp": 0,
+        "fp": 1022,
+        "tn": 62124,
+        "fn": 126,
+        "threshold_used": 0.0142
+      },
+      "validation_economic": {
+        "threshold_used": 0.0142,
+        "selected_trade_count": 1022,
+        "trade_frequency_per_day": 127.75,
+        "gross_avg_return_pct": 0.231,
+        "net_avg_return_pct": 0.181,
+        "gross_total_return_pct": 236.0724,
+        "net_total_return_pct": 184.9724,
+        "gross_profit_factor": 2.9044,
+        "net_profit_factor": 2.3344,
+        "max_drawdown_pct": 10.2705,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 1001,
+        "long_count": 173,
+        "short_count": 849,
+        "long_net_avg_return_pct": -0.5052,
+        "short_net_avg_return_pct": 0.3208
+      },
+      "test_statistical": {
+        "pr_auc": 0.0462,
+        "precision": 0.0307,
+        "recall": 0.0756,
+        "brier_score": 0.019192,
+        "ece": 0.0076,
+        "tp": 83,
+        "fp": 2621,
+        "tn": 52576,
+        "fn": 1015,
+        "threshold_used": 0.0142
+      },
+      "test_economic": {
+        "threshold_used": 0.0142,
+        "selected_trade_count": 2704,
+        "trade_frequency_per_day": 386.29,
+        "gross_avg_return_pct": 0.1665,
+        "net_avg_return_pct": 0.1165,
+        "gross_total_return_pct": 450.2026,
+        "net_total_return_pct": 315.0026,
+        "gross_profit_factor": 1.706,
+        "net_profit_factor": 1.4527,
+        "max_drawdown_pct": 24.246,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 2283,
+        "long_count": 1039,
+        "short_count": 1665,
+        "long_net_avg_return_pct": -0.471,
+        "short_net_avg_return_pct": 0.4831
+      },
+      "test_long_breakdown": {
+        "trades": 1039,
+        "win_rate": 15.3,
+        "net_avg_return_pct": -0.471,
+        "net_profit_factor": 0.119
+      },
+      "test_short_breakdown": {
+        "trades": 1665,
+        "win_rate": 81.32,
+        "net_avg_return_pct": 0.4831,
+        "net_profit_factor": 6.7295
+      },
+      "test_daily_breakdown": [
+        {
+          "date": "2026-08-26",
+          "trades": 763,
+          "wins": 472,
+          "win_rate": 61.9,
+          "net_avg_return_pct": 0.1272,
+          "net_total_return_pct": 97.0569
+        },
+        {
+          "date": "2026-08-27",
+          "trades": 380,
+          "wins": 227,
+          "win_rate": 59.7,
+          "net_avg_return_pct": 0.0947,
+          "net_total_return_pct": 35.9891
+        },
+        {
+          "date": "2026-08-31",
+          "trades": 296,
+          "wins": 179,
+          "win_rate": 60.5,
+          "net_avg_return_pct": 0.6318,
+          "net_total_return_pct": 187.0031
+        },
+        {
+          "date": "2026-09-01",
+          "trades": 40,
+          "wins": 22,
+          "win_rate": 55.0,
+          "net_avg_return_pct": 0.0016,
+          "net_total_return_pct": 0.0656
+        },
+        {
+          "date": "2026-09-02",
+          "trades": 62,
+          "wins": 45,
+          "win_rate": 72.6,
+          "net_avg_return_pct": 0.1986,
+          "net_total_return_pct": 12.3134
+        },
+        {
+          "date": "2026-09-03",
+          "trades": 487,
+          "wins": 219,
+          "win_rate": 45.0,
+          "net_avg_return_pct": -0.0458,
+          "net_total_return_pct": -22.2928
+        },
+        {
+          "date": "2026-09-04",
+          "trades": 676,
+          "wins": 349,
+          "win_rate": 51.6,
+          "net_avg_return_pct": 0.0072,
+          "net_total_return_pct": 4.8673
+        }
+      ],
+      "test_extremes": {
+        "largest_winning_trade_pct": 2.15,
+        "largest_losing_trade_pct": -0.95,
+        "mean_holding_period_minutes": 150.98,
+        "median_holding_period_minutes": 160.0
+      }
+    },
+    {
+      "experiment_id": "D",
+      "experiment_name": "Full Phase 5 Model (Technical + News + Chroma)",
+      "model_family": "random_forest",
+      "feature_count": 14,
+      "feature_cols": [
+        "rsi",
+        "obv",
+        "bollinger_position",
+        "macd",
+        "macd_signal",
+        "macd_diff",
+        "price_vs_vwap",
+        "price_vs_ema5",
+        "direction",
+        "sentiment_score",
+        "has_news",
+        "number_of_articles",
+        "market_similarity",
+        "stock_similarity"
+      ],
+      "selected_pos_weight": 74,
+      "selected_calibrator": "none",
+      "selected_threshold": 0.66,
+      "validation_statistical": {
+        "pr_auc": 0.0035,
+        "precision": 0.0202,
+        "recall": 0.0159,
+        "brier_score": 0.08758,
+        "ece": 0.255,
+        "tp": 2,
+        "fp": 97,
+        "tn": 63049,
+        "fn": 124,
+        "threshold_used": 0.66
+      },
+      "validation_economic": {
+        "threshold_used": 0.66,
+        "selected_trade_count": 99,
+        "trade_frequency_per_day": 11.0,
+        "gross_avg_return_pct": 0.2011,
+        "net_avg_return_pct": 0.1511,
+        "gross_total_return_pct": 19.9125,
+        "net_total_return_pct": 14.9625,
+        "gross_profit_factor": 1.8862,
+        "net_profit_factor": 1.6079,
+        "max_drawdown_pct": 10.3353,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 80,
+        "long_count": 96,
+        "short_count": 3,
+        "long_net_avg_return_pct": 0.1518,
+        "short_net_avg_return_pct": 0.13
+      },
+      "test_statistical": {
+        "pr_auc": 0.0269,
+        "precision": 0.0238,
+        "recall": 0.0018,
+        "brier_score": 0.072007,
+        "ece": 0.1912,
+        "tp": 2,
+        "fp": 82,
+        "tn": 55115,
+        "fn": 1096,
+        "threshold_used": 0.66
+      },
+      "test_economic": {
+        "threshold_used": 0.66,
+        "selected_trade_count": 84,
+        "trade_frequency_per_day": 12.0,
+        "gross_avg_return_pct": 0.2195,
+        "net_avg_return_pct": 0.1695,
+        "gross_total_return_pct": 18.4407,
+        "net_total_return_pct": 14.2407,
+        "gross_profit_factor": 1.9882,
+        "net_profit_factor": 1.7058,
+        "max_drawdown_pct": 7.8047,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 66,
+        "long_count": 71,
+        "short_count": 13,
+        "long_net_avg_return_pct": 0.2112,
+        "short_net_avg_return_pct": -0.0582
+      },
+      "test_long_breakdown": {
+        "trades": 71,
+        "win_rate": 61.97,
+        "net_avg_return_pct": 0.2112,
+        "net_profit_factor": 1.9057
+      },
+      "test_short_breakdown": {
+        "trades": 13,
+        "win_rate": 61.54,
+        "net_avg_return_pct": -0.0582,
+        "net_profit_factor": 0.7911
+      },
+      "test_daily_breakdown": [
+        {
+          "date": "2026-08-26",
+          "trades": 7,
+          "wins": 1,
+          "win_rate": 14.3,
+          "net_avg_return_pct": -0.4325,
+          "net_total_return_pct": -3.0275
+        },
+        {
+          "date": "2026-08-27",
+          "trades": 2,
+          "wins": 0,
+          "win_rate": 0.0,
+          "net_avg_return_pct": -0.89,
+          "net_total_return_pct": -1.7799
+        },
+        {
+          "date": "2026-08-28",
+          "trades": 14,
+          "wins": 6,
+          "win_rate": 42.9,
+          "net_avg_return_pct": -0.2748,
+          "net_total_return_pct": -3.8473
+        },
+        {
+          "date": "2026-08-31",
+          "trades": 14,
+          "wins": 9,
+          "win_rate": 64.3,
+          "net_avg_return_pct": 0.2514,
+          "net_total_return_pct": 3.5196
+        },
+        {
+          "date": "2026-09-01",
+          "trades": 14,
+          "wins": 9,
+          "win_rate": 64.3,
+          "net_avg_return_pct": -0.0551,
+          "net_total_return_pct": -0.771
+        },
+        {
+          "date": "2026-09-02",
+          "trades": 28,
+          "wins": 22,
+          "win_rate": 78.6,
+          "net_avg_return_pct": 0.5711,
+          "net_total_return_pct": 15.9906
+        },
+        {
+          "date": "2026-09-04",
+          "trades": 5,
+          "wins": 5,
+          "win_rate": 100.0,
+          "net_avg_return_pct": 0.8312,
+          "net_total_return_pct": 4.1562
+        }
+      ],
+      "test_extremes": {
+        "largest_winning_trade_pct": 2.15,
+        "largest_losing_trade_pct": -0.95,
+        "mean_holding_period_minutes": 192.68,
+        "median_holding_period_minutes": 240.0
+      }
+    },
+    {
+      "experiment_id": "D",
+      "experiment_name": "Full Phase 5 Model (Technical + News + Chroma)",
+      "model_family": "lightgbm",
+      "feature_count": 14,
+      "feature_cols": [
+        "rsi",
+        "obv",
+        "bollinger_position",
+        "macd",
+        "macd_signal",
+        "macd_diff",
+        "price_vs_vwap",
+        "price_vs_ema5",
+        "direction",
+        "sentiment_score",
+        "has_news",
+        "number_of_articles",
+        "market_similarity",
+        "stock_similarity"
+      ],
+      "selected_pos_weight": 25,
+      "selected_calibrator": "none",
+      "selected_threshold": 0.8,
+      "validation_statistical": {
+        "pr_auc": 0.0023,
+        "precision": 0.0,
+        "recall": 0.0,
+        "brier_score": 0.022872,
+        "ece": 0.0965,
+        "tp": 0,
+        "fp": 71,
+        "tn": 63075,
+        "fn": 126,
+        "threshold_used": 0.8
+      },
+      "validation_economic": {
+        "threshold_used": 0.8,
+        "selected_trade_count": 71,
+        "trade_frequency_per_day": 17.75,
+        "gross_avg_return_pct": 0.3922,
+        "net_avg_return_pct": 0.3422,
+        "gross_total_return_pct": 27.8457,
+        "net_total_return_pct": 24.2957,
+        "gross_profit_factor": 3.1528,
+        "net_profit_factor": 2.6921,
+        "max_drawdown_pct": 4.7325,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 69,
+        "long_count": 60,
+        "short_count": 11,
+        "long_net_avg_return_pct": 0.3192,
+        "short_net_avg_return_pct": 0.4673
+      },
+      "test_statistical": {
+        "pr_auc": 0.0244,
+        "precision": 0.0208,
+        "recall": 0.0009,
+        "brier_score": 0.034854,
+        "ece": 0.0672,
+        "tp": 1,
+        "fp": 47,
+        "tn": 55150,
+        "fn": 1097,
+        "threshold_used": 0.8
+      },
+      "test_economic": {
+        "threshold_used": 0.8,
+        "selected_trade_count": 48,
+        "trade_frequency_per_day": 9.6,
+        "gross_avg_return_pct": 0.3206,
+        "net_avg_return_pct": 0.2706,
+        "gross_total_return_pct": 15.3903,
+        "net_total_return_pct": 12.9903,
+        "gross_profit_factor": 2.7046,
+        "net_profit_factor": 2.3383,
+        "max_drawdown_pct": 6.0497,
+        "target_hits": 0,
+        "stop_hits": 0,
+        "timeouts": 40,
+        "long_count": 40,
+        "short_count": 8,
+        "long_net_avg_return_pct": 0.4383,
+        "short_net_avg_return_pct": -0.5676
+      },
+      "test_long_breakdown": {
+        "trades": 40,
+        "win_rate": 80.0,
+        "net_avg_return_pct": 0.4383,
+        "net_profit_factor": 4.8756
+      },
+      "test_short_breakdown": {
+        "trades": 8,
+        "win_rate": 12.5,
+        "net_avg_return_pct": -0.5676,
+        "net_profit_factor": 0.124
+      },
+      "test_daily_breakdown": [
+        {
+          "date": "2026-08-31",
+          "trades": 1,
+          "wins": 1,
+          "win_rate": 100.0,
+          "net_avg_return_pct": 1.2366,
+          "net_total_return_pct": 1.2366
+        },
+        {
+          "date": "2026-09-01",
+          "trades": 24,
+          "wins": 21,
+          "win_rate": 87.5,
+          "net_avg_return_pct": 0.5168,
+          "net_total_return_pct": 12.4033
+        },
+        {
+          "date": "2026-09-02",
+          "trades": 16,
+          "wins": 10,
+          "win_rate": 62.5,
+          "net_avg_return_pct": 0.1958,
+          "net_total_return_pct": 3.132
+        },
+        {
+          "date": "2026-09-03",
+          "trades": 3,
+          "wins": 0,
+          "win_rate": 0.0,
+          "net_avg_return_pct": -0.8396,
+          "net_total_return_pct": -2.5187
+        },
+        {
+          "date": "2026-09-04",
+          "trades": 4,
+          "wins": 1,
+          "win_rate": 25.0,
+          "net_avg_return_pct": -0.3157,
+          "net_total_return_pct": -1.2629
+        }
+      ],
+      "test_extremes": {
+        "largest_winning_trade_pct": 2.15,
+        "largest_losing_trade_pct": -0.95,
+        "mean_holding_period_minutes": 184.38,
+        "median_holding_period_minutes": 240.0
+      }
+    }
+  ]
+}

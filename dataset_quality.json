@@ -1,0 +1,56 @@
+{
+  "audit_status": "SUCCESS",
+  "symbols_processed": [
+    "RELIANCE.NS"
+  ],
+  "total_symbols_count": 1,
+  "candle_timeframe": "5m",
+  "total_rows": 2,
+  "date_range": {
+    "start": "2026-09-01 09:15:00+05:30",
+    "end": "2026-09-01 09:15:00+05:30"
+  },
+  "per_symbol_row_counts": {
+    "RELIANCE.NS": 2
+  },
+  "issues_detected": {
+    "duplicate_timestamps": 1,
+    "missing_ohlcv_rows": 0,
+    "impossible_negative_prices": 0,
+    "zero_prices": 0,
+    "invalid_negative_volumes": 0,
+    "zero_volumes": 0,
+    "invalid_ohlc_relationships": 0,
+    "nan_feature_values": 0,
+    "inf_feature_values": 0,
+    "timezone_missing_or_incorrect": 0,
+    "cross_day_vwap_leakage_detected": false
+  },
+  "feature_coverage": {
+    "open": {
+      "valid_count": 2,
+      "null_count": 0,
+      "null_percentage": 0.0
+    },
+    "high": {
+      "valid_count": 2,
+      "null_count": 0,
+      "null_percentage": 0.0
+    },
+    "low": {
+      "valid_count": 2,
+      "null_count": 0,
+      "null_percentage": 0.0
+    },
+    "close": {
+      "valid_count": 2,
+      "null_count": 0,
+      "null_percentage": 0.0
+    },
+    "volume": {
+      "valid_count": 2,
+      "null_count": 0,
+      "null_percentage": 0.0
+    }
+  }
+}

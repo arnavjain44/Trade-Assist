@@ -1,0 +1,25 @@
+{
+  "symbol": "RELIANCE.NS",
+  "provider": "local_csv",
+  "interval": "5m",
+  "requested_start": "2026-06-15T00:00:00",
+  "requested_end": "2026-09-04T00:00:00",
+  "actual_earliest_timestamp": "2026-06-15 09:15:00+05:30",
+  "actual_latest_timestamp": "2026-09-04 15:15:00+05:30",
+  "row_count": 4372,
+  "columns": [
+    "timestamp",
+    "symbol",
+    "open",
+    "high",
+    "low",
+    "close",
+    "volume",
+    "trading_date",
+    "source"
+  ],
+  "adjustment_status": "split_and_bonus_adjusted",
+  "download_timestamp": "2026-09-06T10:36:52.122305",
+  "sha256_checksum": "f31a43e74c4c622d02ee0a526676220aecd36e2e744134f578f7b19a689a5e8a",
+  "immutable": true
+}
