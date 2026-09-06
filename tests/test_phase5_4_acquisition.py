@@ -43,6 +43,7 @@ from app.ml.historical_data.downloader import HistoricalDownloader
 from app.ml.historical_data.providers.kite_adapter import KiteHistoricalProvider
 from app.ml.historical_data.providers.yfinance_adapter import YFinanceHistoricalProvider
 from app.ml.historical_data.providers.local_csv_adapter import LocalCsvHistoricalProvider
+from app.ml.historical_data.providers.free_huggingface_adapter import FreeHuggingFaceHistoricalProvider
 from app.ml.historical_data_validator import HistoricalDataValidator
 
 
@@ -426,3 +427,56 @@ def test_temporal_contract_compliance():
     u_contemp, meta_contemp = contemporary_mgr.get_universe_at(date(2024, 6, 1))
     assert meta_contemp["survivorship_biased"]
     assert "BEL.NS" in u_contemp
+
+
+# ---------------------------------------------------------------------------
+# 16. Free Hugging Face Provider Tests (Phase 5.4a)
+# ---------------------------------------------------------------------------
+
+def test_free_huggingface_provider_interface_and_properties():
+    """Verify FreeHuggingFaceHistoricalProvider conforms to zero-cost, unauthenticated contract."""
+    provider = FreeHuggingFaceHistoricalProvider()
+    assert provider.provider_name == "free_huggingface"
+    assert provider.is_authenticated() is True
+    assert provider.max_chunk_days == 365
+    # validate_credentials should never raise because it is public/open
+    provider.validate_credentials()
+
+    # Shard index mapping
+    assert provider.get_shard_index("AXISBANK") == 0
+    assert provider.get_shard_index("INFY") == 2
+    assert provider.get_shard_index("RELIANCE") == 5
+    assert provider.get_shard_index("TCS") == 6
+    assert provider.get_shard_index("WIPRO") == 7
+
+
+def test_free_huggingface_provider_normalization():
+    """Verify normalization and resampling logic of free Hugging Face provider."""
+    provider = FreeHuggingFaceHistoricalProvider()
+
+    # Raw 5m DataFrame with UTC timestamps
+    raw_df = pd.DataFrame({
+        "timestamp": [
+            "2024-01-08 03:50:00",
+            "2024-01-08 03:55:00",
+        ],
+        "open": [100.0, 101.0],
+        "high": [102.0, 103.0],
+        "low": [99.0, 100.5],
+        "close": [101.5, 102.5],
+        "volume": [500.0, 700.0],
+    })
+
+    canonical = provider.normalize_to_canonical(raw_df, "AXISBANK.NS")
+
+    assert list(canonical.columns) == [
+        "timestamp", "symbol", "open", "high", "low", "close", "volume", "trading_date", "source"
+    ]
+    assert canonical["source"].iloc[0] == "free_huggingface"
+    assert canonical["symbol"].iloc[0] == "AXISBANK.NS"
+    # UTC 03:50 is 09:20 IST (+05:30)
+    assert canonical["timestamp"].iloc[0].tzname() in ["IST", "+0530", "Asia/Kolkata"]
+    assert canonical["trading_date"].iloc[0] == "2024-01-08"
+    assert canonical["open"].dtype == float
+    assert canonical["volume"].dtype == float
+

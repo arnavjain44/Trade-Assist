@@ -228,9 +228,9 @@ class HistoricalDataValidator:
         dates = ts.dt.date
         bar_times = ts.dt.time
 
-        # 1. Standard regular hours check (Monday=0 to Friday=4, 09:15 <= time < 15:30)
+        # 1. Standard regular hours check (Monday=0 to Friday=4, 09:15 <= time <= 15:30)
         is_regular_weekday = ts.dt.dayofweek < 5
-        is_regular_hours = (bar_times >= NSE_MARKET_OPEN) & (bar_times < NSE_MARKET_CLOSE)
+        is_regular_hours = (bar_times >= NSE_MARKET_OPEN) & (bar_times <= NSE_MARKET_CLOSE)
         valid_mask = is_regular_weekday & is_regular_hours
 
         # 2. Special session check (e.g. Muhurat evening trading or weekend DR live trading)
