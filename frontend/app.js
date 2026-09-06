@@ -881,10 +881,6 @@ function renderRecommendations(data) {
     renderAllocationChart(data.recommendations || [], unallocated);
 }
 
-    // Doughnut chart
-    renderAllocationChart(data.recommendations || [], unallocated);
-}
-
 function renderAllocationChart(recs, unallocated) {
     const labels = [...recs.map(r => r.symbol.replace('.NS', '')), 'Cash Reserve'];
     const values = [...recs.map(r => r.allocated_capital || 0), unallocated];
