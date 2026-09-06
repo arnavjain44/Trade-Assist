@@ -65,15 +65,21 @@ class TechnicalIndicators:
         return {
             "close_price": round(float(latest['close']), 2),
             "ema_5": round(float(latest['ema_5']), 2),
-            "rsi": round(float(latest['rsi']), 2),
+            "rsi": float(latest['rsi']),
             "rsi_signal": rsi_signal,
             "obv": float(latest['obv']),
             "bb_upper": round(float(latest['bb_upper']), 2),
             "bb_lower": round(float(latest['bb_lower']), 2),
             "bb_middle": round(float(latest['bb_middle']), 2),
-            "macd": round(float(latest['macd']), 2),
-            "macd_signal": round(float(latest['macd_signal']), 2),
+            "bollinger_position": float(latest.get('bollinger_position', 0.5)),
+            "macd": float(latest['macd']),
+            "macd_signal": float(latest['macd_signal']),
+            "macd_diff": float(latest.get('macd_diff', latest['macd'] - latest['macd_signal'])),
             "vwap": round(float(latest['vwap']), 2),
+            "price_vs_vwap": float(latest.get('price_vs_vwap', 0.0)),
+            "price_vs_ema5": float(latest.get('price_vs_ema5', 0.0)),
+            "timestamp": latest['timestamp'],
+            "timeframe": df.attrs.get("timeframe", "5m"),
             "overall_technical_bias": overall_bias
         }
 
