@@ -54,6 +54,8 @@ const SECTOR_KEYWORDS = {
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     initCharts();
+    updateMarketStatusBadge();
+    setInterval(updateMarketStatusBadge, 30000);
     document.getElementById('chat-input').addEventListener('keydown', e => {
         if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleChatSend(); }
     });
@@ -61,11 +63,43 @@ document.addEventListener('DOMContentLoaded', () => {
     // Greeting
     setTimeout(() => {
         appendAIMessage(
-            `Good ${getTimeOfDay()}. I'm your NSE intraday trading assistant. You can ask me about any stock, market conditions, or sector trends. When you're ready to invest, just tell me your amount and I'll generate a full allocation plan.`,
+            `Good ${getTimeOfDay()}. I'm your Trade-Assist intraday trading assistant. You can ask me about any stock, market conditions, or sector trends. When you're ready to invest, just tell me your amount and I'll generate a full allocation plan.`,
             null
         );
     }, 400);
 });
+
+function isNSEMarketOpen() {
+    // Convert current UTC time to IST (UTC + 5:30)
+    const now = new Date();
+    const utcMs = now.getTime() + (now.getTimezoneOffset() * 60000);
+    const istDate = new Date(utcMs + (5.5 * 3600000));
+
+    const day = istDate.getDay(); // 0 = Sun, 6 = Sat
+    if (day === 0 || day === 6) return false;
+
+    const mins = istDate.getHours() * 60 + istDate.getMinutes();
+    // NSE Regular Trading Session: 09:15 AM (555 mins) to 03:30 PM (930 mins) IST
+    return mins >= 555 && mins <= 930;
+}
+
+function updateMarketStatusBadge() {
+    const badge = document.getElementById('market-status-badge');
+    if (!badge) return;
+
+    const isOpen = isNSEMarketOpen();
+    if (isOpen) {
+        badge.textContent = 'MARKET OPEN';
+        badge.style.color = 'var(--green)';
+        badge.style.background = 'var(--green-muted)';
+        badge.style.borderColor = 'var(--green)';
+    } else {
+        badge.textContent = 'MARKET CLOSED';
+        badge.style.color = 'var(--red)';
+        badge.style.background = 'var(--red-muted)';
+        badge.style.borderColor = 'var(--red)';
+    }
+}
 
 function getTimeOfDay() {
     const h = new Date().getHours();
