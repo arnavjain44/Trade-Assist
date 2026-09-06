@@ -1,3 +1,4 @@
+import datetime
 import yfinance as yf
 import pandas as pd
 import asyncio
@@ -9,10 +10,11 @@ logger = logging.getLogger(__name__)
 # Per-ticker hard timeout — if yfinance doesn't respond within this many seconds,
 # the fetch is cancelled, the failure is logged, and that ticker is skipped.
 TICKER_FETCH_TIMEOUT_SECONDS = 8
+IST_TZ = datetime.timezone(datetime.timedelta(hours=5, minutes=30))
 
 
 class StockDataFetcher:
-    """Async stock data fetcher using real yfinance data.
+    """Async stock data fetcher using real yfinance 5-minute intraday data.
 
     Each ticker fetch runs in a threadpool with a hard per-ticker timeout.
     On timeout or yfinance error: logs the failure loudly and skips that ticker.
@@ -20,28 +22,56 @@ class StockDataFetcher:
     """
 
     @staticmethod
-    def _fetch_single_ticker_sync(symbol: str) -> pd.DataFrame:
-        """Fetch 1-month daily OHLCV data for a single symbol via yfinance (blocking)."""
-        ticker = yf.Ticker(symbol)
-        df = ticker.history(period="1mo", interval="1d")
-        if df is None or df.empty or len(df) < 5:
-            raise ValueError(
-                f"yfinance returned insufficient data for {symbol} "
-                f"(rows={len(df) if df is not None else 0})"
-            )
+    def _get_now_ist() -> datetime.datetime:
+        """Returns current time in Asia/Kolkata timezone."""
+        return datetime.datetime.now(IST_TZ)
 
+    @staticmethod
+    def _fetch_single_ticker_sync(symbol: str) -> pd.DataFrame:
+        """Fetch 5-minute intraday OHLCV data for a single symbol via yfinance (blocking)."""
+        ticker = yf.Ticker(symbol)
+        # Fetch 5-minute intraday bars with sufficient lookback (~5 trading days = ~375 bars)
+        df = ticker.history(period="5d", interval="5m")
+        timeframe = "5m"
+        if df is None or df.empty or len(df) < 20:
+            # Fallback to 1d only if yfinance intraday is unavailable
+            df = ticker.history(period="1mo", interval="1d")
+            timeframe = "1d"
+            if df is None or df.empty or len(df) < 5:
+                raise ValueError(
+                    f"yfinance returned insufficient data for {symbol} "
+                    f"(rows={len(df) if df is not None else 0})"
+                )
 
         df = df.reset_index()
+        df.attrs["timeframe"] = timeframe
         df.columns = [col.lower() for col in df.columns]
-        if "date" in df.columns:
-            df["timestamp"] = pd.to_datetime(df["date"])
-            df["date_str"] = df["date"].dt.strftime("%Y-%m-%d")
-        elif "datetime" in df.columns:
+        if "datetime" in df.columns:
             df["timestamp"] = pd.to_datetime(df["datetime"])
-            df["date_str"] = df["datetime"].dt.strftime("%Y-%m-%d %H:%M")
+        elif "date" in df.columns:
+            df["timestamp"] = pd.to_datetime(df["date"])
+        elif "index" in df.columns:
+            df["timestamp"] = pd.to_datetime(df["index"])
         else:
             df["timestamp"] = pd.to_datetime(df.index)
-            df["date_str"] = df["timestamp"].dt.strftime("%Y-%m-%d %H:%M")
+
+        # Ensure Asia/Kolkata timezone
+        if hasattr(df["timestamp"].dt, "tz") and df["timestamp"].dt.tz is not None:
+            df["timestamp"] = df["timestamp"].dt.tz_convert("Asia/Kolkata")
+        else:
+            df["timestamp"] = df["timestamp"].dt.tz_localize("Asia/Kolkata")
+
+        df["date_str"] = df["timestamp"].dt.strftime("%Y-%m-%d %H:%M")
+
+        # Drop partially formed / incomplete candle if current time is before candle end
+        now_ist = StockDataFetcher._get_now_ist()
+        if len(df) > 0:
+            last_candle_start = df["timestamp"].iloc[-1]
+            candle_end = last_candle_start + datetime.timedelta(minutes=5)
+            if candle_end > now_ist:
+                logger.debug("Dropping partially formed 5m candle for %s starting at %s", symbol, last_candle_start)
+                df = df.iloc[:-1].copy()
+
         return df
 
     async def _fetch_with_timeout(self, symbol: str, loop: asyncio.AbstractEventLoop) -> tuple[str, pd.DataFrame | None]:

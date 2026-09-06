@@ -156,6 +156,40 @@ class VectorStoreManager:
             "historical_win_rate": 0.50,
         }
 
+    def query_phase5_context_similarities(
+        self,
+        symbol: str,
+        indicators: Dict[str, Any],
+        query_date_str: str,
+    ) -> Dict[str, float]:
+        """Builds the canonical 9-dim indicator vector and queries BOTH Chroma collections:
+        - whole_market_fingerprints strictly for trading_date_int < query_date_int -> market_similarity
+        - per_stock_fingerprints strictly for matching symbol and trading_date_int < query_date_int -> stock_similarity
+
+        Uses exact cosine distance conversion: max(0.0, 1.0 - dist / 2.0).
+        Zero hardcoded similarity fallback numbers.
+        """
+        with self._lock:
+            ready = self._ready
+            store = self._context_store
+
+        if not ready or store is None:
+            return {"market_similarity": 0.0, "stock_similarity": 0.0}
+
+        try:
+            vec = build_stock_indicator_vector(indicators)
+            clean_sym = symbol.upper().strip()
+            mkt_sim = store.query_market_similarity(vec, query_date_str)
+            stk_sim = store.query_stock_similarity(clean_sym, vec, query_date_str)
+
+            return {
+                "market_similarity": round(float(mkt_sim), 4),
+                "stock_similarity": round(float(stk_sim), 4),
+            }
+        except Exception as e:
+            logger.warning("query_phase5_context_similarities error: %s", e)
+            return {"market_similarity": 0.0, "stock_similarity": 0.0}
+
     def upsert_stock_fingerprint(self, symbol: str, indicator_vector: List[float], sector: str) -> bool:
         """Stores or updates a stock's indicator fingerprint."""
         with self._lock:

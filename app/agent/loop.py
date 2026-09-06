@@ -7,6 +7,8 @@ from app.agent.tools import agent_tools
 from app.agent.state import agent_memory
 from app.schemas.responses import StockChartData, IndicatorPoint
 from app.agent.llm_client import llm_client
+from app.core.sentiment import sentiment_analyzer
+from app.db.vector_store import vector_store
 
 
 
@@ -69,13 +71,25 @@ class LLMAgentLoop:
         candidates = []
         for symbol, stock_info in data_res.items():
             latest_ind = stock_info["latest_indicators"]
-            sent_score = stock_info["sentiment_score"]
+            df_ind = stock_info["dataframe"]
             price = stock_info["current_price"]
+            decision_dt = latest_ind.get("timestamp")
+            query_date_str = str(df_ind["timestamp"].iloc[-1].strftime("%Y-%m-%d")) if len(df_ind) > 0 else None
 
-            vec_res = agent_tools.query_vector_db(symbol, [price, sent_score, latest_ind["rsi"]])
+            news_feats = sentiment_analyzer.get_phase5_news_features(symbol, decision_timestamp_ist=decision_dt)
+            context_feats = vector_store.query_phase5_context_similarities(symbol, latest_ind, query_date_str) if query_date_str else {"market_similarity": 0.0, "stock_similarity": 0.0}
+
+            vec_res = agent_tools.query_vector_db(symbol, [price, news_feats.get("sentiment_score", 0.0) or 0.0, latest_ind["rsi"]])
             graph_res = agent_tools.query_graph_db(symbol)
 
-            pred = agent_tools.predict(symbol, price, latest_ind, sent_score, vec_res.get("similarity_score", 0.85))
+            pred = agent_tools.predict(
+                symbol,
+                price,
+                latest_ind,
+                news_feats,
+                context_feats,
+                timeframe=latest_ind.get("timeframe", "5m"),
+            )
             pred["indicators_summary"] = latest_ind
             pred["graph_pattern"] = graph_res.get("graph_pattern")
             pred["vector_pattern"] = vec_res.get("matched_pattern")
@@ -141,7 +155,7 @@ class LLMAgentLoop:
             "provider_used": chosen_provider,
             "fallbacks_triggered": [],
             "tool_calls_count": len(target_tickers) * 4,
-            "model_name": f"{chosen_provider}-intraday-v1"
+            "model_name": "phase5_d_lightgbm",
         }
 
         return final_recommendations, charts_dict, trace_info

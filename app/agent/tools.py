@@ -47,9 +47,23 @@ class AgentTools:
         return graph_store.query_pattern_relationships(symbol)
 
     @staticmethod
-    def predict(symbol: str, current_price: float, indicators: Dict[str, Any], sentiment_score: float, similarity_score: float) -> Dict[str, Any]:
-        """Tool: Runs trained ML model to output direction (BUY/SELL/HOLD), confidence %, and target price."""
-        return ml_engine.predict_trade_signal(symbol, current_price, indicators, sentiment_score, similarity_score)
+    def predict(
+        symbol: str,
+        current_price: float,
+        indicators: Dict[str, Any],
+        sentiment_score_or_features: Any = None,
+        similarity_score_or_features: Any = None,
+        timeframe: str = "5m",
+    ) -> Dict[str, Any]:
+        """Tool: Runs trained Phase 5 LightGBM model to output direction (BUY/SELL/HOLD), raw probability, and target price."""
+        return ml_engine.predict_trade_signal(
+            symbol,
+            current_price,
+            indicators,
+            sentiment_score_or_features,
+            similarity_score_or_features,
+            timeframe=timeframe,
+        )
 
     @staticmethod
     def enforce_constraints(raw_recommendations: List[Dict[str, Any]], total_capital: float) -> List[Dict[str, Any]]:
@@ -63,25 +77,28 @@ class AgentTools:
     @staticmethod
     def upsert_fingerprint(symbol: str, indicators: Dict[str, Any]) -> bool:
         """Stores/updates a stock's real 9-dim indicator fingerprint in ChromaDB."""
-        sector = get_sector_for_symbol(symbol)
-        vec = build_fingerprint_vector(indicators)
-        return vector_store.upsert_stock_fingerprint(symbol, vec, sector)
+        try:
+            vec = build_fingerprint_vector(indicators)
+            sector = get_sector_for_symbol(symbol)
+            return vector_store.upsert_stock_fingerprint(symbol, vec, sector)
+        except Exception as e:
+            logger.warning("AgentTools.upsert_fingerprint failed for %s: %s", symbol, e)
+            return False
 
     @staticmethod
     async def get_sector_peers(
         symbol: str,
+        sector: str,
         indicator_vector: List[float],
         max_peers: int = 5,
     ) -> List[Dict[str, Any]]:
-        """Finds sector peers via Chroma similarity, then runs the full pipeline on each peer."""
-        sector = get_sector_for_symbol(symbol)
+        """Tool: Finds similar stocks in the same sector via ChromaDB vector similarity, fetches their live data in parallel, and returns their setups."""
         raw_peers = vector_store.find_similar_peers(
             symbol=symbol,
             sector=sector,
             indicator_vector=indicator_vector,
             max_peers=max_peers,
         )
-
 
         if not raw_peers:
             logger.info("No Chroma peers found for %s in sector '%s'.", symbol, sector)
@@ -107,16 +124,18 @@ class AgentTools:
                     logger.warning("get_sector_peers: Skipping peer %s due to invalid price 0.00", peer_sym)
                     continue
 
-                sentiments = sentiment_analyzer.analyze_headlines(peer_sym)
-                sent_score = sentiment_analyzer.calculate_aggregated_sentiment(sentiments)
+                decision_dt = latest_ind.get("timestamp")
+                query_date_str = str(df_ind["timestamp"].iloc[-1].strftime("%Y-%m-%d")) if len(df_ind) > 0 else None
+                news_feats = sentiment_analyzer.get_phase5_news_features(peer_sym, decision_timestamp_ist=decision_dt)
+                context_feats = vector_store.query_phase5_context_similarities(peer_sym, latest_ind, query_date_str) if query_date_str else {"market_similarity": 0.0, "stock_similarity": 0.0}
 
-                vec_res = vector_store.query_similar_patterns(peer_sym, [latest_ind["close_price"], sent_score, latest_ind["rsi"]])
                 pred = ml_engine.predict_trade_signal(
                     peer_sym,
                     latest_ind["close_price"],
                     latest_ind,
-                    sent_score,
-                    vec_res.get("similarity_score", 0.80),
+                    news_feats,
+                    context_feats,
+                    timeframe=latest_ind.get("timeframe", "5m"),
                 )
                 enriched_peers.append({
                     "symbol": peer_sym,

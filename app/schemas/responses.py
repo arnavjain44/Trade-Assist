@@ -40,6 +40,11 @@ class TradeRecommendation(BaseModel):
     shares_to_trade: int
     rationale: str
     indicators_summary: Dict[str, Any]
+    model_name: Optional[str] = "phase5_d_lightgbm"
+    model_probability: Optional[float] = None
+    model_threshold: Optional[float] = 0.8000
+    qualified: Optional[bool] = False
+    direction: Optional[int] = None
 
 class TraceInfo(BaseModel):
     execution_time_seconds: float
